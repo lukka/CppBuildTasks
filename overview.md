@@ -1,4 +1,4 @@
-This extension provides the tasks **'Run vcpkg'** and **'Run CMake'** to build C++ code on Azure DevOps pipelines. Take a look at examples in the [README.md](https://github.com/CppBuildTasks/README.md) file. 
+This extension provides the tasks **'Run vcpkg'** and **'Run CMake'** to build C++ code on Azure DevOps pipelines. Take a look at examples in the [README.md](https://github.com/lukka/CppBuildTasks/blob/master/README.md) file. 
 
 ## The '**Run vcpkg**' task
 
