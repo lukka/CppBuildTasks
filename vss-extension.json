@@ -3,6 +3,7 @@
     "id": "cmake-ninja-vcpkg-tasks",
     "name": "CppBuildTasks: Build C++ code with vcpkg, CMake and Ninja",
     "version": "0.0.1",
+    "public": true,
     "publisher": "lucappa",
     "description": "Multiplatform build tasks for C++ source code, using CMake, Ninja, vcpkg, git.",
     "targets": [
