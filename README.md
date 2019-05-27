@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/lukka.CppBuildTasks?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=15&branchName=master)
+
 # Azure DevOps [build tasks](https://marketplace.visualstudio.com/items?itemName=lucappa.cmake-ninja-vcpkg-tasks) for [CMake](https://www.cmake.org/) and [vcpkg](https://github.com/microsoft/vcpkg/)
 
  Build software with vcpkg and CMake (either with CMakeLists.txt or CMakeSettings.json), e.g.:
@@ -18,6 +20,7 @@
 
 ```
 [Reference](reference.md)
+
 
 ## Samples
 
