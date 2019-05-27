@@ -40,9 +40,9 @@
     },
     "badges": [
         {
-            "href": "https://dev.azure.com/BuildCpp/CppBuildTasks/_build?definitionId=15",
+            "href": "https://dev.azure.com/CppBuild/CppBuildTasks/_build?definitionId=15",
             "uri": "https://dev.azure.com/lukko/vso_azure_letstest/_apis/build/status/CMakeTask/cmake%20vcpkg%20tasks%20-%20test%20and%20pack?branchName=master",
-            "description": "Build Test Package"
+            "description": "Build, Test, Package extension"
         }
     ],
     "icons": {
