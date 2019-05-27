@@ -1,0 +1,223 @@
+{
+  "id": "f2b1ec7d-bc54-4cc8-b9ed-1bc7f37c9dc6",
+  "name": "run-cmake",
+  "friendlyName": "Run CMake",
+  "description": "Run CMake (and optionally vcpkg and Ninja) with a CMakeLists.txt or with CMakeSettings.json created with Visual Studio",
+  "helpMarkDown": "[More information](https://github.com/lukka/CppBuildTasks/blob/master/README.md)",
+  "category": "Build",
+  "visibility": [
+    "Build",
+    "Release"
+  ],
+  "author": "Luca Cappa",
+  "demands": [
+    "cmake"
+  ],
+  "version": {
+    "Major": 0,
+    "Minor": 2,
+    "Patch": 36
+  },
+  "preview": true,
+  "minimumAgentVersion": "1.91.0",
+  "instanceNameFormat": "Run CMake",
+  "groups": [
+    {
+      "name": "advanced",
+      "displayName": "Advanced",
+      "isExpanded": false
+    }
+  ],
+  "inputs": [
+    {
+      "name": "cmakeListsOrSettingsJson",
+      "type": "pickList",
+      "label": "Mode:",
+      "defaultValue": "CMakeListsTxtBasic",
+      "helpMarkDown": "Select between targeting a CMakeLists.txt, or leveraging a CMakeSettings.json file of Visual Studio.",
+      "options": {
+        "CMakeListsTxtBasic": "Using a CMakeLists.txt - Basic configuration",
+        "CMakeListsTxtAdvanced": "Using a CMakeLists.txt - Advanced configuration",
+        "CMakeSettingsJson": "Using a CMakeSettings.json"
+      },
+      "required": "true"
+    },
+    {
+      "name": "cmakeListsTxtPath",
+      "type": "filePath",
+      "label": "Path to CMakeLists.txt:",
+      "defaultValue": "$(Build.SourcesDirectory)/CMakeLists.txt",
+      "required": false,
+      "helpMarkDown": "Path to CMakeLists.txt",
+      "visibleRule": "cmakeListsOrSettingsJson != CMakeSettingsJson"
+    },
+    {
+      "name": "cmakeSettingsJsonPath",
+      "type": "filePath",
+      "label": "Path to CMakeSettings.json:",
+      "defaultValue": "$(Build.SourcesDirectory)/CMakeSettings.json",
+      "required": false,
+      "helpMarkDown": "Path to CMakeSettings.json",
+      "visibleRule": "cmakeListsOrSettingsJson = CMakeSettingsJson"
+    },
+    {
+      "name": "cmakeToolchainPath",
+      "type": "filePath",
+      "label": "Path to a toolchain file:",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Path to toolchain .cmake file.",
+      "visibleRule": "cmakeListsOrSettingsJson = CMakeListsTxtBasic"
+    },
+    {
+      "name": "useVcpkgToolchainFile",
+      "type": "boolean",
+      "label": "Use vcpkg.cmake toolchain if the VCPKG_ROOT environment variable is defined.",
+      "defaultValue": "false",
+      "required": false,
+      "helpMarkDown": "Indicates whether to use vcpkg's CMake toolchain file if VCPKG_ROOT environment variable is defined. If there is already a toolchain.cmake file passed in, that will be passed in with '-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=/path/to/toolchain.cmake'."
+    },
+    {
+      "name": "vcpkgTriplet",
+      "type": "string",
+      "label": "vcpkg triplet:",
+      "defaultValue": "$(VCPKG_TRIPLET)",
+      "required": false,
+      "helpMarkDown": "Specify the triplet used with vcpkg. The task 'Run vcpkg' sets the used one in VCPKG_TRIPLET environment variable. Possible values are any file name with no extension present in the vcpkgroot/trplet directory, e.g. x64-linux, x64-windows, x64-osx and so forth.",
+      "visibleRule": "useVcpkgToolchainFile = true"
+    },
+    {
+      "name": "cmakeBuildType",
+      "type": "string",
+      "label": "CMake Build type:",
+      "defaultValue": "Debug",
+      "required": false,
+      "helpMarkDown": "Select the build configuration, typically Debug or Release.",
+      "visibleRule": "cmakeListsOrSettingsJson = CMakeListsTxtBasic"
+    },
+    {
+      "name": "cmakeGenerator",
+      "type": "pickList",
+      "label": "Generator:",
+      "defaultValue": "Ninja",
+      "helpMarkDown": "Specify the CMake generator to be used.",
+      "options": {
+        "Ninja": "Ninja",
+        "UnixMakefiles": "Unix Makefiles",
+        "VS16Win64": "Visual Studio 2019 x64",
+        "VS16Arm64": "Visual Studio 2019 ARM64",
+        "VS16Arm": "Visual Studio 2019 ARM",
+        "VS16Win32": "Visual Studio 2019 Win32",
+        "VS15Arm64": "Visual Studio 2017 x64",
+        "VS15Win64": "Visual Studio 2017 ARM64",
+        "VS15Arm": "Visual Studio 2017 ARM",
+        "VS15Win32": "Visual Studio 2017 Win32"
+      },
+      "required": "true",
+      "visibleRule": "cmakeListsOrSettingsJson = CMakeListsTxtBasic"
+    },
+    {
+      "name": "buildDirectory",
+      "type": "string",
+      "label": "Build directory",
+      "defaultValue": "$(Build.ArtifactStagingDirectory)",
+      "required": true,
+      "helpMarkDown": "Override the build directory, i.e. where CMake is run. Default for CMakeLists.txt is the $(Build.ArtifactStagingDirectory). For CMakeSettings.json the build directory is defined in the JSON file.",
+      "visibleRule": "cmakeListsOrSettingsJson != CMakeSettingsJson"
+    },
+    {
+      "name": "cmakeAppendedArgs",
+      "type": "multiLine",
+      "label": "CMake arguments:",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Provides a mean to provide all the CMake arguments. This is required when using CMakeLists.txt in Advanced mode. For CMakeSettings.json, the arguments are already inferred, but you can append your arguments providing them here.",
+      "visibleRule": "cmakeListsOrSettingsJson = CMakeListsTxtAdvanced",
+      "properties": {
+        "resizable": "true",
+        "rows": "5"
+      }
+    },
+    {
+      "name": "configurationRegexFilter",
+      "type": "string",
+      "label": "Configuration(s) regex filter:",
+      "defaultValue": ".*",
+      "required": true,
+      "helpMarkDown": "The regular expression selects which CMakeSettings.json's configuration(s) to build, one or more.",
+      "visibleRule": "cmakeListsOrSettingsJson = CMakeSettingsJson"
+    },
+    {
+      "name": "ninjaPath",
+      "type": "filepath",
+      "label": "Ninja path:",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Full path to ninja build tool. If not specified, the one in PATH environment variable will be used. If not available, it will be downloaded from Internet and used (only for Windows).",
+      "groupname": "advanced"
+    },
+    {
+      "name": "ninjaDownloadUrl",
+      "type": "string",
+      "label": "Ninja download URL:",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "URL to download ninja build tool from.",
+      "groupname": "advanced"
+    },
+    {
+      "name": "cmakeWrapperCommand",
+      "type": "string",
+      "label": "CMake wrapper command (e.g. emcmake):",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "The shell command that woud setup the environment and then invoke the cmake command. An example is 'emcmake' of Emscripten SDK.",
+      "groupname": "advanced"
+    },
+    {
+      "name": "buildWithCMake",
+      "type": "boolean",
+      "label": "Build after succesful CMake generation.",
+      "defaultValue": "true",
+      "required": false,
+      "helpMarkDown": "Indicates whether to run 'cmake --build' after CMake project files have been generated successfully."
+    },
+    {
+      "name": "buildWithCMakeArgs",
+      "type": "string",
+      "label": "Additional build args:",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Additional build arguments such '-j4', '--config Debug', '--clean-first' and so forth. Separate CMake argument to the native make program arguments with '--' .",
+      "visibleRule": "buildWithCMake == true && cmakeListsOrSettingsJson != CMakeSettingsJson"
+    }
+  ],
+  "execution": {
+    "Node": {
+      "target": "cmake-task.js"
+    }
+  },
+  "messages": {
+    "CMakeSuccess": "CMake succeeded.",
+    "CMakeFailed": "CMake failed with error: '%s'.",
+    "NinjaNotFoundOnUnix": "Could not find ninja build tool. Please install it via your package manager, e.g. '%s'.",
+    "NinjaWontBeDownloadedOnUnix": "The URL will not be used to download ninja. Please install it via your package manager, e. g. '%s'.",
+    "TaskStarting": "'CMake and Ninja runner starting...",
+    "NinjaPathNotSpecified": "Path to ninja executable has not been explicitly specified on the task. Searching for it now...",
+    "ParsedConfigurations": "CMakeSettings.json parsed configurations: '%s'.",
+    "ParsedGlobalEnvironments": "CMakeSettings.json parsed global environments.",
+    "CMakeSettingsContent": "Content of file CMakeSettings.json: '%s'.",
+    "InvalidTaskMode": "Invalid task mode: '%s'.",
+    "CMakeSettingsFilteredConfigurations": "CMakeSettings.json filtered configurations: '%s'.",
+    "CMakeSettingsNoMatchingConfiguration": "No matching configuration for filter: '%s'.",
+    "CMakeReturnedErrorCode": "CMake returned error code: '%d'.",
+    "NinjaDownloadArchiveFailed": "Failed to download the Ninja executable: '%s'.",
+    "NinjaNotInPath": "Cannot find Ninja in PATH environment variable.",
+    "NinjaNotFound": "Cannot find nor download Ninja.",
+    "BuildDirNull": "Build directory is not specified.",
+    "BuildFailed": "Build failed with error code: '%d'.",
+    "ConfiguringConfig": "Processing configuration: '%s'.",
+    "VcpkgRootNotSet": "Cannot find vcpkg, nor at VCPKG_ROOT environment variable, nor at ",
+    "getBinDirFailure": "Getting the binary directory failed: '%s'."
+  }
+}

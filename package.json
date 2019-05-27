@@ -1,0 +1,42 @@
+{
+  "name": "build-tasks-suite",
+  "version": "0.0.1",
+  "description": "Build C++ with CMake, Ninja, vcpkg",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lukka/CppBuildTasks"
+  },
+  "author": "Luca Cappa",
+  "license": "MIT",
+  "scripts": {
+    "pack": "mkdir -p vsix && gulp && tfx extension create --output-path ./vsix/",
+    "clean": "rm -rf ./*.vsix",
+    "compile": "tsc -p .",
+    "test": "tsc -p . && mocha --require ts-node/register **/*_suite.ts --reporter mocha-junit-reporter",
+    "testtrace": "tsc -p . && export TASK_TEST_TRACE=1 && mocha --require ts-node/register **/*_suite.ts"
+  },
+  "devDependencies": {
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^11.9.3",
+    "@types/q": "^1.5.1",
+    "chai": "^4.2.0",
+    "gulp": "^4.0.0",
+    "gulp-install": "^1.1.0",
+    "gulp-typescript": "^5.0.0",
+    "jszip": "^3.2.0",
+    "mocha": "^5.2.0",
+    "mocha-junit-reporter": "^1.22.0",
+    "require-dir": "^1.0.0",
+    "strip-json-comments": "^2.0.1",
+    "tfx-cli": "*",
+    "ts-node": "^8.0.2",
+    "typescript": "^3.3.3"
+  },
+  "dependencies": {
+    "@types/strip-json-comments": "0.0.30",
+    "adm-zip": "^0.4.13",
+    "azure-pipelines-task-lib": "^2.7.7",
+    "sync-request": "^6.0.0",
+    "util": "^0.10.3"
+  }
+}

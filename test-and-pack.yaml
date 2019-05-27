@@ -1,0 +1,37 @@
+name: 0.3.$(rev:r)
+
+pool:
+  name: Hosted Ubuntu 1604
+  demands: npm
+
+steps:
+- task: Npm@1
+  displayName: 'npm: install gulp and tfx-cli'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: 'install gulp@4 mocha tfx-cli@0.7.5'
+
+- task: Npm@1
+  displayName: 'npm test tasks'
+  inputs:
+    command: custom
+    verbose: true
+    customCommand: 'run test'
+
+- task: PublishTestResults@2
+  displayName: 'Publish Test Results **/test-*.xml'
+  inputs:
+    testResultsFiles: '**/test-*.xml'
+    searchFolder: '$(Build.SourcesDirectory)'
+    testRunTitle: 'Unit Tests'
+
+- script: 'npm run pack -- --override ''{ "version": "$(Build.BuildNumber)" }'''
+  displayName: "npm pack"
+
+- task: PublishPipelineArtifact@0
+  displayName: "Publish vsix"
+  inputs:
+    artifactName: "vsix"
+    targetPath: "$(Build.SourcesDirectory)/vsix"
+

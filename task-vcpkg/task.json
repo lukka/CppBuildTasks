@@ -1,0 +1,93 @@
+{
+  "id": "d855c326-b1c0-4d6f-b1c7-440ade6835fb",
+  "name": "run-vcpkg",
+  "friendlyName": "Run vcpkg",
+  "description": "Run vcpkg to build dependencies.",
+  "helpMarkDown": "[More information](https://github.com/lukka/CppBuildTasks/blob/master/README.md)",
+  "category": "Build",
+  "visibility": [
+    "Build",
+    "Release"
+  ],
+  "author": "Luca Cappa",
+  "version": {
+    "Major": 0,
+    "Minor": 2,
+    "Patch": 36
+  },
+  "preview": true,
+  "minimumAgentVersion": "1.91.0",
+  "instanceNameFormat": "Run vcpkg",
+  "groups": [
+    {
+      "name": "advanced",
+      "displayName": "Advanced",
+      "isExpanded": false
+    }
+  ],
+  "inputs": [
+    {
+      "name": "vcpkgGitURL",
+      "type": "string",
+      "label": "vcpkg URL Git repository:",
+      "defaultValue": "https://github.com/Microsoft/vcpkg.git",
+      "required": false,
+      "helpMarkDown": "Specify the URL Git repositoryto download vcpkg from. Defaults to https://github.com/Microsoft/vcpkg.git",
+      "groupname": "advanced"
+    },
+    {
+      "name": "vcpkgGitCommitId",
+      "type": "string",
+      "label": "vcpkg Git commit id or branch:",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "If not specified, the default branch of the repository.[More information](https://github.com/lukka/CppBuildTasks/blob/master/README.md)",
+      "groupname": "advanced"
+    },
+    {
+      "name": "vcpkgTriplet",
+      "type": "string",
+      "label": "The vcpkg triplet:",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Provides the vcpkg triplet, e.g. specify a file in the vcpkg/triplet/ directory that defines the platform/architecture/runtime/compiler to be used when building. Common values are x64-windows, x64-linux and x64-osx. <br> When not provided here, the task uses VCPKG_DEFAULT_TRIPLET environment variable if defined, otherwise it uses a platform specific one."
+    },
+    {
+      "name": "vcpkgArguments",
+      "type": "multiLine",
+      "label": "Arguments for vcpkg (also the list of packages):",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "Provides the vcpkg arguments, e.g. the list of packages space separated, and additional flags like '@responsefile', '--vcpkg-root' and so forth.",
+      "properties": {
+        "resizable": "true",
+        "rows": "5"
+      }
+    }
+  ],
+  "execution": {
+    "Node": {
+      "target": "vcpkg-task.js"
+    }
+  },
+  "messages": {
+    "TaskStarting": "'vcpkg runner starting...",
+    "vcpkgReturnedErrorCode": "vcpkg exited with return code: '%d'.",
+    "vcpkgFailed": "vcpkg failed with error: '%s'.",
+    "vcpkGetBinDirFailure": "Getting the binary directory failed: '%s'.",
+    "commandFailed": "Last command execution failed with error code '%d'.",
+    "vcpkgSucceeded": "Task completed succesfully.",
+    "vcpkgNeedsRebuildMissingExecutable": "Building vcpkg as executable is missing.",
+    "vcpkgNeedsRebuildRepoUpdated": "Building vcpkg as Git repo has been updated."
+  },
+  "outputVariables": [
+    {
+      "name": "outVcpkgRootPath",
+      "description": "After the execution of this task, this variable contains the path to the installation of vcpkg on the build server."
+    },
+    {
+      "name": "outvcpkgTriplet",
+      "description": "After the execution of this task, this variable contains the triplet used when building the packages."
+    }
+  ]
+}

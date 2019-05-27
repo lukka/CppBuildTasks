@@ -1,0 +1,16 @@
+{
+  "description": "Build tasks for running CMake and Ninja in Azure Devops Pipelines.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lukka/CppBuildTasks.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@types/strip-json-comments": "0.0.30",
+    "adm-zip": "^0.4.13",
+    "azure-pipelines-task-lib": "^2.7.7",
+    "strip-json-comments": "^2.0.1",
+    "sync-request": "^6.0.0",
+    "util": "^0.10.3"
+  }
+}

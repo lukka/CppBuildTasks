@@ -1,0 +1,114 @@
+{
+    "manifestVersion": 1,
+    "id": "cmake-ninja-vcpkg-tasks",
+    "name": "CppBuildTasks: Build C++ code with vcpkg, CMake and Ninja",
+    "version": "0.0.1",
+    "publisher": "lucappa",
+    "description": "Multiplatform build tasks for C++ source code, using CMake, Ninja, vcpkg, git.",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services.Cloud"
+        }
+    ],
+    "scopes": [],
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "tags": [
+        "build",
+        "cmake",
+        "visualstudio",
+        "ninja",
+        "cpp",
+        "vcpkg",
+        "linux"
+    ],
+    "links": {
+        "home": {
+            "uri": "http://github.com/lukka/CppBuildTasks"
+        },
+        "repository": {
+            "uri": "https://github.com/lukka/CppBuildTasks"
+        },
+        "issues": {
+            "uri": "http://github.com/lukka/CppBuildTasks"
+        }
+    },
+    "repository": {
+        "type": "git",
+        "uri": "https://github.com/lukka/CppBuildTasks"
+    },
+    "badges": [
+        {
+            "href": "https://dev.azure.com/BuildCpp/CppBuildTasks/_build?definitionId=15",
+            "uri": "https://dev.azure.com/lukko/vso_azure_letstest/_apis/build/status/CMakeTask/cmake%20vcpkg%20tasks%20-%20test%20and%20pack?branchName=master",
+            "description": "Build Test Package"
+        }
+    ],
+    "icons": {
+        "default": "images/icon.png",
+        "large": "images/icon.png"
+    },
+    "content": {
+        "license": {
+            "path": "LICENSE.txt"
+        },
+        "details": {
+            "path": "overview.md"
+        }
+    },
+    "files": [
+        {
+            "path": "build/task-cmake/src/",
+            "packagePath": "task-cmake"
+        },
+        {
+            "path": "task-cmake/docs/task-cmake.png",
+            "addressable": true
+        },
+        {
+            "path": "task-cmake/task.json",
+            "packagePath": "task-cmake/task.json"
+        },
+        {
+            "path": "build/task-vcpkg/src/",
+            "packagePath": "task-vcpkg"
+        },
+        {
+            "path": "task-vcpkg/docs/task-vcpkg.png",
+            "addressable": true
+        },
+        {
+            "path": "task-vcpkg/task.json",
+            "packagePath": "task-vcpkg/task.json"
+        },
+        {
+            "path": "task-cmake/node_modules"
+        },
+        {
+            "path": "task-vcpkg/node_modules"
+        }
+    ],
+    "contributions": [
+        {
+            "id": "f2b1ec7d-bc54-4cc8-b9ed-1bc7f37c9dc6",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "task-cmake"
+            }
+        },
+        {
+            "id": "d855c326-b1c0-4d6f-b1c7-440ade6835fb",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "task-vcpkg"
+            }
+        }
+    ]
+}
