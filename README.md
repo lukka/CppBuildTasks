@@ -45,10 +45,10 @@ project: [vct](https://github.com/sfreed141/vct) ||
 
 project: [cpprestsdk](https://github.com/microsoft/cpprestsdk) | |
 |----------|-------|
-[macOS](https://github.com/lukka/cpprestsdk/blob/master/pipeline-macos-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/macos-hosted-lukka.cpprestsdk?branchName=azure-pipelines)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=11&branchName=azure-pipelines)
-[Linux/Ubuntu](https://github.com/lukka/cpprestsdk/blob/master/pipeline-ubuntu-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/ubuntu-hosted-lukka.cpprestsdk?branchName=azure-pipelines)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=6&branchName=azure-pipelines)
-[vs2017](https://github.com/lukka/cpprestsdk/blob/master/pipeline-vs2017-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/vs2017-hosted-lukka.cpprestsdk?branchName=azure-pipelines)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=7&branchName=azure-pipelines)
-[vs2019](https://github.com/lukka/cpprestsdk/blob/master/pipeline-vs2019-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/vs2019-hosted-lukka.cpprestsdk?branchName=azure-pipelines)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=12&branchName=azure-pipelines)
+[macOS](https://github.com/lukka/cpprestsdk/blob/master/pipeline-macos-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/macos-hosted-lukka.cpprestsdk?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=11&branchName=master)
+[Linux/Ubuntu](https://github.com/lukka/cpprestsdk/blob/master/pipeline-ubuntu-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/ubuntu-hosted-lukka.cpprestsdk?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=6&branchName=master)
+[vs2017](https://github.com/lukka/cpprestsdk/blob/master/pipeline-vs2017-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/vs2017-hosted-lukka.cpprestsdk?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=7&branchName=master)
+[vs2019](https://github.com/lukka/cpprestsdk/blob/master/pipeline-vs2019-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/vs2019-hosted-lukka.cpprestsdk?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=12&branchName=master)
 
 project: [CppOpenGLWebAssemblyCMake](https://github.com/lukka/CppOpenGLWebAssemblyCMake) | |
 |----------|-------|
