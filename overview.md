@@ -28,12 +28,12 @@ It can leverage the previous execution of the 'Run vcpkg' task by using the `VCP
 
 ### Why not one single task?
 
-Because you could use vcpkg only, without CMake. Or you could use CMake without vcpkg.
+Because you could use vcpkg only without CMake. Or you could use CMake without vcpkg.
 
 ### Would creating an ad-hoc bash/powershell script be easier?
 
 Absolutely! Anyone can use this task as an inspiration for writing their own scripts to suite specific needs.
-The purpose of the tasks is to streamline and to simplyfy the usage of vcpkg and CMake on build servers.
+The purpose of the tasks is to streamline and to simplify the usage of vcpkg and CMake on build servers.
 
 ## Please get the source and contribute
 
