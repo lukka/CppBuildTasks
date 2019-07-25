@@ -9,3 +9,4 @@ token.txt
 .vscode
 *.tgz
 test-results.xml
+/vsix/

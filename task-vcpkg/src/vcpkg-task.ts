@@ -1,5 +1,6 @@
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as vcpkgrunner from './vcpkg-runner'
+import * as vcpkgUtils from './vcpkg-utils';
 import * as path from 'path';
 
 async function main(): Promise<number> {

@@ -4,8 +4,6 @@ export module Globals {
   export const vcpkgGitURL: string = 'vcpkgGitURL';
   export const vcpkgCommitId: string = 'vcpkgGitCommitId';
   export const outVcpkgRootPath: string = "outVcpkgRootPath";
-  export const additionalPortsPath: string = "vcpkgPorts";
-  export const additionalTripletsPath: string = "vcpkgTriplets";
   export const vcpkgTriplet: string = "vcpkgTriplet";
   export const outVcpkgTriplet: string = "outvcpkgTriplet";
 }

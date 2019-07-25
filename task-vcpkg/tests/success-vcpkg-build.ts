@@ -1,6 +1,7 @@
 import * as ma from 'azure-pipelines-task-lib/mock-answer';
 import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';
+import * as vcpkgUtilsMock from './vcpkg-utils-mock';
 
 import { Globals } from '../src/globals'
 
@@ -14,12 +15,10 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
   'checkPath': { '/usr/local/bin/git': true, '/bin/bash': true },
   'exec': {
     [gitPath]: { 'code': 0, 'stdout': 'git output here' },
-    [`${gitPath} init`]:
-      { 'code': 0, 'stdout': 'this is git init output' },
-    [`${gitPath} fetch https://github.com/Microsoft/vcpkg.git master`]:
-      { 'code': 0, 'stdout': 'this is git fetch ... output' },
-    [`${gitPath} checkout --force FETCH_HEAD`]:
-      { 'code': 0, 'stdout': 'this is git checkout FETCH_HEAD output' },
+    [`${gitPath} clone https://github.com/Microsoft/vcpkg.git -n .`]:
+      { 'code': 0, 'stdout': 'this is git clone ... output' },
+    [`${gitPath} checkout --force SHA1`]:
+      { 'code': 0, 'stdout': 'this is git checkout SHA1 output' },
     '/path/to/vcpkg/vcpkg install --recurse vcpkg_args --triplet triplet':
       { 'code': 0, 'stdout': 'this is the vcpkg output' },
     '/path/to/vcpkg/vcpkg remove --outdated --recurse':
@@ -33,34 +32,14 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
 };
 
 // Arrange
-tmr.registerMock('./vcpkg-utils', {
-  getBinDir() {
-    return '/path/to/';
-  },
-  throwIfErrorCode(code: Number) {
-    if (code != 0) throw new Error('throwIfErrorCode throws');
-    return 0;
-  },
-  isWin32(): boolean {
+vcpkgUtilsMock.utilsMock.fileExists = (dir: string) => {
+  // Report there is not executable 'vcpkg' on disk, this should request a build of vcpkg.
+  if (path.parse(dir).base.indexOf('vcpkg') != 1) {
     return false;
-  },
-  directoryExists(dir: string) {
-    return true;
-  },
-  readFile(file: string) {
-    return [false, "https://github.com/Microsoft/vcpkg.gitmaster"];
-  },
-  getDefaultTriplet(): string {
-    return "triplet";
-  },
-  fileExists(dir: string) {
-    // Report there is not executable 'vcpkg' on disk, this should request a build of vcpkg.
-    if (path.parse(dir).base.indexOf('vcpkg') != 1) {
-      return false;
-    }
-    return true;
-  },
-});
+  }
+  return true;
+};
+tmr.registerMock('./vcpkg-utils', vcpkgUtilsMock.utilsMock);
 
 tmr.registerMock('strip-json-comments', {
   stripJsonComments(str: string): string {
@@ -70,6 +49,8 @@ tmr.registerMock('strip-json-comments', {
 
 tmr.setAnswers(answers);
 tmr.setInput(Globals.vcpkgArguments, 'vcpkg_args');
+tmr.setInput(Globals.vcpkgTriplet, 'triplet');
+tmr.setInput(Globals.vcpkgCommitId, 'SHA1');
 
 // Act
 tmr.run();

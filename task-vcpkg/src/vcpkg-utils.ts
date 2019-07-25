@@ -72,28 +72,54 @@ export function readFile(path: string): [boolean, string] {
   }
 }
 
-export function getDefaultTriplet(): string
-{
+export function getDefaultTriplet(): string {
   let envVar = process.env["VCPKG_DEFAULT_TRIPLET"];
   if (envVar) {
     return envVar;
   }
-  else{
-    if(isWin32()){
+  else {
+    if (isWin32()) {
       return "x86-windows";
     }
-    else if (isLinux())
-    {
+    else if (isLinux()) {
       return "x64-linux";
     }
-    else if(isMacos())
-    {
+    else if (isMacos()) {
       return "x64-osx";
     }
-    else if (isBSD())
-    {
+    else if (isBSD()) {
       return "x64-freebsd";
     }
   }
   return "";
 }
+
+export function extractTriplet(args: string, readFile: (string) => [boolean, string]): string | null {
+  let triplet: string | null = null;
+  // Split string on any 'whitespace' character
+  let argsSplitted: string[] = args.split(/\s/).filter((a) => a.length != 0);
+  let index: number = 0;
+  for (; index < argsSplitted.length; index++) {
+    let arg: string = argsSplitted[index].trim();
+    // remove all whitespace characters (e.g. newlines, tabs, blanks)
+    arg = arg.replace(/\s/, '')
+    if (arg === "--triplet") {
+      index++;
+      if (index < argsSplitted.length) {
+        triplet = argsSplitted[index];
+        return triplet.trim();
+      }
+    }
+    if (arg.startsWith("@")) {
+      let [ok, content] = readFile(arg.substring(1));
+      if (ok) {
+        let t = this.extractTriplet(content);
+        if (t) {
+          return t.trim();
+        }
+      }
+    }
+  }
+  return triplet;
+}
+
