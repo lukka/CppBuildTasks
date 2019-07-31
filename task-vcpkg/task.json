@@ -32,13 +32,13 @@
       "label": "vcpkg URL Git repository:",
       "defaultValue": "https://github.com/Microsoft/vcpkg.git",
       "required": false,
-      "helpMarkDown": "Specify the URL Git repositoryto download vcpkg from. Defaults to https://github.com/Microsoft/vcpkg.git",
+      "helpMarkDown": "Specify the URL Git repository to download vcpkg from. Defaults to https://github.com/Microsoft/vcpkg.git",
       "groupname": "advanced"
     },
     {
       "name": "vcpkgGitCommitId",
       "type": "string",
-      "label": "vcpkg Git commit id or branch:",
+      "label": "vcpkg Git tag/ref:",
       "defaultValue": "",
       "required": false,
       "helpMarkDown": "If not specified, the default branch of the repository.[More information](https://github.com/lukka/CppBuildTasks/blob/master/README.md)",

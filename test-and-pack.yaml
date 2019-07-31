@@ -4,6 +4,9 @@ pool:
   name: Hosted Ubuntu 1604
   demands: npm
 
+variables:
+  system.debug: true
+
 steps:
 - task: Npm@1
   displayName: 'npm: install gulp and tfx-cli'
@@ -25,7 +28,11 @@ steps:
     testResultsFiles: '**/test-*.xml'
     searchFolder: '$(Build.SourcesDirectory)'
     testRunTitle: 'Unit Tests'
-
+- script: |
+    IFS='.' read -ra ADDR <<< "$BUILD_BUILDNUMBER"
+    echo "##vso[task.setvariable variable=MAJOR]${ADDR[0]}"
+    echo "##vso[task.setvariable variable=MINOR]${ADDR[1]}"
+    echo "##vso[task.setvariable variable=PATCH]${ADDR[2]}"
 - script: 'npm run pack -- --override ''{ "version": "$(Build.BuildNumber)" }'''
   displayName: "npm pack"
 

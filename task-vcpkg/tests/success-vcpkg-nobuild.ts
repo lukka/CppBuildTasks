@@ -1,6 +1,7 @@
 import * as ma from 'azure-pipelines-task-lib/mock-answer';
 import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';
+import * as vcpkgUtilsMock from './vcpkg-utils-mock';
 
 import { Globals } from '../src/globals'
 
@@ -10,30 +11,37 @@ let tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 const gitPath: string = '/usr/local/bin/git';
 
 let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
-  'which': 
-  { 
-    '/usr/local/bin/git': '/usr/local/bin/git', 
-    'git': '/usr/local/bin/git', 
-    'sh': '/bin/bash' 
+  'which':
+  {
+    '/usr/local/bin/git': '/usr/local/bin/git',
+    'git': '/usr/local/bin/git',
+    'sh': '/bin/bash',
+    'chmod': '/bin/chmod'
   },
-  'checkPath': { '/usr/local/bin/git': true, '/bin/bash': true },
+  'checkPath':
+  {
+    '/usr/local/bin/git': true,
+    '/bin/bash': true,
+    '/bin/chmod': true
+  },
   'exec': {
+    ["/bin/chmod +x /path/to/vcpkg/vcpkg"]: { 'code': 0, 'stdout': 'chmod output here' },
     [gitPath]: { 'code': 0, 'stdout': 'git output here' },
     [`${gitPath} init`]:
       { 'code': 0, 'stdout': 'this is git init output' },
-    [`${gitPath} fetch https://github.com/Microsoft/vcpkg.git mycommitid`]:
-      { 'code': 0, 'stdout': 'this is git fetch ... output' },
-    [`${gitPath} checkout --force FETCH_HEAD`]:
-      { 'code': 0, 'stdout': 'this is git checkout FETCH_HEAD output' },
+    [`${gitPath} clone https://github.com/Microsoft/vcpkg.git -n .`]:
+      { 'code': 0, 'stdout': 'this is git clone ... output' },
+    [`${gitPath} checkout --force mygitref`]:
+      { 'code': 0, 'stdout': 'this is git checkout SHA1 output' },
     '/path/to/vcpkg/vcpkg install --recurse vcpkg_args --triplet triplet':
       { 'code': 0, 'stdout': 'this is the vcpkg output' },
     '/path/to/vcpkg/vcpkg remove --outdated --recurse':
       { 'code': 0, 'stdout': 'this is the vcpkg remove output' },
     '/bin/bash -c /path/to/vcpkg/bootstrap-vcpkg.sh':
       { 'code': 0, 'stdout': 'this is the bootstrap output of vcpkg' },
-      '/usr/local/bin/git remote update':
+    '/usr/local/bin/git remote update':
       { 'code': 0, 'stdout': 'this is git remote update output' },
-      '/usr/local/bin/git status -uno':
+    '/usr/local/bin/git status -uno':
       { 'code': 0, 'stdout': 'up to date' }
   },
   'rmRF': { '/path/to/vcpkg': { success: true } },
@@ -42,30 +50,8 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
 };
 
 // Arrange
-tmr.registerMock('./vcpkg-utils', {
-  getBinDir() {
-    return '/path/to/';
-  },
-  throwIfErrorCode(code: Number) {
-    if (code != 0) throw new Error('throwIfErrorCode throws');
-    return 0;
-  },
-  isWin32(): boolean {
-    return false;
-  },
-  directoryExists(dir: string) {
-    return true;
-  },
-  readFile(file: string) {
-    return [true, "https://github.com/Microsoft/vcpkg.gitmycommitid"];
-  },
-  getDefaultTriplet(): string {
-    return "triplet";
-  },
-  fileExists(dir: string) {
-    return true;
-  },
-});
+vcpkgUtilsMock.utilsMock.readFile = (file: string) => [true, "https://github.com/Microsoft/vcpkg.gitmygitref"];
+tmr.registerMock('./vcpkg-utils', vcpkgUtilsMock.utilsMock);
 
 tmr.registerMock('strip-json-comments', {
   stripJsonComments(str: string): string {
@@ -75,7 +61,8 @@ tmr.registerMock('strip-json-comments', {
 
 tmr.setAnswers(answers);
 tmr.setInput(Globals.vcpkgArguments, 'vcpkg_args');
-tmr.setInput(Globals.vcpkgCommitId, 'mycommitid');
+tmr.setInput(Globals.vcpkgCommitId, 'mygitref');
+tmr.setInput(Globals.vcpkgTriplet, 'triplet');
 
 // Act
 tmr.run();

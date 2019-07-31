@@ -2,7 +2,7 @@ import * as tl from 'azure-pipelines-task-lib/task';
 import * as trm from 'azure-pipelines-task-lib/toolrunner';
 import * as path from 'path';
 import { Globals } from './globals';
-import * as vcpkgutils from './vcpkg-utils'
+import * as vcpkgUtils from './vcpkg-utils'
 
 const vcpkgRemoteUrlLastFileName: string = 'vcpkg_remote_url.last';
 
@@ -13,8 +13,8 @@ export class VcpkgRunner {
   vcpkgURL: string;
 
   /**
-   * Branch name or commit id of vcpkg repository to fetch.
-   * @type {string} The commit id or the branch name.
+   * Git ref (a branch or a tag, not a commit id) of vcpkg repository to fetch.
+   * @type {string} The ref name (e.g. the branch or tag name).
    * @memberof VcpkgRunner
    */
   vcpkgCommitId: string;
@@ -28,7 +28,7 @@ export class VcpkgRunner {
       tl.getInput(Globals.vcpkgGitURL) || this.defaultVcpkgUrl;
     this.vcpkgCommitId =
       tl.getInput(Globals.vcpkgCommitId) || 'master';
-    this.vcpkgDestPath = path.join(vcpkgutils.getBinDir(), 'vcpkg');
+    this.vcpkgDestPath = path.join(vcpkgUtils.getBinDir(), 'vcpkg');
     this.vcpkgTriplet = tl.getInput(Globals.vcpkgTriplet, false);
   }
 
@@ -59,11 +59,16 @@ export class VcpkgRunner {
     }
 
     await this.updatePackages();
+    await this.prepareForCache();
+  }
+
+  private async prepareForCache(): Promise<void> {
+    tl.writeFile(path.join(this.vcpkgDestPath, '.artifactignore'), "!.git\n/buildtrees\n/packages\n/downloads\n");
   }
 
   private async updatePackages(): Promise<void> {
     let vcpkgPath: string = path.join(this.vcpkgDestPath, 'vcpkg');
-    if (vcpkgutils.isWin32()) {
+    if (vcpkgUtils.isWin32()) {
       vcpkgPath += '.exe';
     }
 
@@ -73,20 +78,39 @@ export class VcpkgRunner {
     console.log(
       `Running 'vcpkg ${removeCmd}' in directory '${this.vcpkgDestPath}' ...`);
     vcpkgTool.line(removeCmd);
-    vcpkgutils.throwIfErrorCode(await vcpkgTool.exec(this.options));
+    vcpkgUtils.throwIfErrorCode(await vcpkgTool.exec(this.options));
 
     // vcpkg install --recurse <list of packages>
     vcpkgTool = tl.tool(vcpkgPath);
     let installCmd: string = `install --recurse ${this.vcpkgArgs}`;
-    // Append triplet, if not provided get or guess the default one.
-    if (!this.vcpkgTriplet) {
-      this.vcpkgTriplet = vcpkgutils.getDefaultTriplet();
-    }
 
-    installCmd += ` --triplet ${this.vcpkgTriplet}`;
+    // Extract triplet from arguments for vcpkg.
+    const extractedTriplet: string | null = vcpkgUtils.extractTriplet(installCmd, vcpkgUtils.readFile);
+    // Append triplet, only if provided by the user in the task arguments
+    if (extractedTriplet !== null) {
+      if (this.vcpkgTriplet) {
+        tl.warning(`Ignoring the task provided triplet: '${this.vcpkgTriplet}'.`);
+      }
+      this.vcpkgTriplet = extractedTriplet;
+      console.log(`Extracted from command line triplet '${this.vcpkgTriplet}'.`);
+    } else {
+      // If triplet is nor specified in arguments, nor in task, let's deduce it from
+      // agent context (i.e. its OS).
+      if (!this.vcpkgTriplet) {
+        console.log(`Deducing triplet from environment...`);
+        this.vcpkgTriplet = vcpkgUtils.getDefaultTriplet();
+      }
+
+      console.log(`Using triplet '${this.vcpkgTriplet}'.`);
+
+      // Add the triplet argument to the command line.
+      installCmd += ` --triplet ${this.vcpkgTriplet}`;
+    }
 
     // Set the used triplet in VCPKG_TRIPLET environment variable
     process.env['VCPKG_TRIPLET'] = this.vcpkgTriplet;
+
+    // Set the user specified triplet in VCPKG_TRIPLET task variable
     tl.setVariable("VCPKG_TRIPLET", this.vcpkgTriplet);
 
     // Set output variable containing the use triplet
@@ -97,7 +121,7 @@ export class VcpkgRunner {
     vcpkgTool.line(installCmd);
     console.log(
       `Running 'vcpkg ${installCmd}' in directory '${this.vcpkgDestPath}' ...`);
-    vcpkgutils.throwIfErrorCode(await vcpkgTool.exec(this.options));
+    vcpkgUtils.throwIfErrorCode(await vcpkgTool.exec(this.options));
   }
 
   private async updateRepo(): Promise<boolean> {
@@ -109,15 +133,16 @@ export class VcpkgRunner {
     let updated: boolean = false;
     let needRebuild: boolean = false;
     let remoteUrlAndCommitId: string = this.vcpkgURL + this.vcpkgCommitId;
-    let res: boolean = vcpkgutils.directoryExists(this.vcpkgDestPath);
+    let res: boolean = vcpkgUtils.directoryExists(this.vcpkgDestPath);
     tl.debug(`directory ${this.vcpkgDestPath} exists: ${res}`);
     if (res) {
-      let [ok, remoteUrlAndCommitIdLast] = vcpkgutils.readFile(cloneCompletedFilePath);
+      let [ok, remoteUrlAndCommitIdLast] = vcpkgUtils.readFile(cloneCompletedFilePath);
       tl.debug(`cloned check: ${ok}, ${remoteUrlAndCommitIdLast}`);
       if (ok) {
         tl.debug(`lastcommitid=${remoteUrlAndCommitIdLast}, actualcommitid=${remoteUrlAndCommitId}`);
         if (remoteUrlAndCommitIdLast == remoteUrlAndCommitId) {
           // Update from remote repository.
+          tl.debug(this.options.cwd);
           await tl.exec(gitPath, ['remote', 'update'], this.options);
           // Use git status to understand if we need to rebuild vcpkg since the last downloaded 
           // branch is old.
@@ -142,26 +167,30 @@ export class VcpkgRunner {
       tl.cd(this.vcpkgDestPath);
 
       let gitTool = tl.tool(gitPath);
-      gitTool.arg(['init']);
-      vcpkgutils.throwIfErrorCode(await gitTool.exec(this.options));
 
       gitTool = tl.tool(gitPath);
-      gitTool.arg(['fetch', this.vcpkgURL, this.vcpkgCommitId]);
-      vcpkgutils.throwIfErrorCode(await gitTool.exec(this.options));
+      gitTool.arg(['clone', this.vcpkgURL, '-n', '.']);
+      vcpkgUtils.throwIfErrorCode(await gitTool.exec(this.options));
 
       gitTool = tl.tool(gitPath);
-      gitTool.arg(['checkout', '--force', 'FETCH_HEAD']);
-      vcpkgutils.throwIfErrorCode(await gitTool.exec(this.options));
+      gitTool.arg(['checkout', '--force', this.vcpkgCommitId]);
+      vcpkgUtils.throwIfErrorCode(await gitTool.exec(this.options));
 
       tl.writeFile(cloneCompletedFilePath, remoteUrlAndCommitId);
     }
 
     // If the executable file ./vcpkg/vcpkg is not present, force build. The fact that the repository
     // is up to date is meaningless.
-    let vcpkgPath: string = path.join(this.vcpkgDestPath, 'vcpkg');
-    if (!vcpkgutils.fileExists(vcpkgPath)) {
+    const vcpkgExe: string = vcpkgUtils.isWin32() ? "vcpkg.exe" : "vcpkg"
+    const vcpkgPath: string = path.join(this.vcpkgDestPath, vcpkgExe);
+    if (!vcpkgUtils.fileExists(vcpkgPath)) {
       console.log(tl.loc('vcpkgNeedsRebuildMissingExecutable'));
       needRebuild = true;
+    }
+    else {
+      if (!vcpkgUtils.isWin32()) {
+        tl.execSync('chmod', ["+x", vcpkgPath])
+      }
     }
 
     return needRebuild;
@@ -170,22 +199,22 @@ export class VcpkgRunner {
   private async build(): Promise<void> {
     // Build vcpkg.
     let bootstrap: string = 'bootstrap-vcpkg';
-    if (vcpkgutils.isWin32()) {
+    if (vcpkgUtils.isWin32()) {
       bootstrap += '.bat';
     } else {
       bootstrap += '.sh';
     }
 
-    if (vcpkgutils.isWin32()) {
+    if (vcpkgUtils.isWin32()) {
       let cmdPath: string = tl.which('cmd.exe', true);
       let cmdTool = tl.tool(cmdPath);
       cmdTool.arg(['/c', path.join(this.vcpkgDestPath, bootstrap)]);
-      vcpkgutils.throwIfErrorCode(await cmdTool.exec(this.options));
+      vcpkgUtils.throwIfErrorCode(await cmdTool.exec(this.options));
     } else {
       let shPath: string = tl.which('sh', true);
       let shTool = tl.tool(shPath);
       shTool.arg(['-c', path.join(this.vcpkgDestPath, bootstrap)]);
-      vcpkgutils.throwIfErrorCode(await shTool.exec(this.options));
+      vcpkgUtils.throwIfErrorCode(await shTool.exec(this.options));
     }
   }
 }

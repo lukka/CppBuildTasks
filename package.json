@@ -9,26 +9,28 @@
   "author": "Luca Cappa",
   "license": "MIT",
   "scripts": {
-    "pack": "mkdir -p vsix && gulp && tfx extension create --output-path ./vsix/",
+    "pack": "export TFX_TRACE=1 && mkdir -p vsix && gulp && tfx extension create --output-path ./vsix/",
+    "packdev": "export TFX_TRACE=1 && export CPPBUILDTASKDEV=1 && mkdir -p vsix && gulp && tfx extension create --output-path ./vsix/",
     "clean": "rm -rf ./*.vsix",
     "compile": "tsc -p .",
     "test": "tsc -p . && mocha --require ts-node/register **/*_suite.ts --reporter mocha-junit-reporter",
-    "testtrace": "tsc -p . && export TASK_TEST_TRACE=1 && mocha --require ts-node/register **/*_suite.ts"
+    "testdev": "tsc -p . && export TASK_TEST_TRACE=1 && mocha --require ts-node/register **/*_suite.ts"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.6",
     "@types/node": "^11.9.3",
     "@types/q": "^1.5.1",
     "chai": "^4.2.0",
-    "gulp": "^4.0.0",
+    "gulp": "^4.0.2",
     "gulp-install": "^1.1.0",
+    "gulp-json-transform": "^0.4.7",
     "gulp-typescript": "^5.0.0",
     "jszip": "^3.2.0",
     "mocha": "^5.2.0",
     "mocha-junit-reporter": "^1.22.0",
     "require-dir": "^1.0.0",
     "strip-json-comments": "^2.0.1",
-    "tfx-cli": "*",
+    "tfx-cli": "^0.7.5",
     "ts-node": "^8.0.2",
     "typescript": "^3.3.3"
   },
