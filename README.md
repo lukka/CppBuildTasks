@@ -10,28 +10,27 @@
     vcpkgGitRef: 59a7c2cc95a3b46e9e2d1aa753917246c2801e50
 
     # Cache the vcpkg's build artifacts
-  - task: CacheBeta@0
-    displayName: Cache vcpkg
-    inputs:
-      # As 'key' use the content of the response file, vcpkg's commit id and build agent name.
-      key: $(Build.SourcesDirectory)/vcpkg_x64-linux.txt
-        $(vcpkgGitRef)
-        $(Agent.Name)
-      path: '$(Build.BinariesDirectory)/vcpkg'
+    - task: CacheBeta@0
+      displayName: Cache vcpkg
+      inputs:
+        # As 'key' use the content of the response file, vcpkg's commit id and build agent name.
+        key: $(Build.SourcesDirectory)/vcpkg_x64-linux.txt
+          $(vcpkgGitRef)
+          $(Agent.Name)
+        path: '$(Build.BinariesDirectory)/vcpkg'
    
-   - task: lucappa.cmake-ninja-vcpkg-tasks.d855c326-b1c0-4d6f-b1c7-440ade6835fb.run-vcpkg@0
-     displayName: 'Run vcpkg'
-     inputs:
-       vcpkgArguments: $(Build.SourcesDirectory)/vcpkg_x64-linux.txt
-       vcpkgGitCommitId: $(vcpkgGitRef)
+    - task: lucappa.cmake-ninja-vcpkg-tasks.d855c326-b1c0-4d6f-b1c7-440ade6835fb.run-vcpkg@0
+      displayName: 'Run vcpkg'
+      inputs:
+        vcpkgArguments: $(Build.SourcesDirectory)/vcpkg_x64-linux.txt
+        vcpkgGitCommitId: $(vcpkgGitRef)
 
-   - task: lucappa.cmake-ninja-vcpkg-tasks.f2b1ec7d-bc54-4cc8-b9ed-1bc7f37c9dc6.run-cmake@0
-     displayName: 'Run CMake with CMakeSettings.json'
-     inputs:
-       cmakeListsOrSettingsJson: 'CMakeSettingsJson'
-       useVcpkgToolchainFile: true
-       configurationRegexFilter: 'Linux.*'
-
+    - task: lucappa.cmake-ninja-vcpkg-tasks.f2b1ec7d-bc54-4cc8-b9ed-1bc7f37c9dc6.run-cmake@0
+      displayName: 'Run CMake with CMakeSettings.json'
+      inputs:
+        cmakeListsOrSettingsJson: 'CMakeSettingsJson'
+        useVcpkgToolchainFile: true
+        configurationRegexFilter: 'Linux.*'
 ```
 [Reference](reference.md)
 
@@ -41,24 +40,24 @@
 |CMakeLists.txt samples | |
 |----------|-------|
 [macOS](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fmacos-hosted-basic.yml&version=GBmaster)| [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/cmakelists.txt-macos-hosted?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=9&branchName=master)
-[macOS with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_build?definitionId=17&_a=summary)|[![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-macos-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=17&branchName=master)
+[macOS with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fmacos-hosted-basic-cache.yml&version=GBmaster)|[![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-macos-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=17&branchName=master)
 [Windows - vs2019](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fvs2019-hosted-basic.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/cmakelists.txt-vs2019-hosted?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=1&branchName=master)
-[Windows - vs2019 with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_build?definitionId=19&_a=summary) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-vs2019-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=19&branchName=master)
+[Windows - vs2019 with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fvs2019-hosted-basic-cache.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-vs2019-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=19&branchName=master)
 [Windows - vs2017](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fvs2017-hosted-basic.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/cmakelists.txt-vs2017-hosted?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=14&branchName=master)
-[Windows - vs2017 with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_build?definitionId=20&_a=summary) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-vs2017-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=20&branchName=master)
+[Windows - vs2017 with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fvs2017-hosted-basic-cache.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-vs2017-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=20&branchName=master)
 [Linux/Ubuntu](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fubuntu-hosted-basic.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/cmakelists.txt-ubuntu-hosted?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=4&branchName=master)
-[Linux/Ubuntu with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_build?definitionId=18&_a=summary) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-ubuntu-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=18&branchName=master)
+[Linux/Ubuntu with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fubuntu-hosted-basic-cache.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-ubuntu-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=18&branchName=master)
 
 CMakeSettings.json samples |  |
 |----------|-------|
 [macOS](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakesettings.json%2Fmacos-hosted-advanced.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/cmakesettings.json-macos-hosted?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=10&branchName=master)
-[macOS with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_build?definitionId=24&_a=summary) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeSettings.json%20samples/cmakesettings.json-macos-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=24&branchName=master)
+[macOS with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakesettings.json%2Fmacos-hosted-advanced-cache.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeSettings.json%20samples/cmakesettings.json-macos-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=24&branchName=master)
 [Windows - vs2019](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakesettings.json%2Fvs2019-hosted-advanced.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/cmakesettings.json-vs2019-hosted?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=2&branchName=master)
-[Windows - vs2019 with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_build?definitionId=25&_a=summary) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeSettings.json%20samples/cmakesettings.json-vs2019-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=25&branchName=master)
+[Windows - vs2019 with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakesettings.json%2Fvs2019-hosted-advanced-cache.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeSettings.json%20samples/cmakesettings.json-vs2019-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=25&branchName=master)
 [Windows - vs2017](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakesettings.json%2Fvs2017-hosted-advanced.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CppBuildTasks-Validation?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=13&branchName=master)
-[Windows - vs2017 with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_build?definitionId=22&_a=summary) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeSettings.json%20samples/cmakesettings.json-vs2017-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=22&branchName=master)
+[Windows - vs2017 with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakesettings.json%2Fvs2017-hosted-advanced-cache.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeSettings.json%20samples/cmakesettings.json-vs2017-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=22&branchName=master)
 [Linux/Ubuntu](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakesettings.json%2Fubuntu-hosted-advanced.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/cmakesettings.json-ubuntu-hosted?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=3&branchName=master)
-[Linux/Ubuntu with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_build?definitionId=23&_a=summary) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeSettings.json%20samples/cmakesettings.json-ubuntu-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=23&branchName=master)
+[Linux/Ubuntu with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakesettings.json%2Fubuntu-hosted-advanced-cache.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeSettings.json%20samples/cmakesettings.json-ubuntu-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=23&branchName=master)
 
 project: [vct](https://github.com/sfreed141/vct) ||
 |----------|-------|
