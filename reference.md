@@ -6,11 +6,11 @@
      inputs:
        # [optional] select the vcpkg triplet
        vcpkgTriplet: 'x64-linux'
-       # [required] arguments to vcpkg install command, e.g. a response file containing the list of packages as weel as the triplet to be used for all packages.
+       # [required] arguments to vcpkg install command, e.g. a response file containing the list of packages as well as the triplet to be used for all packages
        vcpkgArguments: '@response_file.txt'
        # [optional] url of the Git repository to fetch
        vcpkgGitURL: http://github.com/microsoft/vcpkg.git
-       # [optional] the commit id or tag of the vcpkg repo to fetch. Branch names are no recommended here if you are using the same variable as part of the key in CacheBeta task.
+       # [optional] the commit id or tag of the vcpkg repo to fetch. Branch names are no recommended here if you are using the same value as part of the key in CacheBeta task.
        vcpkgGitCommitId: '${vcpkgGitCommitId}'
 
    - task: lucappa.cmake-ninja-vcpkg-tasks.f2b1ec7d-bc54-4cc8-b9ed-1bc7f37c9dc6.run-cmake@0
