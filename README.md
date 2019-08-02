@@ -13,7 +13,9 @@
   - task: CacheBeta@0
     displayName: Cache vcpkg
     inputs:
-      # As 'key' use the content of the response file, vcpkg's commit id and build agent name. The key must be one liner, each segment separated by pipe, non-path segments enclosed by double quotes.
+      # As 'key' use the content of the response file, vcpkg's commit id and build agent name.
+      # The key must be one liner, each segment separated by pipe, non-path segments enclosed by
+      # double quotes.
       key: $(Build.SourcesDirectory)/vcpkg_x64-linux.txt | "$(vcpkgGitRef)" | "$(Agent.Name)"
       path: '$(Build.BinariesDirectory)/vcpkg'
    
