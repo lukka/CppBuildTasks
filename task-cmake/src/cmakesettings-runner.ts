@@ -260,8 +260,11 @@ export class CMakeSettingsJsonRunner {
 
   async run(): Promise<void> {
     let content: any = fs.readFileSync(this.cmakeSettingsJson);
-    tl.debug(tl.loc('CMakeSettingsContent', content.toString()));
-    let cmakeSettingsJson: any = JSON.parse(stripJsonComments(content.toString()));
+    // Remove any potential BOM at the beginning.
+    content = content.toString().trimLeft();
+    tl.debug(tl.loc('CMakeSettingsContent', content));
+    // Strip any comment out of the JSON content.
+    let cmakeSettingsJson: any = JSON.parse(stripJsonComments(content));
 
     let configurations = this.parseConfigurations(cmakeSettingsJson);
     let globalEnvs = this.parseGlobalEnvironments(cmakeSettingsJson);
