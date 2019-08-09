@@ -125,6 +125,22 @@ describe('CMake task tests', function () {
       });
     });
 
+  it('cmakesettings.json with BOM and comments should succeed',
+    (done: MochaDone) => {
+      testutils.runTest(done, (done) => {
+        let tp = path.join(__dirname, basePath, 'success-cmakesettings-bom.js');
+        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        tr.run();
+        outputStdout(tr.stdout);
+        assert.equal(tr.succeeded, true, 'should have succeeded');
+        assert.equal(tr.warningIssues.length, 0, 'should have no warnings');
+        assert.equal(tr.errorIssues.length, 0, 'should have no errors');
+        assert.equal(
+          tr.stdout.indexOf('anyName') >= 0, true,
+          'should contain "anyName"');
+      });
+    });
+
   it('cmakesettings.json with complex input should succeed',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
