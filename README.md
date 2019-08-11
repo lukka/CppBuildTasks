@@ -93,11 +93,15 @@ To package the extension for release purpose, run:
 
 or to pack it for development purpose:
 
+  > export MAJOR=3
+  > export MINOR=0
   > npm run packdev
 
-In the latter case GUIDs of extension and tasks will be different.
-and the name of the task will have appended "-dev".
-  
+`MAJOR` and `MINOR` environment variables are used to set versions of extension and tasks. Note that the path is bumped automatically.
+With 'packdev' GUIDs of extension and tasks are changed so the extension could be
+uploaded and tested on Azure DevOps without interfering with already released tasks.
+The name of the tasks have appended "-dev" to distringuish them.
+
 ### Testing
 
 Run the whole test suite:

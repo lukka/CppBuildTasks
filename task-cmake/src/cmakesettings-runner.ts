@@ -216,6 +216,11 @@ export class CMakeSettingsJsonRunner {
   doBuild: boolean;
   ninjaPath: string;
   sourceScript: string;
+  static readonly ARM64: [string, string] = ["ARM64", "ARM64"];
+  static readonly ARM: [string, string] = ["ARM", "ARM"];
+  static readonly X64: [string, string] = ["x64", "x64"];
+  static readonly WIN64: [string, string] = ["Win64", "x64"];
+  static readonly WIN32: [string, string] = ["Win32", "Win32"];
 
   constructor(settingsPath: any, configurationFilter: string, buildArgs: string, root: string, vcpkgTriplet: string, useVcpkgToolchain: boolean, doBuild: boolean, ninjaPath: string, sourceScript: string) {
     this.cmakeSettingsJson = settingsPath;
@@ -257,6 +262,43 @@ export class CMakeSettingsJsonRunner {
 
     return globalEnvs;
   }
+
+  getGeneratorArgs(gen: string): string {
+    if (gen.includes("Visual Studio")) {
+      // for VS generators, add the -A value
+      let architectureParam: string | undefined = undefined;
+      let generatorParam: string = "Visual Studio 16 2019";
+
+      const architectures: [string, string][] = [
+        CMakeSettingsJsonRunner.X64,
+        CMakeSettingsJsonRunner.WIN32,
+        CMakeSettingsJsonRunner.WIN64,
+        CMakeSettingsJsonRunner.ARM64, // Note ARM64 must be replaced before ARM!
+        CMakeSettingsJsonRunner.ARM
+      ];
+
+      // Remove the platform 
+      for (let architecture of architectures) {
+        if (gen.includes(architecture[0])) {
+          gen = gen.replace(architecture[0], "");
+          architectureParam = architecture[1];
+        }
+      }
+
+      gen = `-G \"${gen.trim()}\"`;
+
+      if (architectureParam) {
+        gen += ` -A ${architectureParam}`
+      }
+    }
+    else {
+      // All non-VS generators are passed as is.
+      gen = `-G "${gen}"`;
+    }
+
+    return gen;
+  }
+
 
   async run(): Promise<void> {
     let content: any = fs.readFileSync(this.cmakeSettingsJson);
@@ -306,7 +348,8 @@ export class CMakeSettingsJsonRunner {
       // The build directory goes into the artifact directory.
       configuration.buildDir = path.join(utils.getArtifactsDir(), configuration.name);
 
-      cmakeArgs += ` -G "${configuration.generator}"`;
+      cmakeArgs += this.getGeneratorArgs(configuration.generator);
+
       if (utils.isNinjaGenerator(cmakeArgs)) {
         let ninjaPath: string = ninjalib.retrieveNinjaPath(this.ninjaPath);
         cmakeArgs += ` -DCMAKE_MAKE_PROGRAM="${ninjaPath}"`;

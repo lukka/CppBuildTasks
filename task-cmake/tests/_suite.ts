@@ -125,6 +125,23 @@ describe('CMake task tests', function () {
       });
     });
 
+    it('cmakesettings.json with VS generators: provide proper -G -A values to cmake',
+    (done: MochaDone) => {
+      testutils.runTest(done, (done) => {
+        let tp = path.join(__dirname, basePath, 'success-cmakesettings-vsgenerators.js');
+        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        tr.run();
+        outputStdout(tr.stdout);
+        assert.equal(tr.succeeded, true, 'should have succeeded');
+        assert.equal(tr.warningIssues.length, 0, 'should have no warnings');
+        assert.equal(tr.errorIssues.length, 0, 'should have no errors');
+        assert.equal(
+          tr.stdout.indexOf('anyName') >= 0, true,
+          'should contain "anyName"');
+      });
+    });
+
+
   it('cmakesettings.json with BOM and comments should succeed',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
@@ -154,9 +171,12 @@ describe('CMake task tests', function () {
         assert.equal(tr.errorIssues.length, 0, 'should have no errors');
         assert(tr.stdOutContained('x86-Debug'), 'should contain "x86-Debug"');
         assert(
-          tr.stdOutContained('-G "Visual Studio 15 2017"'),
-          'should contain "-G "Visual Studio 15 2017"');
-        assert(
+          tr.stdOutContained('-G "Visual Studio 16 2019"'),
+          'should contain "-G "Visual Studio 16 2019"');
+          assert(
+            tr.stdOutContained('-A x64'),
+            'should contain "-A x64');
+          assert(
           tr.stdOutContained('-DCMAKE_BUILD_TYPE="Debug"'),
           'should contain configuration type Debug');
         // Check for the presence of one and only one toolchain passed only.
