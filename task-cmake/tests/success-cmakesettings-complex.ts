@@ -17,7 +17,7 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
   'checkPath': { '/usr/local/bin/cmake': true, '/usr/local/bin/node': true },
   'exec': {
     '/usr/local/bin/cmake': { 'code': 0, 'stdout': 'cmake test output here' },
-    '/usr/local/bin/cmake -G Visual Studio 15 2017 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE:string=D:/src/vcpkg/scripts/buildsystems/vcpkg.cmake .':
+    '/usr/local/bin/cmake -G Visual Studio 16 2019 -A x64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE:string=D:/src/vcpkg/scripts/buildsystems/vcpkg.cmake .':
       { 'code': 0, 'stdout': 'cmake output here' },
     '/usr/local/bin/cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_ANY_FLAG:boolean=OFF -DCONFIGURATION:STRING=ResolvedConfiguration .': {
       'code': 0, 'stdout': 'cmake output here'
@@ -59,7 +59,7 @@ tmr.registerMock('fs', {
             }
           ],
           'name': 'x86-Debug',
-          'generator': 'Visual Studio 15 2017',
+          'generator': 'Visual Studio 16 2019 x64',
           'configurationType': '${CONFIGURATIONTYPE}',
           'inheritEnvironments': ["ENVNAME"],
           'buildRoot':
