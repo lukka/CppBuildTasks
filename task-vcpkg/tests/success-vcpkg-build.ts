@@ -11,11 +11,19 @@ let tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 const gitPath: string = '/usr/local/bin/git';
 
 let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
-  'which': { 'git': '/usr/local/bin/git', 'sh': '/bin/bash' },
-  'checkPath': { '/usr/local/bin/git': true, '/bin/bash': true },
+  'which': {
+    'git': '/usr/local/bin/git',
+    'sh': '/bin/bash',
+    'chmod': '/bin/chmod'
+  },
+  'checkPath': {
+    '/usr/local/bin/git': true,
+    '/bin/bash': true,
+    '/bin/chmod': true
+  },
   'exec': {
     [gitPath]: { 'code': 0, 'stdout': 'git output here' },
-    [`${gitPath} clone https://github.com/Microsoft/vcpkg.git -n .`]:
+    [`${gitPath} clone https://github.com/microsoft/vcpkg.git -n .`]:
       { 'code': 0, 'stdout': 'this is git clone ... output' },
     [`${gitPath} checkout --force SHA1`]:
       { 'code': 0, 'stdout': 'this is git checkout SHA1 output' },
@@ -24,21 +32,34 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
     '/path/to/vcpkg/vcpkg remove --outdated --recurse':
       { 'code': 0, 'stdout': 'this is the vcpkg remove output' },
     '/bin/bash -c /path/to/vcpkg/bootstrap-vcpkg.sh':
-      { 'code': 0, 'stdout': 'this is the bootstrap output of vcpkg' }
+      { 'code': 0, 'stdout': 'this is the bootstrap output of vcpkg' },
+    '/bin/chmod +x /path/to/vcpkg/bootstrap-vcpkg.sh':
+      { 'code': 0, 'stdout': 'this is the bootstrap output of chmod +x bootstrap' }
   },
-  'rmRF': { '/path/to/vcpkg': { success: true } },
-  'writeFile':
-    { 'vcpkg_remote_url.last': 'https://github.com/Microsoft/vcpkg.git' }
+  'rmRF': { '/path/to/vcpkg': { success: true } }
 };
 
 // Arrange
 vcpkgUtilsMock.utilsMock.fileExists = (dir: string) => {
-  // Report there is not executable 'vcpkg' on disk, this should request a build of vcpkg.
+  // Report that there is not executable 'vcpkg' on disk, this should trigger a new build of vcpkg.
   if (path.parse(dir).base.indexOf('vcpkg') != 1) {
     return false;
   }
   return true;
 };
+vcpkgUtilsMock.utilsMock.readFile = (file: string) => {
+  if (file == "/path/to/vcpkg/.artifactignore") {
+    return [true, "!.git\n"];
+  }
+  else if (file == `/path/to/vcpkg/${Globals.vcpkgRemoteUrlLastFileName}`) {
+    return [false, "https://github.com/microsoft/vcpkg.git"];
+  }
+  else
+    throw `readFile called with unexpected file name: ${file}`;
+}
+vcpkgUtilsMock.utilsMock.isVcpkgSubmodule = () => {
+  return false;
+}
 tmr.registerMock('./vcpkg-utils', vcpkgUtilsMock.utilsMock);
 
 tmr.registerMock('strip-json-comments', {

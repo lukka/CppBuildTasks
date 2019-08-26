@@ -1,3 +1,5 @@
+import { Globals } from "../src/globals"
+
 export const utilsMock: any = {
     getBinDir() {
         return '/path/to/';
@@ -12,8 +14,8 @@ export const utilsMock: any = {
     directoryExists(dir: string) {
         return true;
     },
-    readFile(file: string) {
-        return [false, "https://github.com/Microsoft/vcpkg.git"];
+    writeFile(file: string, content: string) {
+        console.log(`Writing to file '${file}' content '${content}'`);
     },
     getDefaultTriplet(): string {
         return "triplet";

@@ -24,7 +24,6 @@ var setupTaskJson = function (json, patchValue) {
     json["friendlyName"] = appendDev(json["friendlyName"]);
     json["id"] = "a" + json["id"].substring(1);
     newVersion.Patch = patchValue;
-    console.log(newVersion.Patch);
   }
   json["version"] = newVersion;
   return json;
@@ -43,7 +42,6 @@ var buildProjects = function () {
         readPatch = json["version"].split(".")[2];
         readPatch++;
         json["version"] = process.env.MAJOR + "." + process.env.MINOR + "." + readPatch;
-        console.log(json["version"]);
       }
       return json;
     }, 2)).pipe(gulp.dest("."));
