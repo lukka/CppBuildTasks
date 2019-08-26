@@ -1,4 +1,5 @@
 import * as tl from 'azure-pipelines-task-lib/task';
+import * as trm from 'azure-pipelines-task-lib/toolrunner';
 import * as fs from 'fs';
 import * as os from 'os';
 
@@ -12,9 +13,42 @@ export function getBinDir(): string {
   if (!dir) {
     throw new Error(tl.loc(
       'vcpkGetBinDirFailure',
-      'Variables Build.Binaries and System.ArtifactsDirectory are empty'));
+      'Variables Build.Binaries and System.ArtifactsDirectory are both empty'));
   }
   return dir;
+}
+
+export function isVcpkgSubmodule(gitPath: string, fullVcpkgPath: string): boolean {
+  try {
+    const options: trm.IExecOptions = <trm.IExecOptions>{
+      cwd: process.env.BUILD_SOURCESDIRECTORY,
+      failOnStdErr: false,
+      errStream: process.stdout,
+      outStream: process.stdout,
+      ignoreReturnCode: true,
+      silent: false,
+      windowsVerbatimArguments: false,
+      env: process.env
+    };
+
+    const res: trm.IExecSyncResult = tl.execSync(gitPath, ['submodule', 'status', fullVcpkgPath], options);
+    let isSubmodule: boolean = false;
+    if (res.error !== null) {
+      isSubmodule = res.code == 0;
+      let msg: string;
+      msg = `git submodule exit code=${res.code}. `;
+      if (res.stdout !== null) {
+        msg += ` git submodule' at '${options.cwd}' returned '${res.stdout.trim()}'`;
+      }
+      tl.debug(msg);
+    }
+
+    return isSubmodule;
+  }
+  catch (error) {
+    tl.warning(`ïsVcpkgSubmodule() failed: ${error}`);
+    return false;
+  }
 }
 
 export function throwIfErrorCode(errorCode: Number): void {
@@ -65,11 +99,18 @@ export function fileExists(path: string) {
 
 export function readFile(path: string): [boolean, string] {
   try {
-    return [true, fs.readFileSync(path, { encoding: 'utf8', flag: 'r' })];
+    const readString: string = fs.readFileSync(path, { encoding: 'utf8', flag: 'r' });
+    tl.debug(`readFile(${path})='${readString})'.`);
+    return [true, readString];
   } catch (error) {
     tl.debug(`readFile(${path}): ${"" + error}`);
     return [false, error];
   }
+}
+
+export function writeFile(file: string, content: string): void {
+  tl.debug(`Writing to file '${file}' content '${content}'.`);
+  tl.writeFile(file, content);
 }
 
 export function getDefaultTriplet(): string {

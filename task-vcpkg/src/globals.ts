@@ -6,4 +6,7 @@ export module Globals {
   export const outVcpkgRootPath: string = "outVcpkgRootPath";
   export const vcpkgTriplet: string = "vcpkgTriplet";
   export const outVcpkgTriplet: string = "outvcpkgTriplet";
+  export const vcpkgDirectory: string = "vcpkgDirectory";
+  export const vcpkgArtifactIgnoreEntries: string = "vcpkgArtifactIgnoreEntries";
+  export const vcpkgRemoteUrlLastFileName: string = 'vcpkg_remote_url.last';
 }

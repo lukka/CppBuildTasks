@@ -1,7 +1,9 @@
+
 import * as ma from 'azure-pipelines-task-lib/mock-answer';
 import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';
 import * as vcpkgUtilsMock from './vcpkg-utils-mock';
+import * as assert from 'assert';
 
 import { Globals } from '../src/globals'
 
@@ -20,38 +22,44 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
   'exec': {
     ["/bin/chmod +x /path/to/vcpkg/vcpkg"]: { 'code': 0, 'stdout': 'chmod output here' },
     [gitPath]: { 'code': 0, 'stdout': 'git output here' },
-    [`${gitPath} clone https://github.com/microsoft/vcpkg.git -n .`]:
-      { 'code': 0, 'stdout': 'this is git clone ... output' },
     [`${gitPath} submodule`]:
       { 'code': 0, 'stdout': 'this is git submodule output' },
-    [`${gitPath} checkout --force newgitref`]:
-      { 'code': 0, 'stdout': 'this is git checkout newgitref output' },
-    '/path/to/vcpkg/vcpkg install --recurse vcpkg_args --triplet triplet':
+    '/path/to/vcpkg/vcpkg install --recurse vcpkg_args':
       { 'code': 0, 'stdout': 'this is the vcpkg output' },
     '/path/to/vcpkg/vcpkg remove --outdated --recurse':
       { 'code': 0, 'stdout': 'this is the vcpkg remove output' },
     '/bin/bash -c /path/to/vcpkg/bootstrap-vcpkg.sh':
-      { 'code': 0, 'stdout': 'this is the bootstrap output of bootstrap-vcpkg' },
+      { 'code': 0, 'stdout': 'this is the bootstrap output of vcpkg' },
     '/bin/chmod +x /path/to/vcpkg/bootstrap-vcpkg.sh':
       { 'code': 0, 'stdout': 'this is the bootstrap output of chmod +x bootstrap' }
-
   },
   'rmRF': { '/path/to/vcpkg': { success: true } }
 };
 
+
+
 // Arrange
 vcpkgUtilsMock.utilsMock.readFile = (file: string) => {
   if (file == "/path/to/vcpkg/.artifactignore") {
-    return [true, "!.git\n"];
+    return [true, "tokeep1"];
   }
   else if (file == `/path/to/vcpkg/${Globals.vcpkgRemoteUrlLastFileName}`) {
-    return [true, "https://github.com/microsoft/vcpkg.gitmygitref"];
+    return [true, "https://github.com/microsoft/vcpkg.gitsamegitref"];
   }
   else
-    throw `readFile called with unexpected file name: '${file}'.`;
+    throw `readFile called with unexpected file name: ${file}`;
+};
+vcpkgUtilsMock.utilsMock.writeFile = (file: string, content: string) => {
+  console.log(`Writing to file '${file}' content '${content}'`);
+  if (file.endsWith('.artifactignore')) {
+    assert.ok(content.indexOf('!.git') === -1, "There must be no !.git .");
+    const entries: string[] = [".git", "tokeep1", "tokeep2"];
+    for (let entry of entries)
+      assert.ok(content.indexOf(entry) !== -1, `There must be '${entry}' .`);
+  }
 };
 vcpkgUtilsMock.utilsMock.isVcpkgSubmodule = () => {
-  return false;
+  return true;
 };
 tmr.registerMock('./vcpkg-utils', vcpkgUtilsMock.utilsMock);
 
@@ -63,8 +71,8 @@ tmr.registerMock('strip-json-comments', {
 
 tmr.setAnswers(answers);
 tmr.setInput(Globals.vcpkgArguments, 'vcpkg_args');
-tmr.setInput(Globals.vcpkgTriplet, 'triplet');
-tmr.setInput(Globals.vcpkgCommitId, 'newgitref');
+tmr.setInput(Globals.vcpkgCommitId, 'samegitref');
+tmr.setInput(Globals.vcpkgArtifactIgnoreEntries, 'tokeep2');
 
 // Act
 tmr.run();

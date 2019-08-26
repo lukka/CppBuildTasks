@@ -29,7 +29,7 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
     [gitPath]: { 'code': 0, 'stdout': 'git output here' },
     [`${gitPath} init`]:
       { 'code': 0, 'stdout': 'this is git init output' },
-    [`${gitPath} clone https://github.com/Microsoft/vcpkg.git -n .`]:
+    [`${gitPath} clone https://github.com/microsoft/vcpkg.git -n .`]:
       { 'code': 0, 'stdout': 'this is git clone ... output' },
     [`${gitPath} checkout --force mygitref`]:
       { 'code': 0, 'stdout': 'this is git checkout SHA1 output' },
@@ -42,15 +42,27 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
     '/usr/local/bin/git remote update':
       { 'code': 0, 'stdout': 'this is git remote update output' },
     '/usr/local/bin/git status -uno':
-      { 'code': 0, 'stdout': 'up to date' }
+      { 'code': 0, 'stdout': 'up to date' },
+    '/bin/chmod +x /path/to/vcpkg/bootstrap-vcpkg.sh':
+        { 'code': 0, 'stdout': 'this is the bootstrap output of chmod +x bootstrap' }
   },
-  'rmRF': { '/path/to/vcpkg': { success: true } },
-  'writeFile':
-    { 'vcpkg_remote_url.last': 'https://github.com/Microsoft/vcpkg.git' }
+  'rmRF': { '/path/to/vcpkg': { success: true } }
 };
 
 // Arrange
-vcpkgUtilsMock.utilsMock.readFile = (file: string) => [true, "https://github.com/Microsoft/vcpkg.gitmygitref"];
+vcpkgUtilsMock.utilsMock.readFile = (file: string) => {
+  if (file == "/path/to/vcpkg/.artifactignore") {
+    return [true, "!.git\n"];
+  }
+  else if (file == `/path/to/vcpkg/${Globals.vcpkgRemoteUrlLastFileName}`) {
+    return [true, "https://github.com/microsoft/vcpkg.gitmygitref"];
+  }
+  else
+    throw `readFile called with unexpected file name: ${file}`;
+}
+vcpkgUtilsMock.utilsMock.isVcpkgSubmodule = () => {
+  return false;
+}
 tmr.registerMock('./vcpkg-utils', vcpkgUtilsMock.utilsMock);
 
 tmr.registerMock('strip-json-comments', {

@@ -1,4 +1,4 @@
-name: 0.3.$(rev:r)
+name: 0.9.$(rev:r)
 
 pool:
   name: Hosted Ubuntu 1604

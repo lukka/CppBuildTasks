@@ -4,8 +4,6 @@ import * as path from 'path';
 import { Globals } from './globals';
 import * as vcpkgUtils from './vcpkg-utils'
 
-const vcpkgRemoteUrlLastFileName: string = 'vcpkg_remote_url.last';
-
 export class VcpkgRunner {
   vcpkgDestPath: string;
   vcpkgArgs: string;
@@ -13,23 +11,29 @@ export class VcpkgRunner {
   vcpkgURL: string;
 
   /**
-   * Git ref (a branch or a tag, not a commit id) of vcpkg repository to fetch.
-   * @type {string} The ref name (e.g. the branch or tag name).
+   * Git ref (a branch, a tag, or a commit id) to fetch from the vcpkg repository.
+   * @type {string} The ref name (e.g. the branch or tag name or id).
    * @memberof VcpkgRunner
    */
   vcpkgCommitId: string;
   vcpkgTriplet: string;
   options: trm.IExecOptions;
+  vcpkgArtifactIgnoreEntries: string[];
 
   private fetchInput(): void {
     this.vcpkgArgs = tl.getInput(Globals.vcpkgArguments, true);
-    this.defaultVcpkgUrl = 'https://github.com/Microsoft/vcpkg.git';
+    this.defaultVcpkgUrl = 'https://github.com/microsoft/vcpkg.git';
     this.vcpkgURL =
       tl.getInput(Globals.vcpkgGitURL) || this.defaultVcpkgUrl;
     this.vcpkgCommitId =
       tl.getInput(Globals.vcpkgCommitId) || 'master';
-    this.vcpkgDestPath = path.join(vcpkgUtils.getBinDir(), 'vcpkg');
+    this.vcpkgDestPath = tl.getPathInput(Globals.vcpkgDirectory);
+    if (!this.vcpkgDestPath) {
+      this.vcpkgDestPath = path.join(vcpkgUtils.getBinDir(), 'vcpkg');
+    }
+
     this.vcpkgTriplet = tl.getInput(Globals.vcpkgTriplet, false);
+    this.vcpkgArtifactIgnoreEntries = tl.getDelimitedInput(Globals.vcpkgArtifactIgnoreEntries, '\n', false);
   }
 
   async run(): Promise<void> {
@@ -63,7 +67,12 @@ export class VcpkgRunner {
   }
 
   private async prepareForCache(): Promise<void> {
-    tl.writeFile(path.join(this.vcpkgDestPath, '.artifactignore'), "!.git\n/buildtrees\n/packages\n/downloads\n");
+    const artifactignoreFile: string = '.artifactignore';
+    const artifactFullPath: string = path.join(this.vcpkgDestPath, artifactignoreFile);
+    let [ok, content] = vcpkgUtils.readFile(artifactFullPath);
+    content = ok ? content + "\n" : "";
+    vcpkgUtils.writeFile(artifactFullPath,
+      content + this.vcpkgArtifactIgnoreEntries.join('\n'));
   }
 
   private async updatePackages(): Promise<void> {
@@ -92,19 +101,19 @@ export class VcpkgRunner {
         tl.warning(`Ignoring the task provided triplet: '${this.vcpkgTriplet}'.`);
       }
       this.vcpkgTriplet = extractedTriplet;
-      console.log(`Extracted from command line triplet '${this.vcpkgTriplet}'.`);
+      console.log(`Extracted triplet from command line '${this.vcpkgTriplet}'.`);
     } else {
       // If triplet is nor specified in arguments, nor in task, let's deduce it from
       // agent context (i.e. its OS).
       if (!this.vcpkgTriplet) {
-        console.log(`Deducing triplet from environment...`);
-        this.vcpkgTriplet = vcpkgUtils.getDefaultTriplet();
+        console.log("No '--triplet' argument is provided on the command line to vcpkg.");
       }
+      else {
+        console.log(`Using triplet '${this.vcpkgTriplet}'.`);
 
-      console.log(`Using triplet '${this.vcpkgTriplet}'.`);
-
-      // Add the triplet argument to the command line.
-      installCmd += ` --triplet ${this.vcpkgTriplet}`;
+        // Add the triplet argument to the command line.
+        installCmd += ` --triplet ${this.vcpkgTriplet}`;
+      }
     }
 
     // Set the used triplet in VCPKG_TRIPLET environment variable
@@ -127,30 +136,44 @@ export class VcpkgRunner {
   private async updateRepo(): Promise<boolean> {
     let gitPath: string = tl.which('git', true);
     // Git update or clone depending on content of vcpkgDestPath.
-    const cloneCompletedFilePath = path.join(this.vcpkgDestPath, vcpkgRemoteUrlLastFileName);
+    const cloneCompletedFilePath = path.join(this.vcpkgDestPath, Globals.vcpkgRemoteUrlLastFileName);
 
-    // Update the source of vcpkg.
+    // Update the source of vcpkg if needed.
     let updated: boolean = false;
     let needRebuild: boolean = false;
-    let remoteUrlAndCommitId: string = this.vcpkgURL + this.vcpkgCommitId;
+    const remoteUrlAndCommitId: string = this.vcpkgURL + this.vcpkgCommitId;
+    const isSubmodule = vcpkgUtils.isVcpkgSubmodule(gitPath, this.vcpkgDestPath);
+    if (isSubmodule) {
+      // In case vcpkg it is a Git submodule...
+      console.log(`'vcpkg' is detected as a submodule, adding '.git' to the ignored entries in '.artifactignore' file (for caching).`);
+      // Remove any existing '!.git'.
+      this.vcpkgArtifactIgnoreEntries =
+        this.vcpkgArtifactIgnoreEntries.filter(item => !item.trim().endsWith('!.git'));
+      // Add '.git' to ignore that directory.
+      this.vcpkgArtifactIgnoreEntries.push('.git');
+      console.log(`.artifactsignore content: '${this.vcpkgArtifactIgnoreEntries.map(s => `"${s}"`).join(', ')}'`);
+      updated = true;
+    }
+
     let res: boolean = vcpkgUtils.directoryExists(this.vcpkgDestPath);
-    tl.debug(`directory ${this.vcpkgDestPath} exists: ${res}`);
-    if (res) {
+    tl.debug(`exist('${this.vcpkgDestPath}') == ${res}`);
+    if (res && !isSubmodule) {
       let [ok, remoteUrlAndCommitIdLast] = vcpkgUtils.readFile(cloneCompletedFilePath);
       tl.debug(`cloned check: ${ok}, ${remoteUrlAndCommitIdLast}`);
       if (ok) {
         tl.debug(`lastcommitid=${remoteUrlAndCommitIdLast}, actualcommitid=${remoteUrlAndCommitId}`);
         if (remoteUrlAndCommitIdLast == remoteUrlAndCommitId) {
           // Update from remote repository.
-          tl.debug(this.options.cwd);
-          await tl.exec(gitPath, ['remote', 'update'], this.options);
-          // Use git status to understand if we need to rebuild vcpkg since the last downloaded 
-          // branch is old.
+          tl.debug(`options.cwd=${this.options.cwd}`);
+          vcpkgUtils.throwIfErrorCode(await tl.exec(gitPath, ['remote', 'update'], this.options));
+          // Use git status to understand if we need to rebuild vcpkg since the last cloned 
+          // repository is not up to date.
           let res: trm.IExecSyncResult = await tl.execSync(gitPath, ['status', '-uno'], this.options);
           let uptodate = res.stdout.match("up to date");
           let detached = res.stdout.match("detached");
           if (!uptodate && !detached) {
-            await tl.exec(gitPath, ['pull', 'origin', this.vcpkgCommitId], this.options);
+            // Update sources and force a rebuild.
+            vcpkgUtils.throwIfErrorCode(await tl.exec(gitPath, ['pull', 'origin', this.vcpkgCommitId], this.options));
             needRebuild = true;
             console.log(tl.loc('vcpkgNeedsRebuildRepoUpdated'));
           }
@@ -186,8 +209,7 @@ export class VcpkgRunner {
     if (!vcpkgUtils.fileExists(vcpkgPath)) {
       console.log(tl.loc('vcpkgNeedsRebuildMissingExecutable'));
       needRebuild = true;
-    }
-    else {
+    } else {
       if (!vcpkgUtils.isWin32()) {
         tl.execSync('chmod', ["+x", vcpkgPath])
       }
@@ -198,22 +220,26 @@ export class VcpkgRunner {
 
   private async build(): Promise<void> {
     // Build vcpkg.
-    let bootstrap: string = 'bootstrap-vcpkg';
+    let bootstrapFileName: string = 'bootstrap-vcpkg';
     if (vcpkgUtils.isWin32()) {
-      bootstrap += '.bat';
+      bootstrapFileName += '.bat';
     } else {
-      bootstrap += '.sh';
+      bootstrapFileName += '.sh';
     }
 
     if (vcpkgUtils.isWin32()) {
       let cmdPath: string = tl.which('cmd.exe', true);
       let cmdTool = tl.tool(cmdPath);
-      cmdTool.arg(['/c', path.join(this.vcpkgDestPath, bootstrap)]);
+      cmdTool.arg(['/c', path.join(this.vcpkgDestPath, bootstrapFileName)]);
       vcpkgUtils.throwIfErrorCode(await cmdTool.exec(this.options));
     } else {
-      let shPath: string = tl.which('sh', true);
-      let shTool = tl.tool(shPath);
-      shTool.arg(['-c', path.join(this.vcpkgDestPath, bootstrap)]);
+      const shPath: string = tl.which('sh', true);
+      const shTool = tl.tool(shPath);
+      const bootstrapFullPath: string = path.join(this.vcpkgDestPath, bootstrapFileName);
+      if (!vcpkgUtils.isWin32()) {
+        tl.execSync('chmod', ["+x", bootstrapFullPath]);
+      }
+      shTool.arg(['-c', bootstrapFullPath]);
       vcpkgUtils.throwIfErrorCode(await shTool.exec(this.options));
     }
   }
