@@ -348,7 +348,7 @@ export class CMakeSettingsJsonRunner {
       // The build directory goes into the artifact directory.
       configuration.buildDir = path.join(utils.getArtifactsDir(), configuration.name);
 
-      cmakeArgs += this.getGeneratorArgs(configuration.generator);
+      cmakeArgs += " " + this.getGeneratorArgs(configuration.generator);
 
       if (utils.isNinjaGenerator(cmakeArgs)) {
         let ninjaPath: string = ninjalib.retrieveNinjaPath(this.ninjaPath);

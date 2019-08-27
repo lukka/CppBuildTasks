@@ -100,7 +100,7 @@ export function fileExists(path: string) {
 export function readFile(path: string): [boolean, string] {
   try {
     const readString: string = fs.readFileSync(path, { encoding: 'utf8', flag: 'r' });
-    tl.debug(`readFile(${path})='${readString})'.`);
+    tl.debug(`readFile(${path})='${readString}'.`);
     return [true, readString];
   } catch (error) {
     tl.debug(`readFile(${path}): ${"" + error}`);
