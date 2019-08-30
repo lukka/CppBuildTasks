@@ -34,14 +34,14 @@ function getTargetType(typeString: string): TaskModeType {
 
 var CMakeGenerator = {
   'Unknown': {},
-  'VS15Arm': { 'G': 'Visual Studio 16 2019', 'A': 'ARM' },
-  'VS15Win32': { 'G': 'Visual Studio 16 2019', 'A': 'Win32' },
-  'VS15Win64': { 'G': 'Visual Studio 16 2019', 'A': 'x64' },
-  'VS15Arm64': { 'G': 'Visual Studio 16 2019', 'A': 'ARM64' },
-  'VS16Arm': { 'G': 'Visual Studio 15 2017', 'A': 'ARM' },
-  'VS16Win32': { 'G': 'Visual Studio 15 2017', 'A': 'Win32' },
-  'VS16Win64': { 'G': 'Visual Studio 15 2017', 'A': 'x64' },
-  'VS16Arm64': { 'G': 'Visual Studio 15 2017', 'A': 'ARM64' },
+  'VS16Arm': { 'G': 'Visual Studio 16 2019', 'A': 'ARM' },
+  'VS16Win32': { 'G': 'Visual Studio 16 2019', 'A': 'Win32' },
+  'VS16Win64': { 'G': 'Visual Studio 16 2019', 'A': 'x64' },
+  'VS16Arm64': { 'G': 'Visual Studio 16 2019', 'A': 'ARM64' },
+  'VS15Arm': { 'G': 'Visual Studio 15 2017', 'A': 'ARM' },
+  'VS15Win32': { 'G': 'Visual Studio 15 2017', 'A': 'Win32' },
+  'VS15Win64': { 'G': 'Visual Studio 15 2017', 'A': 'x64' },
+  'VS15Arm64': { 'G': 'Visual Studio 15 2017', 'A': 'ARM64' },
   'Ninja': { 'G': 'Ninja', 'A': '' },
   'UnixMakefiles': { 'G': 'Unix Makefiles', 'A': '' }
 };
