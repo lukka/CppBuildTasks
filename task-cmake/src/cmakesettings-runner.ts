@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Luca Cappa
+// Released under the term specified in file LICENSE.txt
+// SPDX short identifier: MIT
+
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as trm from 'azure-pipelines-task-lib/toolrunner';
 import * as crypto from 'crypto';
@@ -298,7 +302,6 @@ export class CMakeSettingsJsonRunner {
 
     return gen;
   }
-
 
   async run(): Promise<void> {
     let content: any = fs.readFileSync(this.cmakeSettingsJson);

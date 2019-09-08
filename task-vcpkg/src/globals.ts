@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Luca Cappa
+// Released under the term specified in file LICENSE.txt
+// SPDX short identifier: MIT
+
 export module Globals {
   export const vcpkgArguments: string = 'vcpkgArguments';
   export const buildDirectory: string = 'buildDirectory';

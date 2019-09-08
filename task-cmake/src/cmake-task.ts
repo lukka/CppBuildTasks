@@ -1,10 +1,14 @@
+// Copyright (c) 2019 Luca Cappa
+// Released under the term specified in file LICENSE.txt
+// SPDX short identifier: MIT
+
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as cmakerunner from './cmake-runner'
 import * as path from 'path'
 
 async function main(): Promise<void> {
   try {
-    tl.setResourcePath(path.join( __dirname, 'task.json'));
+    tl.setResourcePath(path.join(__dirname, 'task.json'));
     let runner: cmakerunner.CMakeRunner = new cmakerunner.CMakeRunner();
     await runner.run();
     tl.setResult(tl.TaskResult.Succeeded, tl.loc('CMakeSuccess'));

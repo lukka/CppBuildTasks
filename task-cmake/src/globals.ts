@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Luca Cappa
+// Released under the term specified in file LICENSE.txt
+// SPDX short identifier: MIT
+
 export module Globals {
   export const cmakeSettingsJsonPath: string = 'cmakeSettingsJsonPath';
   export const cmakeListsTxtPath: string = 'cmakeListsTxtPath';
@@ -11,8 +15,8 @@ export module Globals {
   export const cmakeToolchainPath: string = 'cmakeToolchainPath';
   export const buildWithCMake: string = 'buildWithCMake';
   export const buildWithCMakeArgs: string = 'buildWithCMakeArgs';
-  export const useVcpkgToolchainFile:string = 'useVcpkgToolchainFile';
-  export const cmakeBuildType:string = 'cmakeBuildType';
-  export const vcpkgTriplet:string = 'vcpkgTriplet';
-  export const cmakeWrapperCommand:string = 'cmakeWrapperCommand';
+  export const useVcpkgToolchainFile: string = 'useVcpkgToolchainFile';
+  export const cmakeBuildType: string = 'cmakeBuildType';
+  export const vcpkgTriplet: string = 'vcpkgTriplet';
+  export const cmakeWrapperCommand: string = 'cmakeWrapperCommand';
 }

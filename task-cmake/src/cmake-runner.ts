@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Luca Cappa
+// Released under the term specified in file LICENSE.txt
+// SPDX short identifier: MIT
+
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as trm from 'azure-pipelines-task-lib/toolrunner';
 import * as path from 'path';
@@ -206,7 +210,7 @@ export class CMakeRunner {
           windowsVerbatimArguments: false,
           env: process.env
         };
-      
+
         tl.debug(`Generating project files with CMake in build directory '${options.cwd}' ...`);
         let code: number = await cmake.exec(options);
         if (code != 0) {
