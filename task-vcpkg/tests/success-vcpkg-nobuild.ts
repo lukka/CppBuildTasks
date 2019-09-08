@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Luca Cappa
+// Released under the term specified in file LICENSE.txt
+// SPDX short identifier: MIT
+
 import * as ma from 'azure-pipelines-task-lib/mock-answer';
 import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';
@@ -44,7 +48,7 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
     '/usr/local/bin/git status -uno':
       { 'code': 0, 'stdout': 'up to date' },
     '/bin/chmod +x /path/to/vcpkg/bootstrap-vcpkg.sh':
-        { 'code': 0, 'stdout': 'this is the bootstrap output of chmod +x bootstrap' }
+      { 'code': 0, 'stdout': 'this is the bootstrap output of chmod +x bootstrap' }
   },
   'rmRF': { '/path/to/vcpkg': { success: true } }
 };

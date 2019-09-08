@@ -1,3 +1,7 @@
+// Copyright (c) 2019 Luca Cappa
+// Released under the term specified in file LICENSE.txt
+// SPDX short identifier: MIT
+
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as trm from 'azure-pipelines-task-lib/toolrunner';
 import * as fs from 'fs';
@@ -138,7 +142,7 @@ export function getDefaultTriplet(): string {
 export function extractTriplet(args: string, readFile: (string) => [boolean, string]): string | null {
   let triplet: string | null = null;
   // Split string on any 'whitespace' character
-  let argsSplitted: string[] = args.split(/\s/).filter((a) => a.length != 0);
+  const argsSplitted: string[] = args.split(/\s/).filter((a) => a.length != 0);
   let index: number = 0;
   for (; index < argsSplitted.length; index++) {
     let arg: string = argsSplitted[index].trim();
@@ -164,3 +168,32 @@ export function extractTriplet(args: string, readFile: (string) => [boolean, str
   return triplet;
 }
 
+export function resolveArguments(args: string, readFile: (string) => [boolean, string]): string {
+  let resolvedArguments: string = "";
+
+  // Split string on any 'whitespace' character
+  const argsSplitted: string[] = args.split(/\s/).filter((a) => a.length != 0);
+  let index: number = 0;
+  for (; index < argsSplitted.length; index++) {
+    let arg: string = argsSplitted[index].trim();
+    // remove all whitespace characters (e.g. newlines, tabs, blanks)
+    arg = arg.replace(/\s/, '');
+    let isResponseFile: boolean = false;
+    if (arg.startsWith("@")) {
+      const resolvedFilePath: string = tl.resolve(arg);
+      if (tl.exist(resolvedFilePath)) {
+        let [ok, content] = readFile(resolvedFilePath);
+        if (ok && content) {
+          isResponseFile = true;
+          resolvedArguments += content;
+        }
+      }
+    }
+
+    if (!isResponseFile) {
+      resolvedArguments += arg;
+    }
+  }
+
+  return resolvedArguments;
+}

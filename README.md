@@ -2,7 +2,7 @@
 
 # Azure DevOps [build tasks](https://marketplace.visualstudio.com/items?itemName=lucappa.cmake-ninja-vcpkg-tasks) for [CMake](https://www.cmake.org/) and [vcpkg](https://github.com/microsoft/vcpkg/)
 
- Build software with vcpkg and CMake (either with CMakeLists.txt or CMakeSettings.json), e.g.:
+ Build software with vcpkg and CMake (either with CMakeLists.txt or CMakeSettings.json).
 
 It is highly recommended to use __vcpkg as a Git submodule__. Here below the sample where vcpkg is a Git submodule:
 
@@ -53,7 +53,7 @@ Another sample when vcpkg is NOT a submodule (not recommended):
   - task: CacheBeta@0
     displayName: Cache vcpkg
     inputs:
-      key: $(Build.SourcesDirectory)/vcpkg_x64-linux.txt | "$(vcpkgGitRef)" | "$(Agent.Name)"
+      key: $(Build.SourcesDirectory)/vcpkg_x64-linux.txt | "$(vcpkgGitRef)" | "$(Agent.OS)"
       path: '$(Build.BinariesDirectory)/vcpkg'
    
    - task: lucappa.cmake-ninja-vcpkg-tasks.d855c326-b1c0-4d6f-b1c7-440ade6835fb.run-vcpkg@0
@@ -185,5 +185,6 @@ To run all tests that contains "toolchain" in the name:
   > npm run test -- -g toolchain
 
 # License
-All the content in this repository, of the extension and of the 'run-cmake' and 'run-vcpkg' is licensed under the [MIT License](LICENSE.txt).
+All the content in this repository, of the extension and of the 'run-cmake' and 'run-vcpkg' tasks are licensed under the [MIT License](LICENSE.txt).
+
 Copyright (c) 2019 Luca Cappa

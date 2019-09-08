@@ -32,7 +32,7 @@
       "label": "The vcpkg's root directory:",
       "defaultValue": "$(Build.BinariesDirectory)/vcpkg",
       "required": false,
-      "helpMarkDown": "Specify the vcpkg's root directory. If not specified, it defaults to $(Build.BinariesDirectory)/vcpkg/ . When vcpkg is a Git submodule, it is useful to specify the full path to it (e.g. '$(Build.SourcesDirectory)/vcpkg/') ."
+      "helpMarkDown": "Specify the vcpkg's root directory. If not specified, it defaults to $(Build.BinariesDirectory)/vcpkg/ . When vcpkg is a Git submodule, specify the full path to it (e.g. '$(Build.SourcesDirectory)/vcpkg/') ."
     },
     {
       "name": "vcpkgGitURL",
@@ -79,8 +79,8 @@
         "resizable": "true",
         "rows": "3"
       },
-      "label": "The entries to append to .artifactignore file, located in the vcpkg 's root:",
-      "defaultValue": "!.git\n/buildtrees\n/packages\n/downloads\n",
+      "label": "The entries to append to .artifactignore file, located in the vcpkg's root:",
+      "defaultValue": "!.git\n**/*\n!installed\n!/vcpkg\n",
       "required": false,
       "groupname": "advanced",
       "helpMarkDown": "Specify entries to append to the .artifactignore file. This file specifies which directory to ignore or to include by the Cache task . For more info: https://docs.microsoft.com/en-us/azure/devops/artifacts/reference/artifactignore?view=azure-devops . The file is created if not existing already. "
