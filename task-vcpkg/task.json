@@ -80,7 +80,7 @@
         "rows": "3"
       },
       "label": "The entries to append to .artifactignore file, located in the vcpkg's root:",
-      "defaultValue": "!.git\n**/*\n!installed\n!/vcpkg\n",
+      "defaultValue": "!.git\n**/*\n!installed\n!/vcpkg\n!/vcpkg.exe\n",
       "required": false,
       "groupname": "advanced",
       "helpMarkDown": "Specify entries to append to the .artifactignore file. This file specifies which directory to ignore or to include by the Cache task . For more info: https://docs.microsoft.com/en-us/azure/devops/artifacts/reference/artifactignore?view=azure-devops . The file is created if not existing already. "
