@@ -5,8 +5,9 @@
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as trm from 'azure-pipelines-task-lib/toolrunner';
 import * as path from 'path';
-import { Globals } from './globals';
 import * as vcpkgUtils from './vcpkg-utils'
+
+import { Globals } from './globals';
 
 export class VcpkgRunner {
   vcpkgDestPath: string;
