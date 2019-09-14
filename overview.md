@@ -2,7 +2,7 @@ This extension provides the tasks **'run-vcpkg'** and **'run-cmake'** to build C
 
 ## The ***run-vcpkg*** task
 
-The task verifies whether vcpkg is already located at the value specified for `vcpkgDirectory` (e.g. vcpkg could be a submodule of the Git repository). If it is not there, it uses [Git](https://git-scm.com/) to fetch [vcpkg](https://github.com/microsoft/vcpkg) into that directory. When needed vcpkg is build, and eventually vcpkg is launched to build and install the specified ports.
+The task verifies whether vcpkg is already located at the path specified for `vcpkgDirectory` (e.g. vcpkg could be a submodule of the Git repository). If it is not there, it uses [Git](https://git-scm.com/) to fetch [vcpkg](https://github.com/microsoft/vcpkg) into that directory. When needed vcpkg is build, and eventually vcpkg is launched to build and install the specified ports.
 The task sets `VCPKG_ROOT` environment/task variable, which is automatically used by subsequent **'run-cmake'** to consume the vcpkg's toolchain file.
 
 ### Use vcpkg as a submodule of your Git repository ###
@@ -10,9 +10,9 @@ The task sets `VCPKG_ROOT` environment/task variable, which is automatically use
 When using this task be aware that:
  - a version of vcpkg is obtainined checking out the sources of vcpkg at a given commit id, or tag (e.g. release tag `2019.07`);
  - given a checkout of a version of vcpkg, each port is provided at a specific version, e.g. there are no multiple versions of the same port;
- - it is not possible to  choose which version of the port to install, instead it is the given version of vcpkg that established which version of the port is going to install;
+ - it is not possible to choose which version of the port to install, instead it is the given version of vcpkg that established which version of the port is going to install;
  
- To sum up, it is suggested to stick to a specific version of vcpkg that fits your needs, that means a specific commit id of vcpkg that contains all the ports at the desired version should be used during your development cycle. To keep a consistent development experience between local and remote builds, **it is highly suggested to use vcpkg as submodule of your Git repository**; this way the version of vcpkg used is implied by the submodule.
+ To sum up, it is suggested to stick to a specific version of vcpkg that fits your needs, that means a specific commit id of vcpkg that contains all the ports at the desired version that should be used during your development cycle. To keep a consistent development experience between local and remote builds, **it is highly suggested to use vcpkg as submodule of your Git repository**; this way the version of vcpkg used is implied by the submodule.
 
 ### Use vcpkg's response file as parameter
 
