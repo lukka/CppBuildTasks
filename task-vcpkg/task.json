@@ -58,15 +58,16 @@
       "label": "The vcpkg triplet:",
       "defaultValue": "",
       "required": false,
-      "helpMarkDown": "Provides the vcpkg triplet, e.g. specify a file in the vcpkg/triplet/ directory that defines the platform/architecture/runtime/compiler to be used when building. Common values are x64-windows, x64-linux and x64-osx. <br> When not provided here, the task uses VCPKG_DEFAULT_TRIPLET environment variable if defined, otherwise it uses a platform specific one."
+      "groupname": "advanced",
+      "helpMarkDown": "Specify the vcpkg triplet. Common values are x64-windows, x64-linux and x64-osx. It is recommended to specify the triplet in the response file provided in the arguments instead than here."
     },
     {
       "name": "vcpkgArguments",
       "type": "multiLine",
-      "label": "Arguments for vcpkg (also the list of packages):",
+      "label": "Arguments for 'vcpkg install':",
       "defaultValue": "",
       "required": true,
-      "helpMarkDown": "Provides the vcpkg arguments, e.g. the list of packages space separated, and additional flags like '@responsefile', '--vcpkg-root' and so forth.",
+      "helpMarkDown": "Provides the arguments appended to 'vcpkg install'. It is recommended to use a response file to provide either the triplet and the list of packages to be installed. , e.g. `@$(Build.SourcesDirectory)/vcpkg_osx.txt`.",
       "properties": {
         "resizable": "true",
         "rows": "5"
@@ -80,10 +81,10 @@
         "rows": "3"
       },
       "label": "The entries to append to .artifactignore file, located in the vcpkg's root:",
-      "defaultValue": "!.git\n**/*\n!installed\n!/vcpkg\n!/vcpkg.exe\n",
+      "defaultValue": "!.git\n**/*\n!installed\n!/vcpkg\n!vcpkg.exe\n",
       "required": false,
       "groupname": "advanced",
-      "helpMarkDown": "Specify entries to append to the .artifactignore file. This file specifies which directory to ignore or to include by the Cache task . For more info: https://docs.microsoft.com/en-us/azure/devops/artifacts/reference/artifactignore?view=azure-devops . The file is created if not existing already. "
+      "helpMarkDown": "Specify entries to append to the .artifactignore file. This file specifies which directory to ignore or to include by the Cache task. For more info: https://docs.microsoft.com/en-us/azure/devops/artifacts/reference/artifactignore?view=azure-devops . The file is created if not existing already. "
     }
   ],
   "execution": {
