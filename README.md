@@ -1,5 +1,7 @@
 [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/lukka.CppBuildTasks?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=15&branchName=master)
 
+![Marketplace publishing](https://vsrm.dev.azure.com/CppBuild/_apis/public/Release/badge/7d4557dc-7e36-4795-97a5-b0874dd1157a/1/1)
+
 # Azure DevOps [build tasks](https://marketplace.visualstudio.com/items?itemName=lucappa.cmake-ninja-vcpkg-tasks) for [CMake](https://www.cmake.org/) and [vcpkg](https://github.com/microsoft/vcpkg/)
 
  Build software with vcpkg and CMake (either with CMakeLists.txt or CMakeSettings.json).
@@ -85,7 +87,7 @@ A complete [reference](reference.md) of all the inputs of the tasks is provided.
 [macOS with cache, vcpkg submodule](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fmacos-hosted-basic-cache-submod_vcpkg.yml&version=master) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-macos-hosted-cache-submod-vcpkg?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=27&branchName=master)
 [Windows - vs2019](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fvs2019-hosted-basic.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/cmakelists.txt-vs2019-hosted?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=1&branchName=master)
 [Windows - vs2019 with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fvs2019-hosted-basic-cache.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-vs2019-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=19&branchName=master)
-[Windows - vs2019, vcpkg submodule](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fvs2019-hosted-basic-cache.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-vs2019-hosted-cache-submod-vcpkg?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=29&branchName=master)
+[Windows - vs2019 with cache, vcpkg submodule](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fvs2019-hosted-basic-cache-submod_vcpkg.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-vs2019-hosted-cache-submod-vcpkg?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=29&branchName=master)
 [Windows - vs2017](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fvs2017-hosted-basic.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/cmakelists.txt-vs2017-hosted?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=14&branchName=master)
 [Windows - vs2017 with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fvs2017-hosted-basic-cache.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-vs2017-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=20&branchName=master)
 [Windows - vs2017 with cache, vcpkg submodule](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fvs2017-hosted-basic-cache.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeLists.txt%20samples/cmakelists.txt-vc2017-hosted-cache-submod-vcpkg?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=28&branchName=master)
@@ -124,9 +126,9 @@ project: [CppOpenGLWebAssemblyCMake](https://github.com/lukka/CppOpenGLWebAssemb
 |----------|-------|
 [webassembly/Linux/macOS/Windows](https://github.com/lukka/CppOpenGLWebAssemblyCMake/blob/master/azure-pipelines.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/wasm-and-native-win-linux-lukka.CppOpenGLWebAssemblyCMake?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=8&branchName=master)
 
-project: [elastix](https://github.com/SuperElastix/elastix) | |
+project: [Microsoft MSVC STL](https://github.com/lukka/STL) | |
 |----------|-------|
-[elastix with cache, vcpkg submodule](https://github.com/lukka/elastix/blob/azure_pipelines/Testing/CI/Azure/ci.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/lukka.elastix?branchName=azure_pipelines)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=33&branchName=azure_pipelines)
+[MSVC STL with cache, vcpkg submodule](https://github.com/lukka/STL/blob/azure-pipeline/ado/run_build.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/lukka.STL?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=34&branchName=master)
 
 # Developers information
 

@@ -19,9 +19,9 @@
        vcpkgArguments: '@response_file.txt'
        # [optional] if vcpkg is a *submodule* of the parent repository, specify here the path to it. Do not use the vcpkgGitCommitId or vcpkgGitURL as they will not be used when vcpkg is a submodule.
        vcpkgDirectory: $(Build.SourcesDirectory)/vcpkg
-       # [optional] select the vcpkg triplet. It can also be specified per port, such as "boost:x64-osx"
+       # [optional] select the default vcpkg triplet. It can also be specified per port, such as "boost:x64-osx".
        vcpkgTriplet: 'x64-linux'
-       # [optional] URL of the Git repository to fetch
+       # [optional] URL of the Git repository to fetch.
        vcpkgGitURL: http://github.com/microsoft/vcpkg.git
        # [optional] the commit id or tag of the vcpkg repository to fetch. Branch names are no recommended here,
        # especially when using the same value as part of the key in Cache task.
