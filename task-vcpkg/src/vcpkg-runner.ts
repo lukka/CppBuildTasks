@@ -121,16 +121,21 @@ export class VcpkgRunner {
       }
     }
 
-    // Set the used triplet in VCPKG_TRIPLET environment variable
-    process.env['VCPKG_TRIPLET'] = this.vcpkgTriplet;
+    if (this.vcpkgTriplet) {
+      // Set the used triplet in VCPKG_TRIPLET environment variable
+      process.env['VCPKG_TRIPLET'] = this.vcpkgTriplet;
 
-    // Set the user specified triplet in VCPKG_TRIPLET task variable
-    tl.setVariable("VCPKG_TRIPLET", this.vcpkgTriplet);
+      // Set the user specified triplet in VCPKG_TRIPLET task variable
+      tl.setVariable("VCPKG_TRIPLET", this.vcpkgTriplet);
 
-    // Set output variable containing the use triplet
-    console.log(`Set task output variable '${Globals.outVcpkgTriplet}' to value: ${
-      this.vcpkgTriplet}`);
-    tl.setVariable(Globals.outVcpkgTriplet, this.vcpkgTriplet);
+      // Set output variable containing the use triplet
+      console.log(`Set task output variable '${Globals.outVcpkgTriplet}' to value: ${
+        this.vcpkgTriplet}`);
+      tl.setVariable(Globals.outVcpkgTriplet, this.vcpkgTriplet);
+    }
+    else {
+      console.log(`No 'outvcpkgTriplet' nor 'VCPKG_TRIPLET' has been set by the task as there is no default triplet specified.`);
+    }
 
     vcpkgTool.line(installCmd);
     console.log(
