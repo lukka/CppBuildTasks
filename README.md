@@ -126,9 +126,10 @@ project: [CppOpenGLWebAssemblyCMake](https://github.com/lukka/CppOpenGLWebAssemb
 |----------|-------|
 [webassembly/Linux/macOS/Windows](https://github.com/lukka/CppOpenGLWebAssemblyCMake/blob/master/azure-pipelines.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/wasm-and-native-win-linux-lukka.CppOpenGLWebAssemblyCMake?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=8&branchName=master)
 
-project: [Microsoft MSVC STL](https://github.com/lukka/STL) | |
+project: [Microsoft MSVC STL](https://github.com/microsoft/STL) | |
 |----------|-------|
-[MSVC STL with cache, vcpkg submodule](https://github.com/lukka/STL/blob/azure-pipeline/ado/run_build.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/lukka.STL?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=34&branchName=master)
+[MSVC STL with cache, vcpkg submodule](https://github.com/microsoft/STL/blob/master/azure-devops/run_build.yml) | 
+[![Build Status](https://dev.azure.com/vclibs/STL/_apis/build/status/microsoft.STL?branchName=master)](https://dev.azure.com/vclibs/STL/_build/latest?definitionId=2&branchName=master)
 
 # Developers information
 
