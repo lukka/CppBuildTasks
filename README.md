@@ -4,7 +4,7 @@
 
 # Azure DevOps [build tasks](https://marketplace.visualstudio.com/items?itemName=lucappa.cmake-ninja-vcpkg-tasks) for [CMake](https://www.cmake.org/) and [vcpkg](https://github.com/microsoft/vcpkg/)
 
- Build software with vcpkg and CMake (either with CMakeLists.txt or CMakeSettings.json).
+ Build software with vcpkg and CMake (either with CMakeLists.txt or CMakeSettings.json). Samples provided here below are using both [self-hosted](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-windows?view=azure-devops) or [Microsoft hosted agent](https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops), using [Docker](https://www.docker.com/) as well.
 
 It is highly recommended to use __vcpkg as a Git submodule__. Here below the sample where vcpkg is a Git submodule:
 
@@ -21,7 +21,7 @@ It is highly recommended to use __vcpkg as a Git submodule__. Here below the sam
       key: $(Build.SourcesDirectory)/vcpkg_x64-linux.txt | "$(Build.SourcesDirectory)/.git/modules/vcpkg/HEAD" | "$(Agent.OS)"
       path: '$(Build.SourcesDirectory)/vcpkg'
    
-   - task: lucappa.cmake-ninja-vcpkg-tasks.d855c326-b1c0-4d6f-b1c7-440ade6835fb.run-vcpkg@0
+   - task: run-vcpkg@0
      displayName: 'Run vcpkg'
      inputs:
        # Response file stored in source control, it provides the list of ports and triplet(s).
@@ -29,7 +29,7 @@ It is highly recommended to use __vcpkg as a Git submodule__. Here below the sam
        # Location of the vcpkg as submodule of the repository.
        vcpkgDirectory: $(Build.SourcesDirectory)/vcpkg
 
-   - task: lucappa.cmake-ninja-vcpkg-tasks.f2b1ec7d-bc54-4cc8-b9ed-1bc7f37c9dc6.run-cmake@0
+   - task: run-cmake@0
      displayName: 'Run CMake with CMakeSettings.json'
      inputs:
        cmakeListsOrSettingsJson: 'CMakeSettingsJson'
@@ -58,7 +58,7 @@ Another sample when vcpkg is NOT a submodule (not recommended):
       key: $(Build.SourcesDirectory)/vcpkg_x64-linux.txt | "$(vcpkgGitRef)" | "$(Agent.OS)"
       path: '$(Build.BinariesDirectory)/vcpkg'
    
-   - task: lucappa.cmake-ninja-vcpkg-tasks.d855c326-b1c0-4d6f-b1c7-440ade6835fb.run-vcpkg@0
+   - task: run-vcpkg@0
      displayName: 'Run vcpkg'
      inputs:
        vcpkgArguments: @$(Build.SourcesDirectory)/vcpkg_x64-linux.txt
@@ -67,7 +67,7 @@ Another sample when vcpkg is NOT a submodule (not recommended):
        # URL to fetch vcpkg from (default is the official one).
        vcpkgGitURL: http://my.vcpkg.fork.git/
 
-   - task: lucappa.cmake-ninja-vcpkg-tasks.f2b1ec7d-bc54-4cc8-b9ed-1bc7f37c9dc6.run-cmake@0
+   - task: run-cmake@0
      displayName: 'Run CMake with CMakeSettings.json'
      inputs:
        cmakeListsOrSettingsJson: 'CMakeSettingsJson'
@@ -79,7 +79,7 @@ Another sample when vcpkg is NOT a submodule (not recommended):
 A complete [reference](reference.md) of all the inputs of the tasks is provided.
 
 
-## Real world samples
+## Basic samples
 |CMakeLists.txt samples | |
 |----------|-------|
 [macOS](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakelists.txt%2Fmacos-hosted-basic.yml&version=GBmaster)| [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/cmakelists.txt-macos-hosted?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=9&branchName=master)
@@ -110,10 +110,17 @@ CMakeSettings.json samples |  |
 [Linux/Ubuntu with cache](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakesettings.json%2Fubuntu-hosted-advanced-cache.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeSettings.json%20samples/cmakesettings.json-ubuntu-hosted-cache?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=23&branchName=master)
 [Linux/Ubuntu with cache, vcpkg submodule](https://dev.azure.com/CppBuild/CppBuildTasks/_git/CppBuildTasks-Validation?path=%2Fcmakesettings.json%2Fubuntu-hosted-advanced-cache-submod_vcpkg.yml&version=GBmaster) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/CMakeSettings.json%20samples/cmakesettings.json-ubuntu-hosted-cache-submod_vcpkg?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=31&branchName=master)
 
-project: [vct](https://github.com/sfreed141/vct) ||
-|----------|-------|
-[macOS/Linux/Windows](https://github.com/lukka/vct/blob/master/azure-pipeline-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/lukka.vct?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=5&branchName=ci-build)
+## Real world projects
 
+project: [Microsoft MSVC STL](https://github.com/microsoft/STL) | |
+|----------|-------|
+[MSVC STL with cache, vcpkg submodule](https://github.com/microsoft/STL/blob/master/azure-devops/run_build.yml) | [![Build Status](https://dev.azure.com/vclibs/STL/_apis/build/status/microsoft.STL?branchName=master)](https://dev.azure.com/vclibs/STL/_build/latest?definitionId=2&branchName=master)
+
+
+project: [Microsoft MSVC STL (fork)](https://github.com/lukka/STL) | |
+|----------|-------|
+[MSVC STL with cache, vcpkg submodule, self hosted agent Docker based](https://github.com/lukka/STL/blob/master/azure-devops/run_build.yml) |  [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/MSVC_STL/lukka.docker.selfhosted.STL?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=36&branchName=master)
+[MSVC STL with cache, vcpkg submodule, MS hosted agent Docker based](https://github.com/lukka/STL/blob/master/azure-devops/run_build.yml) |  [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/MSVC_STL/lukka.docker.mshosted.STL?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=37&branchName=master)
 
 project: [cpprestsdk](https://github.com/microsoft/cpprestsdk) | |
 |----------|-------|
@@ -122,14 +129,15 @@ project: [cpprestsdk](https://github.com/microsoft/cpprestsdk) | |
 [vs2017](https://github.com/lukka/cpprestsdk/blob/master/pipeline-vs2017-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/vs2017-hosted-lukka.cpprestsdk?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=7&branchName=master)
 [vs2019](https://github.com/lukka/cpprestsdk/blob/master/pipeline-vs2019-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/vs2019-hosted-lukka.cpprestsdk?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=12&branchName=master)
 
+project: [vct](https://github.com/sfreed141/vct) ||
+|----------|-------|
+[macOS/Linux/Windows](https://github.com/lukka/vct/blob/master/azure-pipeline-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/lukka.vct?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=5&branchName=ci-build)
+
 project: [CppOpenGLWebAssemblyCMake](https://github.com/lukka/CppOpenGLWebAssemblyCMake) | |
 |----------|-------|
 [webassembly/Linux/macOS/Windows](https://github.com/lukka/CppOpenGLWebAssemblyCMake/blob/master/azure-pipelines.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/wasm-and-native-win-linux-lukka.CppOpenGLWebAssemblyCMake?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=8&branchName=master)
 
-project: [Microsoft MSVC STL](https://github.com/microsoft/STL) | |
-|----------|-------|
-[MSVC STL with cache, vcpkg submodule](https://github.com/microsoft/STL/blob/master/azure-devops/run_build.yml) | 
-[![Build Status](https://dev.azure.com/vclibs/STL/_apis/build/status/microsoft.STL?branchName=master)](https://dev.azure.com/vclibs/STL/_build/latest?definitionId=2&branchName=master)
+
 
 # Developers information
 

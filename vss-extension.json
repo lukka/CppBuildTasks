@@ -22,7 +22,8 @@
         "ninja",
         "cpp",
         "vcpkg",
-        "linux"
+        "linux",
+        "docker"
     ],
     "links": {
         "home": {
