@@ -2,6 +2,8 @@
 
 ## run-vcpkg
 ```yaml
+   # The complete name of the task is given by: <publisherid>.<extensionid>.<taskid>.<taskname>@<version>
+   # Only the task name and version are required.
    - task: lucappa.cmake-ninja-vcpkg-tasks.d855c326-b1c0-4d6f-b1c7-440ade6835fb.run-vcpkg@0
      displayName: 'Run vcpkg'
      inputs:
@@ -26,11 +28,11 @@
        # [optional] the commit id or tag of the vcpkg repository to fetch. Branch names are no recommended here,
        # especially when using the same value as part of the key in Cache task.
        vcpkgGitCommitId: '$(vcpkgGitCommitId)'
-````
+```
 
 ## run-cmake
-````yaml
-   - task: lucappa.cmake-ninja-vcpkg-tasks.f2b1ec7d-bc54-4cc8-b9ed-1bc7f37c9dc6.run-cmake@0
+```yaml
+   - task: run-cmake@0
      displayName: 'Run CMake with CMakeSettings.json'
      inputs:
        # [required] select CMakeSettingsJson if the input is a CMakeSettings.json file, or select CMakeListsTxtBasic or  CMakeListsTxtAdvanced for a CMakeLists.txt file specified in the 'cmakeListsTxtPath' property
@@ -42,7 +44,7 @@
        # [optional] build all Linux configurations in the CMakeSettings.json
        configurationRegexFilter: 'Linux.*'
 
-  - task: lucappa.cmake-ninja-vcpkg-tasks.f2b1ec7d-bc54-4cc8-b9ed-1bc7f37c9dc6.run-cmake@0
+  - task: run-cmake@0
     displayName: 'Run CMake with CMakeLists.txt'
     inputs:
       # [required] use the task in basic mode with CMakeLists.txt. There is also an advanced mode 'CMakeListsTxtAdvanced'.
