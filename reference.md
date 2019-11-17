@@ -4,7 +4,7 @@
 ```yaml
    # The complete name of the task is given by: <publisherid>.<extensionid>.<taskid>.<taskname>@<version>
    # Only the task name and version are required.
-   - task: lucappa.cmake-ninja-vcpkg-tasks.d855c326-b1c0-4d6f-b1c7-440ade6835fb.run-vcpkg@0
+   - task: run-vcpkg@0
      displayName: 'Run vcpkg'
      inputs:
        # [required] arguments for the vcpkg install command, e.g. a response file containing the list of packages as well as the triplet to be used for all packages
@@ -35,32 +35,41 @@
    - task: run-cmake@0
      displayName: 'Run CMake with CMakeSettings.json'
      inputs:
-       # [required] select CMakeSettingsJson if the input is a CMakeSettings.json file, or select CMakeListsTxtBasic or  CMakeListsTxtAdvanced for a CMakeLists.txt file specified in the 'cmakeListsTxtPath' property
+       # [required] select CMakeSettingsJson if the input is a CMakeSettings.json file, or select CMakeListsTxtBasic or  CMakeListsTxtAdvanced for a CMakeLists.txt file specified in the 'cmakeListsTxtPath' property.
        cmakeListsOrSettingsJson: 'CMakeSettingsJson'
-       # [required] the CMakeSettings.json, default value assumes it is in the root
+       # [required] the CMakeSettings.json, default value assumes it is in the root of the repository.
        cmakeSettingsJsonPath: '$(Build.SourcesDirectory)/CMakeSettings.json'
-       # [optional] using VCPKG_ROOT env var, this will set the vcpkg's toolchain file and triplet
+       # [optional] specify the CMake binary directory, where build files are generated. By default it is `$(Build.ArtifactStagingDirectory)/<configuration name>` .
+       buildDirectory: $(Build.ArtifactStagingDirectory)/tools/
+       # [optional] using VCPKG_ROOT env var, this will set the vcpkg's toolchain file and triplet.
        useVcpkgToolchainFile: true
-       # [optional] build all Linux configurations in the CMakeSettings.json
+       # [optional] selects which configurations to build with a regular expression. 
        configurationRegexFilter: 'Linux.*'
-
-  - task: run-cmake@0
-    displayName: 'Run CMake with CMakeLists.txt'
-    inputs:
-      # [required] use the task in basic mode with CMakeLists.txt. There is also an advanced mode 'CMakeListsTxtAdvanced'.
-      cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
-      # [required] path to CMakeLists.txt, default value assumes it is in the root
-      cmakeListsTxtPath: '$(Build.SourcesDirectory)/CMakeLists.txt'
-      # [required] the default value is provided
-      buildDirectory: '$(Build.ArtifactStagingDirectory)'
-      # [optional] CMake toolchain file, empty by default
-      cmakeToolchainPath: '$(Build.SourcesDirectory)/src/vcpkg_cmake/toolchain.cmake'
-      # [optional] Reuse the vcpkg toolchain file, default is false. If set to true, the VCPKG_TRIPLET environment variable set by the previous 'run-vcpkg' task will be used automatically to set the toolchain, unless the path is explicitly set in this 'run-cmake' task in 'cmakeToolchainPath'.
+      # [optional] reuse the vcpkg toolchain file, default is false. If set to true, the VCPKG_ROOT environment variable set by the previous 'run-vcpkg' task will be used automatically to set the toolchain, unless the path is explicitly set in this 'run-cmake' task in 'cmakeToolchainPath'.
       useVcpkgToolchainFile: true
-      # [optional] Specify CMake build type, Debug by default
-      cmakeBuildType: 'Release'
-      # [optional] Specify CMake generator, Ninja by default
-      cmakeGenerator: 'Ninja'
-      # [optional] 'cmake --build' appended arguments
-      buildWithCMakeArgs: '-- -v'
+      # [optional] vcpkg default triplet, '$(VCPKG_TRIPLET)' by default, which is set by the run-vcpkg
+      # task.
+      vcpkgTriplet: 'x64-linux'
+
+   - task: run-cmake@0
+     displayName: 'Run CMake with CMakeLists.txt'
+     inputs:
+       # [required] use the task in basic mode with CMakeLists.txt. There is also an advanced mode 'CMakeListsTxtAdvanced'.
+       cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
+       # [required] path to CMakeLists.txt, default value assumes it is in the root.
+       cmakeListsTxtPath: '$(Build.SourcesDirectory)/CMakeLists.txt'
+       # [required] the default value is provided.
+       buildDirectory: '$(Build.ArtifactStagingDirectory)'
+       # [optional] CMake toolchain file, empty by default.
+       cmakeToolchainPath: '$(Build.SourcesDirectory)/src/vcpkg_cmake/toolchain.cmake'
+       # [optional] reuse the vcpkg toolchain file, default is false. If set to true, the VCPKG_ROOT environment variable set by the previous 'run-vcpkg' task will be used automatically to set the toolchain, unless the path is explicitly set in this 'run-cmake' task in 'cmakeToolchainPath'.
+       useVcpkgToolchainFile: true
+       # [optional] vcpkg default triplet, '$(VCPKG_TRIPLET)' by default
+       vcpkgTriplet: 'x64-linux'
+       # [optional] specify CMake build type, Debug by default.
+       cmakeBuildType: 'Release'
+       # [optional] specify CMake generator, Ninja by default.
+       cmakeGenerator: 'Ninja'
+       # [optional] 'cmake --build' appended arguments.
+       buildWithCMakeArgs: '-- -v'
 ```

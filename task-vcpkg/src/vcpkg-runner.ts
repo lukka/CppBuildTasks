@@ -29,9 +29,9 @@ export class VcpkgRunner {
     this.vcpkgArgs = tl.getInput(Globals.vcpkgArguments, true);
     this.defaultVcpkgUrl = 'https://github.com/microsoft/vcpkg.git';
     this.vcpkgURL =
-      tl.getInput(Globals.vcpkgGitURL) || this.defaultVcpkgUrl;
+      tl.getInput(Globals.vcpkgGitURL) ?? this.defaultVcpkgUrl;
     this.vcpkgCommitId =
-      tl.getInput(Globals.vcpkgCommitId) || 'master';
+      tl.getInput(Globals.vcpkgCommitId) ?? 'master';
     this.vcpkgDestPath = tl.getPathInput(Globals.vcpkgDirectory);
     if (!this.vcpkgDestPath) {
       this.vcpkgDestPath = path.join(vcpkgUtils.getBinDir(), 'vcpkg');
@@ -44,12 +44,14 @@ export class VcpkgRunner {
   async run(): Promise<void> {
     tl.debug(tl.loc('TaskStarting'));
     await this.fetchInput();
-    // Override the VCPKG_ROOT tool, it must point to this vcpkg instance.
-    process.env.VCPKG_ROOT = this.vcpkgDestPath;
-    tl.setVariable("VCPKG_ROOT", this.vcpkgDestPath);
+    // Override the VCPKG_ROOT value, it must point to this vcpkg instance.
+    vcpkgUtils.setEnvVar(vcpkgUtils.vcpkgRootEnvName, this.vcpkgDestPath);
     console.log(`Set task output variable '${Globals.outVcpkgRootPath}' to value: ${
       this.vcpkgDestPath}`);
     tl.setVariable(Globals.outVcpkgRootPath, this.vcpkgDestPath);
+
+    // Force AZP_CACHING_CONTENT_FORMAT to "Files"
+    vcpkgUtils.setEnvVar(vcpkgUtils.cachingFormatEnvName, "Files");
 
     this.options = <trm.IExecOptions>{
       cwd: this.vcpkgDestPath,
@@ -155,7 +157,7 @@ export class VcpkgRunner {
     const isSubmodule = vcpkgUtils.isVcpkgSubmodule(gitPath, this.vcpkgDestPath);
     if (isSubmodule) {
       // In case vcpkg it is a Git submodule...
-      console.log(`'vcpkg' is detected as a submodule, adding '.git' to the ignored entries in '.artifactignore' file (for caching).`);
+      console.log(`'vcpkg' is detected as a submodule, adding '.git' to the ignored entries in '.artifactignore' file (for excluding it from caching).`);
       // Remove any existing '!.git'.
       this.vcpkgArtifactIgnoreEntries =
         this.vcpkgArtifactIgnoreEntries.filter(item => !item.trim().endsWith('!.git'));

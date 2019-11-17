@@ -83,7 +83,7 @@
       "label": "vcpkg triplet:",
       "defaultValue": "$(VCPKG_TRIPLET)",
       "required": false,
-      "helpMarkDown": "Specify the triplet used with vcpkg. The task 'Run vcpkg' sets the used one in VCPKG_TRIPLET environment variable. Possible values are any file name with no extension present in the vcpkgroot/trplet directory, e.g. x64-linux, x64-windows, x64-osx and so forth.",
+      "helpMarkDown": "Specify the triplet used with vcpkg. The task 'Run vcpkg' sets the default one in VCPKG_TRIPLET environment variable. Possible values are any file name with no extension present in the vcpkgroot/trplet directory, e.g. x64-linux, x64-windows, x64-osx and so forth.",
       "visibleRule": "useVcpkgToolchainFile = true"
     },
     {
@@ -121,9 +121,8 @@
       "type": "string",
       "label": "Build directory",
       "defaultValue": "$(Build.ArtifactStagingDirectory)",
-      "required": true,
-      "helpMarkDown": "Override the build directory, i.e. where CMake is run. Default for CMakeLists.txt is the $(Build.ArtifactStagingDirectory). For CMakeSettings.json the build directory is defined in the JSON file.",
-      "visibleRule": "cmakeListsOrSettingsJson != CMakeSettingsJson"
+      "required": false,
+      "helpMarkDown": "Set the build directory, i.e. where CMake generates the build system files. Defaults to `$(Build.ArtifactStagingDirectory)` for CMakeLists.txt, and to `$(Build.ArtifactStagingDirectory)/{name}` for CMakeSettings.json."
     },
     {
       "name": "cmakeAppendedArgs",

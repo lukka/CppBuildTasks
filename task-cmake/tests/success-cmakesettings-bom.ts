@@ -76,7 +76,9 @@ tmr.setInput(Globals.cmakeSettingsJsonPath, 'anyCMakeSettings.json');
 tmr.setInput(Globals.configurationRegexFilter, 'any.+');
 tmr.setInput(Globals.buildWithCMake, 'true');
 tmr.setInput(Globals.buildWithCMakeArgs, 'this must be unused');
-process.env["BUILD_ARTIFACTSTAGINGDIRECTORY"] = "/agent/w/1/a/";
+const artifactStagingDirectory: string = "/agent/w/1/a/";
+tmr.setInput(Globals.buildDirectory, artifactStagingDirectory);
+process.env["BUILD_ARTIFACTSTAGINGDIRECTORY"] = artifactStagingDirectory;
 
 // Act
 tmr.run();

@@ -32,7 +32,7 @@
     "strip-json-comments": "^2.0.1",
     "tfx-cli": "^0.7.5",
     "ts-node": "^8.0.2",
-    "typescript": "^3.3.3"
+    "typescript": "^3.7.0"
   },
   "dependencies": {
     "@types/strip-json-comments": "0.0.30",

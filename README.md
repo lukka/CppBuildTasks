@@ -42,7 +42,7 @@ It is highly recommended to use __vcpkg as a Git submodule__. Here below the sam
   # Sample when vcpkg is a submodule
 
     # Cache/Restore the vcpkg's build artifacts.
-  - task: CacheBeta@0
+  - task: Cache@2
     displayName: 'Cache vcpkg's  artifacts'
     inputs:
       # As 'key' use the content of the response file, vcpkg's submodule fetched commit id and the platform name.
@@ -82,7 +82,7 @@ Another sample when vcpkg is NOT a submodule (not recommended):
     vcpkgGitRef: 5a3b46e9e2d1aa753917246c2801e50aaabbbccc
 
     # Cache/restore the vcpkg's build artifacts.
-  - task: CacheBeta@0
+  - task: Cache@2
     displayName: 'Cache vcpkg's artifacts'
     inputs:
       key: $(Build.SourcesDirectory)/vcpkg_x64-linux.txt | "$(vcpkgGitRef)" | "$(Agent.OS)"
@@ -117,6 +117,14 @@ The task completes the following steps:
   1. eventually vcpkg is launched to build and install the specified ports.
 
 The task sets `VCPKG_ROOT` task variable, which is automatically used by subsequent **'run-cmake'** to consume the vcpkg's toolchain file.
+
+_Note:_ `VCPKG_ROOT` is set by the task by the first of these conditions:
+  1. the `vcpkgArguments` input task contains the `--triplet` argument;
+  1. the vcpkg's reponse file contains the `--triplet` argument;
+  1. `vcpkgTriplet` input task is set to a value.
+  
+  In these cases, the first hit determines the content of the `VCPKG_ROOT` variable. 
+  In all other cases the variable is NOT set, and any `run-cmake` task instance is not able to reuse vcpkg's toolchain path nor the triplet.
 
 ### Use **vcpkg** as a submodule of your Git repository ###
 
@@ -165,13 +173,9 @@ key:  $(vcpkgCommitId)| @$(Build.SourcesDirectory)/response_file_with_ports_and_
 ```
 where:
   - the `$(vcpkgCommitId)` identifies a specific version of vcpkg by means of a Git commit id or tag. It is suggested to use vcpkg as a submodule of your repository, at the root for example, in such case the commit id is stored in file `$(Build.SourcesDirectory)/.git/modules/vcpkg/HEAD`. Note that a branch name should not be used, as it does not  identify uniquely the version of vcpkg;
-  - the response file contains the list of ports along with the triplet, e.g. 
-
-    ```sqlite3 --triplet x64-linux```
-
-    or another identical example 
+  - the response file contains the list of ports along with the triplet, e.g.  `sqlite3 --triplet x64-linux` or another identical example `sqlite3:x64-windows`. 
   
-    `sqlite3:x64-windows`. The `--triplet` argument specifies the default value when a port has not the triplet specified.
+    The `--triplet` argument specifies the default value when a port has not the triplet specified.
   
   - `$(Agent.OS)` captures only the build agent platform. If needed, it might be useful to add further values in the key to uniquely identifies the toolset used when building.
 
@@ -196,6 +200,7 @@ The flowchart has two entry points as it could be used with a `CMakeLists.txt` o
 
 _Note:_ The task does not use th e `CMakeSettings.json`'s attribute called `inheritEnvironments`. Instead the triplet set by **'run-vcpkg'** is used by the task to set up the environment variables where the commands are run. This is only useful when using MSVC, where the environment needs to set up for setting the right target (e.g. x86 or x64 or arm).
 
+_Note:_ The task ignores the `buildRoot` value specified in the CMakeSettings.json . It is possible to specify the CMake binary directory using the `buildDirectory` input parameter, which by default it is `$(Build.ArtifactStagingDirectory)/<configuration name>` .
 
 >  ![Run CMake task](task-cmake/docs/task-cmake.png)
 
@@ -321,7 +326,7 @@ Or just use:
 ### Run a test with its typescript file
  It is possible to use 'mocha' to start a single test case to debug with Chrome's nodejs development tools:
 
-  > mocha --inspect-brk --require ts-node/register task-cmake/tests_suite.ts
+  > mocha --inspect-brk --require ts-node/register task-vcpkg/tests/_suite.ts
 
  If breakpoints are not hit in the Chrome debugger, launch directly the .js file:
 
@@ -331,7 +336,7 @@ Or just use:
 ### Run a specific test
 To run all tests that contains "toolchain" in the name:
 
-  > npm run test -- -g toolchain
+  > npm run testdev -- -g toolchain
 
 ## <a id='contributing'>Contributing</a>
 

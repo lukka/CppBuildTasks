@@ -140,7 +140,7 @@ tmr.setInput(Globals.buildWithCMake, 'true');
 tmr.setInput(Globals.buildWithCMakeArgs, 'this must be unused');
 tmr.setInput(Globals.buildDirectory, '/path/to/build/dir/');
 tmr.setInput(Globals.useVcpkgToolchainFile, "false");
-process.env["Build.BinariesDirectory"] = "/agent/w/1/a/";
+process.env["Build.BinariesDirectory"] = "/agent/w/1/b/";
 process.env.VCPKG_ROOT = "/vcpkg/root/";
 
 // Act
