@@ -27,5 +27,9 @@ export const utilsMock: any = {
     },
     extractTriplet(): string | null {
         return null;
-    }
+    },
+    setEnvVar(name: string, value: string) {
+    },
+    vcpkgRootEnvName: 'VCPKG_ROOT',
+    cachingFormatEnvName: 'AZP_CACHING_CONTENT_FORMAT'
 };

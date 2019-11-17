@@ -218,7 +218,7 @@ function parseVcpkgEnvOutput(data: string): VarMap {
 }
 
 export async function injectVcpkgToolchain(args: string, triplet: string): Promise<string> {
-  args = args || "";
+  args = args ?? "";
   let vcpkgRoot: string | undefined = process.env.VCPKG_ROOT;
 
   // if VCPKG_ROOT is defined, and a toolchain has not been specified,
@@ -234,7 +234,7 @@ export async function injectVcpkgToolchain(args: string, triplet: string): Promi
       args += ` -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE="${toolchainFile}"`;
     }
 
-    // If the triplet is provided, specify the same triplet on the cmd line and set the  environment for msvc.
+    // If the triplet is provided, specify the same triplet on the cmd line and set the environment for msvc.
     if (triplet) {
       args += ` -DVCPKG_TARGET_TRIPLET=${triplet}`;
 
@@ -258,7 +258,7 @@ export async function injectVcpkgToolchain(args: string, triplet: string): Promi
 
 export function injectEnvVariables(vcpkgRoot: string, triplet: string): void {
   if (!vcpkgRoot) {
-    vcpkgRoot = process.env["VCPKG_ROOT"] || "";
+    vcpkgRoot = process.env["VCPKG_ROOT"] ?? "";
     if (!vcpkgRoot) {
       throw new Error(tl.loc('VcpkgRootNotSet'));
     }
@@ -315,7 +315,7 @@ export function injectEnvVariables(vcpkgRoot: string, triplet: string): void {
 export async function build(buildDir: string, buildArgs: string, options: trm.IExecOptions): Promise<void> {
   // Run cmake with the given arguments
   let cmake: trm.ToolRunner = tl.tool(tl.which('cmake', true));
-  cmake.line("--build . " + buildArgs || "");
+  cmake.line("--build . " + buildArgs ?? "");
 
   // Run the command in the build directory
   options.cwd = buildDir;
@@ -327,7 +327,7 @@ export async function build(buildDir: string, buildArgs: string, options: trm.IE
 }
 
 /**
- *  Retrieve the artifacts directory, which is deleted at the start of the
+ *  Retrieve the artifacts directory, which is deleted at the start of the build.
  * @export
  * @returns {string}
  */

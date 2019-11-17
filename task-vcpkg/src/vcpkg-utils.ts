@@ -7,6 +7,9 @@ import * as trm from 'azure-pipelines-task-lib/toolrunner';
 import * as fs from 'fs';
 import * as os from 'os';
 
+export const vcpkgRootEnvName: string = 'VCPKG_ROOT';
+export const cachingFormatEnvName: string = 'AZP_CACHING_CONTENT_FORMAT';
+
 // Retrieve the binary directory, which is not deleted at the start of the
 // phase.
 export function getBinDir(): string {
@@ -40,10 +43,15 @@ export function isVcpkgSubmodule(gitPath: string, fullVcpkgPath: string): boolea
     if (res.error !== null) {
       isSubmodule = res.code == 0;
       let msg: string;
-      msg = `git submodule exit code=${res.code}. `;
+      msg = `'git submodule ${fullVcpkgPath}': exit code='${res.code}' `;
       if (res.stdout !== null) {
-        msg += ` git submodule' at '${options.cwd}' returned '${res.stdout.trim()}'`;
+        msg += `, stdout='${res.stdout.trim()}'`;
       }
+      if (res.stderr !== null) {
+        msg += `, stderr='${res.stderr.trim()}'`;
+      }
+      msg += '.';
+
       tl.debug(msg);
     }
 
@@ -196,4 +204,11 @@ export function resolveArguments(args: string, readFile: (string) => [boolean, s
   }
 
   return resolvedArguments;
+}
+
+// Force 'name' env variable to have value of 'value'.
+export function setEnvVar(name: string, value: string) {
+  process.env[name] = value;
+  tl.setVariable(name, value);
+  tl.debug(`Env var '${name}' set to value '${value}'.`);
 }

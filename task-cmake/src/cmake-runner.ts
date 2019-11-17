@@ -110,9 +110,9 @@ export class CMakeRunner {
       this.taskMode == TaskModeType.CMakeListsTxtBasic);
     this.generator = getGenerator(gen);
     this.ninjaDownloadUrl = tl.getInput(Globals.ninjaDownloadUrl, false);
-    this.doBuild = tl.getBoolInput(Globals.buildWithCMake, false) || false;
-    this.doBuildArgs = tl.getInput(Globals.buildWithCMakeArgs, false) || '';
-    this.cmakeSourceDir = path.dirname(this.cmakeListsTxtPath || '');
+    this.doBuild = tl.getBoolInput(Globals.buildWithCMake, false) ?? false;
+    this.doBuildArgs = tl.getInput(Globals.buildWithCMakeArgs, false) ?? '';
+    this.cmakeSourceDir = path.dirname(this.cmakeListsTxtPath ?? '');
 
     this.useVcpkgToolchainFile =
       tl.getBoolInput(Globals.useVcpkgToolchainFile, false);
@@ -228,7 +228,8 @@ export class CMakeRunner {
         let cmakeJson: CMakeSettingsJsonRunner = new CMakeSettingsJsonRunner(
           this.cmakeSettingsJsonPath, this.configurationFilter,
           this.appendedArgs, utils.getSourceDir(), this.vcpkgTriplet,
-          this.useVcpkgToolchainFile, this.doBuild, this.ninjaPath, this.sourceScript);
+          this.useVcpkgToolchainFile, this.doBuild, this.ninjaPath, this.sourceScript,
+          this.buildDir);
         await cmakeJson.run();
         break;
       }

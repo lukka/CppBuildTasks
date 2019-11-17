@@ -12,6 +12,7 @@ import { Globals } from '../src/globals'
 let taskPath = path.join(__dirname, '..', 'src', 'vcpkg-task.js');
 let tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 
+const pathToVcpkg: string = '/path/to/vcpkg';
 const gitPath: string = '/usr/local/bin/git';
 
 let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
@@ -31,16 +32,16 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
       { 'code': 0, 'stdout': 'this is git clone ... output' },
     [`${gitPath} checkout --force SHA1`]:
       { 'code': 0, 'stdout': 'this is git checkout SHA1 output' },
-    '/path/to/vcpkg/vcpkg install --recurse vcpkg_args --triplet triplet':
+    [`${pathToVcpkg}/vcpkg install --recurse vcpkg_args --triplet triplet`]:
       { 'code': 0, 'stdout': 'this is the vcpkg output' },
-    '/path/to/vcpkg/vcpkg remove --outdated --recurse':
+    [`${pathToVcpkg}/vcpkg remove --outdated --recurse`]:
       { 'code': 0, 'stdout': 'this is the vcpkg remove output' },
-    '/bin/bash -c /path/to/vcpkg/bootstrap-vcpkg.sh':
+    [`/bin/bash -c ${pathToVcpkg}/bootstrap-vcpkg.sh`]:
       { 'code': 0, 'stdout': 'this is the bootstrap output of vcpkg' },
-    '/bin/chmod +x /path/to/vcpkg/bootstrap-vcpkg.sh':
+    [`/bin/chmod +x ${pathToVcpkg}/bootstrap-vcpkg.sh`]:
       { 'code': 0, 'stdout': 'this is the bootstrap output of chmod +x bootstrap' }
   },
-  'rmRF': { '/path/to/vcpkg': { success: true } }
+  'rmRF': { [`${pathToVcpkg}`]: { success: true } }
 };
 
 // Arrange
@@ -52,10 +53,10 @@ vcpkgUtilsMock.utilsMock.fileExists = (dir: string) => {
   return true;
 };
 vcpkgUtilsMock.utilsMock.readFile = (file: string) => {
-  if (file == "/path/to/vcpkg/.artifactignore") {
+  if (file == `${pathToVcpkg}/.artifactignore`) {
     return [true, "!.git\n"];
   }
-  else if (file == `/path/to/vcpkg/${Globals.vcpkgRemoteUrlLastFileName}`) {
+  else if (file == `${pathToVcpkg}/${Globals.vcpkgRemoteUrlLastFileName}`) {
     return [false, "https://github.com/microsoft/vcpkg.git"];
   }
   else

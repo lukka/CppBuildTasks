@@ -57,8 +57,9 @@ describe('PropertyEvaluator tests', function () {
           "inheritEnvironments": ["linux_x64", "used", "used2"]
         }]
     };
+    const cmakeSettingsJson: string = "/path/projectDirName/CMakeSettings.json";
 
-    let configurations: settingsRunner.Configuration[] = settingsRunner.parseConfigurations(json);
+    let configurations: settingsRunner.Configuration[] = settingsRunner.parseConfigurations(json, cmakeSettingsJson);
     console.log(`ParsedConfigurations:  ${String(configurations)}`);
     for (const conf of configurations) {
       for (const name in conf.environments) {
@@ -73,6 +74,7 @@ describe('PropertyEvaluator tests', function () {
     propertiesEval.evaluate();
 
     assert.equal(configurations[0].cmakeArgs, "Release Releaseenv Releasenoname Releaseused Releaseused2 ${CONFIGURATIONunused}");
+    assert.equal(configurations[0].buildDir, `$HOME/.vs/projectDirName/build/Emscripten Linux Release/`)
     done();
   });
 });

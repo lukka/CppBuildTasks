@@ -12,6 +12,8 @@ import { Globals } from '../src/globals'
 let taskPath = path.join(__dirname, '..', 'src', 'cmake-task.js');
 let tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 
+const artifactStagingDirectory: string = "/agent/w/1/a/";
+
 // Arrange
 let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
   'which': { 'cmake': '/usr/local/bin/cmake', 'node': '/usr/local/bin/node' },
@@ -63,7 +65,7 @@ tmr.registerMock('./utils', {
     return true;
   },
   injectEnvVariables: function (a, b): void { },
-  getArtifactsDir: function (): string { return '/agent/w/1/a'; },
+  getArtifactsDir: function (): string { return artifactStagingDirectory; },
   build: function (): void { },
   injectVcpkgToolchain: function (args: string, triplet: string): string { return args; },
   isNinjaGenerator: function (): boolean { return false; }
@@ -76,7 +78,8 @@ tmr.setInput(Globals.cmakeSettingsJsonPath, 'anyCMakeSettings.json');
 tmr.setInput(Globals.configurationRegexFilter, 'any.+');
 tmr.setInput(Globals.buildWithCMake, 'true');
 tmr.setInput(Globals.buildWithCMakeArgs, 'this must be unused');
-process.env["BUILD_ARTIFACTSTAGINGDIRECTORY"] = "/agent/w/1/a/";
+tmr.setInput(Globals.buildDirectory, artifactStagingDirectory);
+process.env["BUILD_ARTIFACTSTAGINGDIRECTORY"] = artifactStagingDirectory;
 
 // Act
 tmr.run();

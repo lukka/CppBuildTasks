@@ -75,7 +75,7 @@ export class PropertyEvaluator {
   }
 
   private addToLocalEnv(name: string, value: string) {
-    this.localEnv.variables.push({ name: name, value: value });
+    this.localEnv.variables.push(new Variable(name, value));
   }
 
   private createLocalVars() {
@@ -90,7 +90,7 @@ export class PropertyEvaluator {
     this.addToLocalEnv(
       'projectDir', path.dirname(this.config.cmakeSettingsJsonPath));
     this.addToLocalEnv(
-      'projectDirName', path.basename(this.config.cmakeSettingsJsonPath));
+      'projectDirName', path.basename(path.dirname(this.config.cmakeSettingsJsonPath)));
     this.addToLocalEnv(
       'workspaceHash',
       crypto.createHash('md5')
@@ -102,7 +102,7 @@ export class PropertyEvaluator {
     if (env != null) {
       for (const v of env.variables) {
         if (v.name == variable) {
-          return v.value || "";
+          return v.value ?? "";
         }
       }
     }
@@ -110,35 +110,36 @@ export class PropertyEvaluator {
   }
 
   private evaluateVariable(variable: Variable): string | null {
+    tl.debug(`Searching ${variable.name} in environment ${this.localEnv} ...`);
     let res = this.searchVariable(variable.name, this.localEnv);
-    if (res) {
+    if (res !== null) {
       return res;
     }
 
     for (let localName of this.config.inheritEnvironments) {
       let env = this.config.environments[localName];
       res = this.searchVariable(variable.name, env);
-      if (res) {
+      if (res !== null) {
         return res;
       }
     }
 
     let env = this.config.environments['unnamed'];
     res = this.searchVariable(variable.name, env);
-    if (res) {
+    if (res !== null) {
       return res;
     }
 
     for (let localName of this.config.inheritEnvironments) {
       let env = this.globalEnvs[localName];
       res = this.searchVariable(variable.name, env);
-      if (res)
+      if (res !== null)
         return res;
     }
 
     env = this.globalEnvs['unnamed'];
     res = this.searchVariable(variable.name, env);
-    if (res)
+    if (res !== null)
       return res;
 
     // Try to match an environment variable.
@@ -194,7 +195,7 @@ export class PropertyEvaluator {
     }
 
     tl.debug(`evalutated to: '${String(res)}'.`);
-    return res || '';
+    return res ?? '';
   }
 
   public evaluate(): void {
@@ -211,30 +212,15 @@ export class PropertyEvaluator {
 }
 
 export class CMakeSettingsJsonRunner {
-  configurationFilter: string;
-  cmakeSettingsJson: string;
   globalEnvironments: Environment[];
-  workspaceRoot: string;
-  vcpkgTriplet: string;
-  useVcpkgToolchain: boolean;
-  doBuild: boolean;
-  ninjaPath: string;
-  sourceScript: string;
   static readonly ARM64: [string, string] = ["ARM64", "ARM64"];
   static readonly ARM: [string, string] = ["ARM", "ARM"];
   static readonly X64: [string, string] = ["x64", "x64"];
   static readonly WIN64: [string, string] = ["Win64", "x64"];
   static readonly WIN32: [string, string] = ["Win32", "Win32"];
 
-  constructor(settingsPath: any, configurationFilter: string, buildArgs: string, root: string, vcpkgTriplet: string, useVcpkgToolchain: boolean, doBuild: boolean, ninjaPath: string, sourceScript: string) {
-    this.cmakeSettingsJson = settingsPath;
+  constructor(private cmakeSettingsJson: any, private configurationFilter: string, buildArgs: string, private workspaceRoot: string, private vcpkgTriplet: string, private useVcpkgToolchain: boolean, private doBuild: boolean, private ninjaPath: string, private sourceScript: string, private buildDir: string) {
     this.configurationFilter = configurationFilter;
-    this.workspaceRoot = root;
-    this.vcpkgTriplet = vcpkgTriplet;
-    this.useVcpkgToolchain = useVcpkgToolchain;
-    this.doBuild = doBuild;
-    this.ninjaPath = ninjaPath;
-    this.sourceScript = sourceScript;
   }
 
   private static parseEnvironments(envsJson: any): EnvironmentMap {
@@ -242,13 +228,8 @@ export class CMakeSettingsJsonRunner {
   }
 
   private parseConfigurations(json: any): Configuration[] {
-    const configurations: Configuration[] = parseConfigurations(json);
+    const configurations: Configuration[] = parseConfigurations(json, this.cmakeSettingsJson);
     tl.debug(tl.loc('ParsedConfigurations', String(configurations)));
-
-    // Set the Configuration.cmakeSettingsJsonPath field value.
-    for (let configuration of configurations) {
-      configuration.cmakeSettingsJsonPath = this.cmakeSettingsJson;
-    }
 
     return configurations;
   }
@@ -347,9 +328,21 @@ export class CMakeSettingsJsonRunner {
         new PropertyEvaluator(configuration, globalEnvs);
       evaluator.evaluate();
 
-      // Override the evaluated build directory.
-      // The build directory goes into the artifact directory.
-      configuration.buildDir = path.join(utils.getArtifactsDir(), configuration.name);
+      // The build directory value specified in CMakeSettings.json is ignored.
+      // This is because:
+      // 1. you want to build targeting an empty binary directory;
+      // 2. the default in CMakeSettings.json is under the source tree, which is not cleared upon each build run.
+      // Instead if users did not provided a specific path, force it to 
+      // "$(Build.ArtifactStagingDirectory)/{name}" which should be empty.
+      console.log(`Note: the run-cmake task always ignore the 'buildRoot' value specified in the CMakeSettings.json (buildRoot=${configuration.buildDir}).`);
+      if (this.buildDir === utils.getArtifactsDir()) {
+        // The build directory goes into the artifact directory in a subdir
+        // named with the configuration name.
+        configuration.buildDir = path.join(utils.getArtifactsDir(), configuration.name);
+      }
+      else {
+        configuration.buildDir = this.buildDir;
+      }
 
       cmakeArgs += " " + this.getGeneratorArgs(configuration.generator);
 
@@ -379,7 +372,7 @@ export class CMakeSettingsJsonRunner {
       cmakeArgs += " " + path.dirname(this.cmakeSettingsJson);
 
       // Run CNake with the given arguments.
-      if (configuration.buildDir === null) {
+      if (!configuration.buildDir) {
         throw new Error(tl.loc('BuildDirNull'));
       }
       tl.mkdirP(configuration.buildDir);
@@ -413,7 +406,7 @@ export class CMakeSettingsJsonRunner {
   }
 }
 
-export function parseConfigurations(json: any): Configuration[] {
+export function parseConfigurations(json: any, cmakeSettingsJson: string): Configuration[] {
   // Parse all configurations.
   let configurations: Configuration[] = [];
   if (json.configurations != null) {
@@ -452,10 +445,11 @@ export function parseConfigurations(json: any): Configuration[] {
       newConfiguration.type = configuration.configurationType;
       newConfiguration.generator = configuration.generator;
       newConfiguration.workspaceRoot = utils.getSourceDir();
-      newConfiguration.cmakeSettingsJsonPath = "";
+      // Set the Configuration.cmakeSettingsJsonPath field value with the one passed in.
+      newConfiguration.cmakeSettingsJsonPath = cmakeSettingsJson;
       newConfiguration.cmakeToolchain = configuration.cmakeToolchain;
       configurations.push(newConfiguration);
-    };
+    } //for
   }
 
   return configurations;
