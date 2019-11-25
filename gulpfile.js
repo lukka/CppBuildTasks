@@ -29,7 +29,7 @@ var setupTaskJson = function (json, patchValue) {
   return json;
 }
 
-var buildProjects = function () {
+var buildTasks = function () {
   gulp.src(["./package.json", "./task-cmake/package.json", "./task-vcpkg/package.json"]).pipe(install());
 
   gulp.src("vss-extension.json")
@@ -63,4 +63,13 @@ var buildProjects = function () {
     .js.pipe(gulp.dest(path.join('build')));
 };
 
-gulp.task('default', buildProjects);
+var buildActions = function () {
+  return gulp.src(
+    './task-vcpkg/src/base-lib.ts',
+    './task-vcpkg/src/vcpkg-runner.ts')
+    .pipe(gulp.dest('./action-vcpkg/src/'));
+}
+
+gulp.task('buildActions', buildActions);
+
+gulp.task('default', gulp.series('buildActions', buildTasks));

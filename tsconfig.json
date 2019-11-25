@@ -4,11 +4,17 @@
         "target": "es6",
         "noImplicitAny": false,
         "sourceMap": true,
+        // https://github.com/microsoft/TypeScript/issues/9858: 
+        // Use this folder as the relative basis for computing the paths in outDir". Which 
+        // files are part of your compilation is a separate question that is answered by 
+        // files and/or include/exclude
+        "rootDir": ".",
         "outDir": "build",
         "strictNullChecks": true
     },
     "exclude": [
         "node_modules",
-        "build"
+        "build",
+        "action-vcpkg"
     ]
 }
