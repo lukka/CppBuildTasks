@@ -2,10 +2,12 @@
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
-import * as tl from 'azure-pipelines-task-lib/task';
-import * as trm from 'azure-pipelines-task-lib/toolrunner';
 import * as fs from 'fs';
 import * as os from 'os';
+import { libtask } from './task-lib'
+import { IExecOptions, IExecResult } from './base-lib'
+
+const taskLib: libtask.TaskLib = new libtask.TaskLib();
 
 export const vcpkgRootEnvName: string = 'VCPKG_ROOT';
 export const cachingFormatEnvName: string = 'AZP_CACHING_CONTENT_FORMAT';
@@ -13,12 +15,12 @@ export const cachingFormatEnvName: string = 'AZP_CACHING_CONTENT_FORMAT';
 // Retrieve the binary directory, which is not deleted at the start of the
 // phase.
 export function getBinDir(): string {
-  let dir: string = tl.getVariable('Build.BinariesDirectory');
+  let dir: string = taskLib.getVariable('Build.BinariesDirectory');
   if (!dir) {
-    dir = tl.getVariable('System.ArtifactsDirectory');
+    dir = taskLib.getVariable('System.ArtifactsDirectory');
   }
   if (!dir) {
-    throw new Error(tl.loc(
+    throw new Error(taskLib.loc(
       'vcpkGetBinDirFailure',
       'Variables Build.Binaries and System.ArtifactsDirectory are both empty'));
   }
@@ -27,7 +29,7 @@ export function getBinDir(): string {
 
 export function isVcpkgSubmodule(gitPath: string, fullVcpkgPath: string): boolean {
   try {
-    const options: trm.IExecOptions = <trm.IExecOptions>{
+    const options: IExecOptions = <IExecOptions>{
       cwd: process.env.BUILD_SOURCESDIRECTORY,
       failOnStdErr: false,
       errStream: process.stdout,
@@ -38,7 +40,7 @@ export function isVcpkgSubmodule(gitPath: string, fullVcpkgPath: string): boolea
       env: process.env
     };
 
-    const res: trm.IExecSyncResult = tl.execSync(gitPath, ['submodule', 'status', fullVcpkgPath], options);
+    const res: IExecResult = taskLib.execSync(gitPath, ['submodule', 'status', fullVcpkgPath], options);
     let isSubmodule: boolean = false;
     if (res.error !== null) {
       isSubmodule = res.code == 0;
@@ -52,21 +54,21 @@ export function isVcpkgSubmodule(gitPath: string, fullVcpkgPath: string): boolea
       }
       msg += '.';
 
-      tl.debug(msg);
+      taskLib.debug(msg);
     }
 
     return isSubmodule;
   }
   catch (error) {
-    tl.warning(`ïsVcpkgSubmodule() failed: ${error}`);
+    taskLib.warning(`ïsVcpkgSubmodule() failed: ${error}`);
     return false;
   }
 }
 
 export function throwIfErrorCode(errorCode: Number): void {
   if (errorCode != 0) {
-    tl.error(tl.loc('commandFailed', errorCode));
-    throw new Error(tl.loc('commandFailed', errorCode));
+    taskLib.error(taskLib.loc('commandFailed', errorCode));
+    throw new Error(taskLib.loc('commandFailed', errorCode));
   }
 }
 
@@ -93,18 +95,18 @@ export function isDarwin(): boolean {
 
 export function directoryExists(path: string) {
   try {
-    return tl.stats(path).isDirectory();
+    return taskLib.stats(path).isDirectory();
   } catch (error) {
-    tl.debug(`directoryExists(${path}): ${"" + error}`);
+    taskLib.debug(`directoryExists(${path}): ${"" + error}`);
     return false;
   }
 }
 
 export function fileExists(path: string) {
   try {
-    return tl.stats(path).isFile();
+    return taskLib.stats(path).isFile();
   } catch (error) {
-    tl.debug(`fileExists(${path}): ${"" + error}`);
+    taskLib.debug(`fileExists(${path}): ${"" + error}`);
     return false;
   }
 }
@@ -112,17 +114,17 @@ export function fileExists(path: string) {
 export function readFile(path: string): [boolean, string] {
   try {
     const readString: string = fs.readFileSync(path, { encoding: 'utf8', flag: 'r' });
-    tl.debug(`readFile(${path})='${readString}'.`);
+    taskLib.debug(`readFile(${path})='${readString}'.`);
     return [true, readString];
   } catch (error) {
-    tl.debug(`readFile(${path}): ${"" + error}`);
+    taskLib.debug(`readFile(${path}): ${"" + error}`);
     return [false, error];
   }
 }
 
 export function writeFile(file: string, content: string): void {
-  tl.debug(`Writing to file '${file}' content '${content}'.`);
-  tl.writeFile(file, content);
+  taskLib.debug(`Writing to file '${file}' content '${content}'.`);
+  taskLib.writeFile(file, content);
 }
 
 export function getDefaultTriplet(): string {
@@ -188,8 +190,8 @@ export function resolveArguments(args: string, readFile: (string) => [boolean, s
     arg = arg.replace(/\s/, '');
     let isResponseFile: boolean = false;
     if (arg.startsWith("@")) {
-      const resolvedFilePath: string = tl.resolve(arg);
-      if (tl.exist(resolvedFilePath)) {
+      const resolvedFilePath: string = taskLib.resolve(arg);
+      if (taskLib.exist(resolvedFilePath)) {
         let [ok, content] = readFile(resolvedFilePath);
         if (ok && content) {
           isResponseFile = true;
@@ -209,6 +211,6 @@ export function resolveArguments(args: string, readFile: (string) => [boolean, s
 // Force 'name' env variable to have value of 'value'.
 export function setEnvVar(name: string, value: string) {
   process.env[name] = value;
-  tl.setVariable(name, value);
-  tl.debug(`Env var '${name}' set to value '${value}'.`);
+  taskLib.setVariable(name, value);
+  taskLib.debug(`Env var '${name}' set to value '${value}'.`);
 }
