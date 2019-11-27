@@ -77,7 +77,7 @@ export class CMakeRunner {
 
   fetchInput(): void {
     tl.debug('fetchInput()<<');
-    const mode: string = tl.getInput(Globals.cmakeListsOrSettingsJson, true);
+    const mode: string = tl.getInput(Globals.cmakeListsOrSettingsJson, true) ?? "";
     this.taskMode = getTargetType(mode);
     if (this.taskMode == TaskModeType.Unknown || !this.taskMode) {
       throw new Error(`fetchInput(): ${tl.loc('InvalidTaskMode')}`);
@@ -85,31 +85,31 @@ export class CMakeRunner {
 
     this.cmakeSettingsJsonPath = tl.getPathInput(
       Globals.cmakeSettingsJsonPath,
-      this.taskMode == TaskModeType.CMakeSettingsJson);
+      this.taskMode == TaskModeType.CMakeSettingsJson) ?? "";
     this.cmakeListsTxtPath = tl.getPathInput(
       Globals.cmakeListsTxtPath,
-      this.taskMode == TaskModeType.CMakeListsTxtBasic);
+      this.taskMode == TaskModeType.CMakeListsTxtBasic) ?? "";
     this.buildDir = tl.getInput(
       Globals.buildDirectory,
-      this.taskMode == TaskModeType.CMakeListsTxtBasic);
+      this.taskMode == TaskModeType.CMakeListsTxtBasic) ?? "";
     this.appendedArgs = tl.getInput(
       Globals.cmakeAppendedArgs,
-      false);
+      false) ?? "";
     this.configurationFilter = tl.getInput(
       Globals.configurationRegexFilter,
-      this.taskMode == TaskModeType.CMakeSettingsJson);
+      this.taskMode == TaskModeType.CMakeSettingsJson) ?? "";
     this.ninjaPath = '';
     if (tl.filePathSupplied(Globals.ninjaPath)) {
-      this.ninjaPath = tl.getInput(Globals.ninjaPath, false);
+      this.ninjaPath = tl.getInput(Globals.ninjaPath, false) ?? "";
     }
     if (tl.filePathSupplied(Globals.cmakeToolchainPath)) {
-      this.cmakeToolchainPath = tl.getInput(Globals.cmakeToolchainPath, false);
+      this.cmakeToolchainPath = tl.getInput(Globals.cmakeToolchainPath, false) ?? "";
     }
     const gen: string = tl.getInput(
       Globals.cmakeGenerator,
-      this.taskMode == TaskModeType.CMakeListsTxtBasic);
+      this.taskMode == TaskModeType.CMakeListsTxtBasic) ?? "";
     this.generator = getGenerator(gen);
-    this.ninjaDownloadUrl = tl.getInput(Globals.ninjaDownloadUrl, false);
+    this.ninjaDownloadUrl = tl.getInput(Globals.ninjaDownloadUrl, false) ?? "";
     this.doBuild = tl.getBoolInput(Globals.buildWithCMake, false) ?? false;
     this.doBuildArgs = tl.getInput(Globals.buildWithCMakeArgs, false) ?? '';
     this.cmakeSourceDir = path.dirname(this.cmakeListsTxtPath ?? '');
@@ -119,11 +119,11 @@ export class CMakeRunner {
 
     this.cmakeBuildType = tl.getInput(
       Globals.cmakeBuildType,
-      this.taskMode == TaskModeType.CMakeListsTxtBasic);
+      this.taskMode == TaskModeType.CMakeListsTxtBasic) ?? "";
 
-    this.vcpkgTriplet = tl.getInput(Globals.vcpkgTriplet, false);
+    this.vcpkgTriplet = tl.getInput(Globals.vcpkgTriplet, false) ?? "";
 
-    this.sourceScript = tl.getInput(Globals.cmakeWrapperCommand, false);
+    this.sourceScript = tl.getInput(Globals.cmakeWrapperCommand, false) ?? "";
   }
 
   async run(): Promise<void> {

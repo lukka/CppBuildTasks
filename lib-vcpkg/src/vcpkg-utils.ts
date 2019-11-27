@@ -4,20 +4,23 @@
 
 import * as fs from 'fs';
 import * as os from 'os';
-import { libtask } from './task-lib'
-import { IExecOptions, IExecResult } from './base-lib'
+import { IExecOptions, IExecResult, IBaseLib } from './base-lib'
 
-const taskLib: libtask.TaskLib = new libtask.TaskLib();
+var taskLib: IBaseLib;
 
 export const vcpkgRootEnvName: string = 'VCPKG_ROOT';
 export const cachingFormatEnvName: string = 'AZP_CACHING_CONTENT_FORMAT';
 
+export function setIBaseLib(tl: IBaseLib) {
+  taskLib = tl;
+}
+
 // Retrieve the binary directory, which is not deleted at the start of the
 // phase.
 export function getBinDir(): string {
-  let dir: string = taskLib.getVariable('Build.BinariesDirectory');
+  let dir: string = taskLib.getVariable('Build.BinariesDirectory') ?? "";
   if (!dir) {
-    dir = taskLib.getVariable('System.ArtifactsDirectory');
+    dir = taskLib.getVariable('System.ArtifactsDirectory') ?? "";
   }
   if (!dir) {
     throw new Error(taskLib.loc(
@@ -27,7 +30,7 @@ export function getBinDir(): string {
   return dir;
 }
 
-export function isVcpkgSubmodule(gitPath: string, fullVcpkgPath: string): boolean {
+export async function isVcpkgSubmodule(gitPath: string, fullVcpkgPath: string): Promise<boolean> {
   try {
     const options: IExecOptions = <IExecOptions>{
       cwd: process.env.BUILD_SOURCESDIRECTORY,
@@ -40,7 +43,7 @@ export function isVcpkgSubmodule(gitPath: string, fullVcpkgPath: string): boolea
       env: process.env
     };
 
-    const res: IExecResult = taskLib.execSync(gitPath, ['submodule', 'status', fullVcpkgPath], options);
+    const res: IExecResult = await taskLib.execSync(gitPath, ['submodule', 'status', fullVcpkgPath], options);
     let isSubmodule: boolean = false;
     if (res.error !== null) {
       isSubmodule = res.code == 0;

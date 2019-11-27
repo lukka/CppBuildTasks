@@ -2,57 +2,56 @@
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
-import * as q from 'q';
 import * as stream from 'stream';
-import { IToolRunner, ITaskLib, IExecResult, IExecOptions } from './base-lib';
+import { IToolRunner, IBaseLib, IExecResult, IExecOptions } from './base-lib';
 import * as core from '@actions/core';
-import * as github from '@actions/github';
 import * as exec from '@actions/exec';
 import * as ioutil from '@actions/io/lib/io-util';
 import * as io from '@actions/io/lib/io';
 import * as fs from 'fs';
-import { clearInputs } from '../../task-cmake/tests/test-utils';
+import * as path from 'path';
+import * as shelljs from 'shelljs'
 
 export namespace libaction {
 
   export class ToolRunner implements IToolRunner {
-    private readonly toolRunner: ToolRunner;
+
+    private args: string[];
 
     constructor(private path: string) {
     }
 
-    exec(options: IExecOptions): q.Promise<number> {
-      const options2: trm.IExecOptions = this.convertExecOptions(options);
-      options2.cwd = options.cwd;
+    exec(options: IExecOptions): Promise<number> {
+      const options2: IExecOptions = this.convertExecOptions(options);
 
-      return this.toolRunner.exec(options);
+      return exec.exec(this.path, this.args, options);
     }
 
     line(val: string): void {
-      this.toolRunner.line(val);
+      this.args = [val];
     }
 
     arg(val: string | string[]): void {
-      this.toolRunner.arg(val);
+      if (val instanceof Array) {
+        this.args = this.args.concat(val);
+      }
+
+      else if (typeof (val) === 'string') {
+        this.args = this.args.concat(val.trim());
+      }
     }
 
-    execSync(options?: IExecOptions): q.Promise<IExecResult> {
-      var defer = q.defer<IExecResult>();
-
-      let res: trm.IExecSyncResult = this.toolRunner.execSync(options);
+    async execSync(options?: IExecOptions): Promise<IExecResult> {
+      var exitCode: number = await exec.exec(this.path, this.args, options);
       let res2: IExecResult = <IExecResult>{
-        stdout: res.stdout,
-        stderr: res.stderr,
-        code: res.code,
-        error: res.error
+        code: exitCode
       };
 
-      defer.resolve(res2);
-      return defer.promise;
+      return Promise.resolve(res2);
     }
 
-    private convertExecOptions(options: IExecOptions): trm.IExecOptions {
-      let result: trm.IExecOptions = <trm.IExecOptions>{
+    private convertExecOptions(options: IExecOptions): IExecOptions {
+      let result: IExecOptions = <IExecOptions>{
         cwd: options.cwd ?? process.cwd(),
         env: options.env ?? process.env,
         silent: options.silent ?? false,
@@ -66,7 +65,8 @@ export namespace libaction {
     }
   }
 
-  export class TaskLib implements ITaskLib {
+  export class TaskLib implements IBaseLib {
+
     getInput(name: string, isRequired: boolean): string {
       return core.getInput(name, { required: isRequired });
     }
@@ -114,16 +114,13 @@ export namespace libaction {
       return Promise.resolve(exec.exec(name, args, options));
     }
 
-    execSync(name: string, args: any, options?: IExecOptions): IExecResult {
-      var res = tl.execSync(name, args, options);
+    async execSync(name: string, args: any, options?: IExecOptions): Promise<IExecResult> {
+      var exitCode: number = await exec.exec(name, args, options);
       let res2: IExecResult = <IExecResult>{
-        code: res.code,
-        stdout: res.stdout,
-        stderr: res.stderr,
-        error: res.error
+        code: exitCode
       }
 
-      return res2;
+      return Promise.resolve(res2);
     }
 
     async which(name: string, required: boolean): Promise<string> {
@@ -131,27 +128,27 @@ export namespace libaction {
     }
 
     rmRF(path: string): void {
-      tl.rmRF(path);
+      io.rmRF(path);
     }
 
     mkdirP(path: string): void {
-      tl.mkdirP(path);
+      io.mkdirP(path);
     }
 
     cd(path: string): void {
-      tl.cd(path);
+      shelljs.cd(path);
     }
 
     writeFile(path: string, content: string): void {
-      tl.writeFile(path, content);
+      fs.writeFileSync(path, content);
     }
 
-    resolve(path: string): string {
-      return tl.resolve(path);
+    resolve(apath: string): string {
+      return path.resolve(apath);
     }
 
     stats(path: string): fs.Stats {
-      return tl.stats(path);
+      return fs.statSync(path);
     }
 
     exist(path: string): Promise<boolean> {

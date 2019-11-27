@@ -3,7 +3,7 @@
 // SPDX short identifier: MIT
 
 import * as stream from 'stream';
-import { IToolRunner, ITaskLib, IExecResult, IExecOptions } from './base-lib';
+import { IToolRunner, IBaseLib, IExecResult, IExecOptions } from './base-lib';
 import * as tl from 'azure-pipelines-task-lib/task';
 import * as trm from 'azure-pipelines-task-lib/toolrunner';
 import * as fs from 'fs';
@@ -62,12 +62,12 @@ export namespace libtask {
     }
   }
 
-  export class TaskLib implements ITaskLib {
-    getInput(name: string, required: boolean): string {
+  export class TaskLib implements IBaseLib {
+    getInput(name: string, required: boolean): string | undefined {
       return tl.getInput(name, required);
     }
 
-    getPathInput(name: string): string {
+    getPathInput(name: string): string | undefined {
       return tl.getPathInput(name);
     }
 
@@ -79,7 +79,7 @@ export namespace libtask {
       tl.setVariable(name, value);
     }
 
-    getVariable(name: string): string {
+    getVariable(name: string): string | undefined {
       return tl.getVariable(name);
     }
 
@@ -107,7 +107,7 @@ export namespace libtask {
       return Promise.resolve(tl.exec(name, args, options));
     }
 
-    execSync(name: string, args: any, options?: IExecOptions): IExecResult {
+    execSync(name: string, args: any, options?: IExecOptions): Promise<IExecResult> {
       var res = tl.execSync(name, args, options);
       let res2: IExecResult = <IExecResult>{
         code: res.code,
@@ -116,7 +116,7 @@ export namespace libtask {
         error: res.error
       }
 
-      return res2;
+      return Promise.resolve(res2);
     }
 
     which(name: string, required: boolean): Promise<string> {
