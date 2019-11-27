@@ -2,6 +2,7 @@ const gulp = require('gulp');
 const path = require('path');
 const install = require('gulp-install');
 const ts = require("gulp-typescript");
+const sourcemaps = require("gulp-sourcemaps");
 const jsonTransform = require('gulp-json-transform');
 
 const newVersion = {
@@ -29,8 +30,18 @@ var setupTaskJson = function (json, patchValue) {
   return json;
 }
 
-var buildTasks = function () {
-  gulp.src(["./package.json", "./task-cmake/package.json", "./task-vcpkg/package.json"]).pipe(install());
+var installPackages = function () {
+  return gulp.src([
+    "./package.json",
+    "./task-cmake/package.json",
+    "./task-vcpkg/package.json",
+    "./action-vcpkg/package.json"]).pipe(install());
+
+}
+
+var prepareVsix = function () {
+
+  installPackages();
 
   gulp.src("vss-extension.json")
     .pipe(jsonTransform(function (json, file) {
@@ -57,19 +68,24 @@ var buildTasks = function () {
       return setupTaskJson(json, readPatch);
     }, 2)).pipe(gulp.dest("task-cmake"));
 
-  var tsProject = ts.createProject('tsconfig.json');
-  return tsProject.src()
+  var tsProject = ts.createProject('./tsconfig.json');
+  tsProject.src()
+    .pipe(sourcemaps.init())
     .pipe(tsProject())
-    .js.pipe(gulp.dest(path.join('build')));
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest(path.join('build')));
+
+  return copySharedJSFiles();
 };
 
-var buildActions = function () {
+// Copy shared library files to consumers.
+var copySharedJSFiles = function () {
+  gulp.src(
+    ['./build/lib-vcpkg/src/*.js'])
+    .pipe(gulp.dest('./build/action-vcpkg/src/'));
   return gulp.src(
-    './task-vcpkg/src/base-lib.ts',
-    './task-vcpkg/src/vcpkg-runner.ts')
-    .pipe(gulp.dest('./action-vcpkg/src/'));
+    ['./build/lib-vcpkg/src/*.js'])
+    .pipe(gulp.dest('./build/task-vcpkg/src/'));
 }
 
-gulp.task('buildActions', buildActions);
-
-gulp.task('default', gulp.series('buildActions', buildTasks));
+gulp.task('default', prepareVsix);

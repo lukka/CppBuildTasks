@@ -7,7 +7,7 @@ import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';
 import * as vcpkgUtilsMock from './vcpkg-utils-mock';
 
-import { Globals } from '../src/globals'
+import { Globals } from '../../lib-vcpkg/src/globals'
 
 let taskPath = path.join(__dirname, '..', 'src', 'vcpkg-task.js');
 let tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);

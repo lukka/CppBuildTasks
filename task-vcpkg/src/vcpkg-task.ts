@@ -10,6 +10,7 @@ import { libtask } from './task-lib';
 
 async function main(): Promise<number> {
   try {
+    vcpkgUtils.setIBaseLib(new libtask.TaskLib());
     tl.setResourcePath(path.join(__dirname, 'task.json'));
     let runner: vcpkgrunner.VcpkgRunner = new vcpkgrunner.VcpkgRunner(new libtask.TaskLib());
     await runner.run();

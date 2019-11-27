@@ -4,7 +4,7 @@
 
 import * as assert from 'assert';
 
-import * as vcpkgutils from '../src/vcpkg-utils'
+import * as vcpkgutils from '../../lib-vcpkg/src/vcpkg-utils'
 
 function readFile(path: string): [boolean, string] {
   if (path.indexOf("response_file_with_triplet.txt") !== -1) {

@@ -1,0 +1,15 @@
+{
+  "description": "Actions for running vcpkg in GitHub.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lukka/CppBuildTasks.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.2.0",
+    "@actions/exec": "^1.0.1",
+    "@actions/github": "^1.1.0",
+    "@actions/io": "^1.0.1",
+    "@types/shelljs": "^0.8.6"
+  }
+}

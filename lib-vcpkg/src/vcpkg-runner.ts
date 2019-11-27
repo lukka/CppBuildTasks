@@ -5,7 +5,7 @@
 
 import * as path from 'path';
 import * as vcpkgUtils from './vcpkg-utils'
-import { ITaskLib, IExecOptions, IExecResult } from "./base-lib";
+import { IBaseLib, IExecOptions, IExecResult } from "./base-lib";
 import { Globals } from './globals';
 
 
@@ -15,7 +15,7 @@ export class VcpkgRunner {
   defaultVcpkgUrl: string;
   vcpkgURL: string;
 
-  public constructor(private tl: ITaskLib) { }
+  public constructor(private tl: IBaseLib) { }
 
   /**
    * Git ref (a branch, a tag, or a commit id) to fetch from the vcpkg repository.
@@ -28,18 +28,18 @@ export class VcpkgRunner {
   vcpkgArtifactIgnoreEntries: string[];
 
   private fetchInput(): void {
-    this.vcpkgArgs = this.tl.getInput(Globals.vcpkgArguments, true);
+    this.vcpkgArgs = this.tl.getInput(Globals.vcpkgArguments, true) ?? "";
     this.defaultVcpkgUrl = 'https://github.com/microsoft/vcpkg.git';
     this.vcpkgURL =
       this.tl.getInput(Globals.vcpkgGitURL, false) ?? this.defaultVcpkgUrl;
     this.vcpkgCommitId =
       this.tl.getInput(Globals.vcpkgCommitId, false) ?? 'master';
-    this.vcpkgDestPath = this.tl.getPathInput(Globals.vcpkgDirectory);
+    this.vcpkgDestPath = this.tl.getPathInput(Globals.vcpkgDirectory) ?? "";
     if (!this.vcpkgDestPath) {
       this.vcpkgDestPath = path.join(vcpkgUtils.getBinDir(), 'vcpkg');
     }
 
-    this.vcpkgTriplet = this.tl.getInput(Globals.vcpkgTriplet, false);
+    this.vcpkgTriplet = this.tl.getInput(Globals.vcpkgTriplet, false) ?? "";
     this.vcpkgArtifactIgnoreEntries = this.tl.getDelimitedInput(Globals.vcpkgArtifactIgnoreEntries, '\n', false);
   }
 
@@ -156,7 +156,7 @@ export class VcpkgRunner {
     let updated: boolean = false;
     let needRebuild: boolean = false;
     const remoteUrlAndCommitId: string = this.vcpkgURL + this.vcpkgCommitId;
-    const isSubmodule = vcpkgUtils.isVcpkgSubmodule(gitPath, this.vcpkgDestPath);
+    const isSubmodule = await vcpkgUtils.isVcpkgSubmodule(gitPath, this.vcpkgDestPath);
     if (isSubmodule) {
       // In case vcpkg it is a Git submodule...
       console.log(`'vcpkg' is detected as a submodule, adding '.git' to the ignored entries in '.artifactignore' file (for excluding it from caching).`);

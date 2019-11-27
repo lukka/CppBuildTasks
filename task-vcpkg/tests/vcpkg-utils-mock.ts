@@ -3,6 +3,8 @@
 // SPDX short identifier: MIT
 
 export const utilsMock: any = {
+    setIBaseLib() {
+    },
     getBinDir() {
         return '/path/to/';
     },

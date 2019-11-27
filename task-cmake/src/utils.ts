@@ -113,7 +113,7 @@ export function test(options: any, p: any) {
 }
 
 export function getSourceDir(): string {
-  return tl.getVariable('System.DefaultWorkingDirectory');
+  return tl.getVariable('System.DefaultWorkingDirectory') ?? "";
 }
 
 export function isWin32(): boolean {
@@ -332,7 +332,7 @@ export async function build(buildDir: string, buildArgs: string, options: trm.IE
  * @returns {string}
  */
 export function getArtifactsDir(): string {
-  let dir: string = tl.getVariable('Build.ArtifactStagingDirectory');
+  let dir: string | undefined = tl.getVariable('Build.ArtifactStagingDirectory');
   if (!dir) {
     dir = tl.getVariable('System.ArtifactsDirectory');
   }
@@ -347,7 +347,7 @@ export function getArtifactsDir(): string {
 // Retrieve the binary directory, which is not deleted at the start of the
 // phase.
 export function getBinDir(): string {
-  let dir: string = tl.getVariable('Build.BinariesDirectory');
+  let dir: string | undefined = tl.getVariable('Build.BinariesDirectory');
   if (!dir) {
     dir = tl.getVariable('System.ArtifactsDirectory');
   }
