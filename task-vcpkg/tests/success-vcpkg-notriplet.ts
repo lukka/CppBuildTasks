@@ -7,14 +7,14 @@ import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';
 import * as vcpkgUtilsMock from './vcpkg-utils-mock';
 
-import { Globals } from '../../lib-vcpkg/src/globals'
+import * as Globals from '../../lib-vcpkg/src/globals'
 
-let taskPath = path.join(__dirname, '..', 'src', 'vcpkg-task.js');
-let tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
+const taskPath = path.join(__dirname, '..', 'src', 'vcpkg-task.js');
+const tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 
-const gitPath: string = '/usr/local/bin/git';
+const gitPath = '/usr/local/bin/git';
 
-let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
+const answers: ma.TaskLibAnswers = {
   'which': {
     'git': '/usr/local/bin/git', 'sh': '/bin/bash', 'chmod': '/bin/chmod'
   },
@@ -38,7 +38,7 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
       { 'code': 0, 'stdout': 'this is the bootstrap output of chmod +x bootstrap' }
   },
   'rmRF': { '/path/to/vcpkg': { success: true } }
-};
+} as ma.TaskLibAnswers;
 
 // Arrange
 vcpkgUtilsMock.utilsMock.readFile = (file: string) => {

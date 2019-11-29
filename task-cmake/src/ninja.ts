@@ -8,16 +8,16 @@ import * as path from 'path';
 import * as utils from './utils';
 
 export function findNinjaTool(): string {
-  var ninjaPath = tl.which('ninja', false);
+  const ninjaPath = tl.which('ninja', false);
   return ninjaPath;
 };
 
 export class NinjaDownloader {
-  static baseUrl: string =
+  static baseUrl =
     'https://github.com/ninja-build/ninja/releases/download/v1.9.0';
 
   static download(url: string | null): string {
-    let ninjaPath: string = '';
+    let ninjaPath = '';
     const defaultUrl = '';
     if (!url) {
       if (utils.isLinux()) {

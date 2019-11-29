@@ -10,9 +10,23 @@ import * as os from 'os';
 import * as path from 'path';
 import * as shell from 'shelljs';
 import * as syncRequest from 'sync-request';
-import { EnvironmentMap } from './cmakesettings-runner';
 
-export const CMAKE_TOOLCHAIN_FILE: string = "CMAKE_TOOLCHAIN_FILE";
+// Retrieve the binary directory, which is not deleted at the start of the
+// phase.
+export function getBinDir(): string {
+  let dir: string | undefined = tl.getVariable('Build.BinariesDirectory');
+  if (!dir) {
+    dir = tl.getVariable('System.ArtifactsDirectory');
+  }
+  if (!dir) {
+    throw new Error(tl.loc(
+      'getBinDirFailure',
+      'Variables Build.Binaries and System.ArtifactsDirectory are empty'));
+  }
+  return dir;
+}
+
+export const CMAKE_TOOLCHAIN_FILE = "CMAKE_TOOLCHAIN_FILE";
 /**
  * Check whether the current generator selected in the command line
  * is -G Ninja.
@@ -50,6 +64,13 @@ export function removeToolchainFile(str: string): string {
   return str;
 }
 
+export function shellAssert(): void {
+  const errMsg = shell.error();
+  if (errMsg) {
+    throw new Error('shellAssert: ${errMsg}');
+  }
+}
+
 export function mkdir(options, target) {
   if (target) {
     shell.mkdir(options, target);
@@ -70,6 +91,11 @@ export function rm(options, target) {
   shellAssert();
 }
 
+export function test(options: any, p: any) {
+  const result = shell.test(options, p);
+  return result;
+}
+
 export function downloadFile(url) {
   // validate parameters
   if (!url) {
@@ -77,9 +103,9 @@ export function downloadFile(url) {
   }
 
   // skip if already downloaded
-  var scrubbedUrl = url.replace(/[/\:?]/g, '_');
-  var targetPath = path.join(getBinDir(), 'file', scrubbedUrl);
-  var marker = targetPath + '.completed';
+  const scrubbedUrl = url.replace(/[/\:?]/g, '_');
+  const targetPath = path.join(getBinDir(), 'file', scrubbedUrl);
+  const marker = targetPath + '.completed';
   if (!test('-f', marker)) {
     console.log('Downloading file: ' + url);
 
@@ -90,7 +116,7 @@ export function downloadFile(url) {
 
     // download the file
     mkdir('-p', path.join(getBinDir(), 'file'));
-    var result = syncRequest.default('GET', url);
+    const result = syncRequest.default('GET', url);
     fs.writeFileSync(targetPath, result.getBody());
 
     // write the completed marker
@@ -98,18 +124,6 @@ export function downloadFile(url) {
   }
 
   return targetPath;
-}
-
-export function shellAssert(): void {
-  var errMsg = shell.error();
-  if (errMsg) {
-    throw new Error('shellAssert: ${errMsg}');
-  }
-}
-
-export function test(options: any, p: any) {
-  var result = shell.test(options, p);
-  return result;
 }
 
 export function getSourceDir(): string {
@@ -136,9 +150,9 @@ export class Downloader {
     }
 
     // skip if already downloaded
-    var scrubbedUrl = url.replace(/[/\:?]/g, '_');
-    var targetPath = path.join(getBinDir(), 'file', scrubbedUrl);
-    var marker = targetPath + '.completed';
+    const scrubbedUrl = url.replace(/[/\:?]/g, '_');
+    const targetPath = path.join(getBinDir(), 'file', scrubbedUrl);
+    const marker = targetPath + '.completed';
     if (!test('-f', marker)) {
       console.log('Downloading file: ' + url);
 
@@ -149,7 +163,7 @@ export class Downloader {
 
       // download the file
       mkdir('-p', path.join(getBinDir(), 'file'));
-      var result = syncRequest.default('GET', url);
+      const result = syncRequest.default('GET', url);
       fs.writeFileSync(targetPath, result.getBody());
 
       // write the completed marker
@@ -165,13 +179,13 @@ export class Downloader {
     }
 
     try {
-      let cleanedUrl: string = url.replace(/[\/\\:?]/g, '_');
-      let targetPath: string =
+      const cleanedUrl: string = url.replace(/[\/\\:?]/g, '_');
+      const targetPath: string =
         path.join(getBinDir(), 'downloads', cleanedUrl);
-      let marker: string = targetPath + '.completed';
+      const marker: string = targetPath + '.completed';
       if (!test('-f', marker)) {
         // download the whole archive.
-        var archivePath = downloadFile(url);
+        const archivePath = downloadFile(url);
         console.log(`Extracting archive: ${url}`);
 
         // delete any previously attempted extraction directory
@@ -181,7 +195,7 @@ export class Downloader {
 
         // extract the archive
         mkdir('-p', targetPath);
-        var zip = new admZip(archivePath);
+        const zip = new admZip(archivePath);
         zip.extractAllTo(targetPath);
 
         // write the completed file marker
@@ -199,15 +213,15 @@ export class Downloader {
 interface VarMap { [key: string]: string };
 
 function parseVcpkgEnvOutput(data: string): VarMap {
-  let map: VarMap = {};
-  var regex = {
+  const map: VarMap = {};
+  const regex = {
     param: /^\s*([^=]+?)\s*=\s*(.*?)\s*$/,
   };
-  var lines = data.split(/[\r\n]+/);
-  var section = null;
+  const lines = data.split(/[\r\n]+/);
+  const section = null;
   for (const line of lines) {
     if (regex.param.test(line)) {
-      var match = line.match(regex.param);
+      const match = line.match(regex.param);
       if (match) {
         map[match[1]] = match[2];
       }
@@ -217,9 +231,56 @@ function parseVcpkgEnvOutput(data: string): VarMap {
   return map;
 }
 
+export function injectEnvVariables(vcpkgRoot: string, triplet: string): void {
+  if (!vcpkgRoot) {
+    vcpkgRoot = process.env["VCPKG_ROOT"] ?? "";
+    if (!vcpkgRoot) {
+      throw new Error(tl.loc('VcpkgRootNotSet'));
+    }
+  }
+
+  // Search for CMake tool and run it
+  let vcpkgPath: string = path.join(vcpkgRoot, 'vcpkg');
+  if (isWin32()) {
+    vcpkgPath += '.exe';
+  }
+  const vcpkg: trm.ToolRunner = tl.tool(vcpkgPath);
+  vcpkg.arg("env");
+  vcpkg.arg("--bin");
+  vcpkg.arg("--include");
+  vcpkg.arg("--tools");
+  vcpkg.arg("--python");
+  vcpkg.line(`--triplet ${triplet} set`);
+
+  const options = {
+    cwd: vcpkgRoot,
+    failOnStdErr: false,
+    errStream: process.stdout,
+    outStream: process.stdout,
+    ignoreReturnCode: true,
+    silent: false,
+    windowsVerbatimArguments: false,
+    env: process.env
+  } as trm.IExecOptions;
+
+  const output = vcpkg.execSync(options);
+  if (output.code != 0) {
+    throw new Error(`${output.stdout}\n\n${output.stderr}`);
+  }
+
+  const map = parseVcpkgEnvOutput(output.stdout);
+  for (const key in map) {
+    if (key.toUpperCase() == "PATH") {
+      process.env[key] += ";" + map[key];
+    } else {
+      process.env[key] = map[key];
+    }
+  }
+}
+
 export async function injectVcpkgToolchain(args: string, triplet: string): Promise<string> {
   args = args ?? "";
-  let vcpkgRoot: string | undefined = process.env.VCPKG_ROOT;
+  const vcpkgRoot: string | undefined = process.env.VCPKG_ROOT;
 
   // if VCPKG_ROOT is defined, and a toolchain has not been specified,
   // use it!
@@ -249,58 +310,11 @@ export async function injectVcpkgToolchain(args: string, triplet: string): Promi
           tl.setVariable("CXX", "cl.exe");
         }
 
-        await injectEnvVariables(vcpkgRoot, triplet);
+        injectEnvVariables(vcpkgRoot, triplet);
       }
     }
   }
   return args;
-}
-
-export function injectEnvVariables(vcpkgRoot: string, triplet: string): void {
-  if (!vcpkgRoot) {
-    vcpkgRoot = process.env["VCPKG_ROOT"] ?? "";
-    if (!vcpkgRoot) {
-      throw new Error(tl.loc('VcpkgRootNotSet'));
-    }
-  }
-
-  // Search for CMake tool and run it
-  let vcpkgPath: string = path.join(vcpkgRoot, 'vcpkg');
-  if (isWin32()) {
-    vcpkgPath += '.exe';
-  }
-  let vcpkg: trm.ToolRunner = tl.tool(vcpkgPath);
-  vcpkg.arg("env");
-  vcpkg.arg("--bin");
-  vcpkg.arg("--include");
-  vcpkg.arg("--tools");
-  vcpkg.arg("--python");
-  vcpkg.line(`--triplet ${triplet} set`);
-
-  const options = <trm.IExecOptions>{
-    cwd: vcpkgRoot,
-    failOnStdErr: false,
-    errStream: process.stdout,
-    outStream: process.stdout,
-    ignoreReturnCode: true,
-    silent: false,
-    windowsVerbatimArguments: false,
-    env: process.env
-  };
-
-  const output = vcpkg.execSync(options);
-  if (output.code != 0) {
-    throw new Error(`${output.stdout}\n\n${output.stderr}`);
-  }
-
-  let map = parseVcpkgEnvOutput(output.stdout);
-  for (let key in map) {
-    if (key.toUpperCase() == "PATH") {
-      process.env[key] += ";" + map[key];
-    } else {
-      process.env[key] = map[key];
-    }
-  }
 }
 
 /**
@@ -314,13 +328,13 @@ export function injectEnvVariables(vcpkgRoot: string, triplet: string): void {
  */
 export async function build(buildDir: string, buildArgs: string, options: trm.IExecOptions): Promise<void> {
   // Run cmake with the given arguments
-  let cmake: trm.ToolRunner = tl.tool(tl.which('cmake', true));
+  const cmake: trm.ToolRunner = tl.tool(tl.which('cmake', true));
   cmake.line("--build . " + buildArgs ?? "");
 
   // Run the command in the build directory
   options.cwd = buildDir;
   console.log(`Building with CMake in build directory '${options.cwd}' ...`);
-  var code = await cmake.exec(options);
+  const code = await cmake.exec(options);
   if (code != 0) {
     throw new Error(tl.loc('BuildFailed', code));
   }
@@ -344,21 +358,6 @@ export function getArtifactsDir(): string {
   return dir;
 }
 
-// Retrieve the binary directory, which is not deleted at the start of the
-// phase.
-export function getBinDir(): string {
-  let dir: string | undefined = tl.getVariable('Build.BinariesDirectory');
-  if (!dir) {
-    dir = tl.getVariable('System.ArtifactsDirectory');
-  }
-  if (!dir) {
-    throw new Error(tl.loc(
-      'getBinDirFailure',
-      'Variables Build.Binaries and System.ArtifactsDirectory are empty'));
-  }
-  return dir;
-}
-
 
 /**
  * Get a set of commands to be run in the shell of the host OS.
@@ -370,12 +369,12 @@ export function getScriptCommand(args: string): trm.ToolRunner | undefined {
 
   let tool: trm.ToolRunner;
   if (isWin32()) {
-    let cmdPath: string = tl.which('cmd.exe', true);
+    const cmdPath: string = tl.which('cmd.exe', true);
     tool = tl.tool(cmdPath);
     tool.arg('/c');
     tool.line(args);
   } else {
-    let shPath: string = tl.which('sh', true);
+    const shPath: string = tl.which('sh', true);
     tool = tl.tool(shPath);
     tool.arg('-c');
     tool.arg(args);

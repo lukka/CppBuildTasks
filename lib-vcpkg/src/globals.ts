@@ -2,15 +2,13 @@
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
-export module Globals {
-  export const vcpkgArguments: string = 'vcpkgArguments';
-  export const buildDirectory: string = 'buildDirectory';
-  export const vcpkgGitURL: string = 'vcpkgGitURL';
-  export const vcpkgCommitId: string = 'vcpkgGitCommitId';
-  export const outVcpkgRootPath: string = "outVcpkgRootPath";
-  export const vcpkgTriplet: string = "vcpkgTriplet";
-  export const outVcpkgTriplet: string = "outvcpkgTriplet";
-  export const vcpkgDirectory: string = "vcpkgDirectory";
-  export const vcpkgArtifactIgnoreEntries: string = "vcpkgArtifactIgnoreEntries";
-  export const vcpkgRemoteUrlLastFileName: string = 'vcpkg_remote_url.last';
-}
+export const vcpkgArguments = 'vcpkgArguments';
+export const buildDirectory = 'buildDirectory';
+export const vcpkgGitURL = 'vcpkgGitURL';
+export const vcpkgCommitId = 'vcpkgGitCommitId';
+export const outVcpkgRootPath = "outVcpkgRootPath";
+export const vcpkgTriplet = "vcpkgTriplet";
+export const outVcpkgTriplet = "outvcpkgTriplet";
+export const vcpkgDirectory = "vcpkgDirectory";
+export const vcpkgArtifactIgnoreEntries = "vcpkgArtifactIgnoreEntries";
+export const vcpkgRemoteUrlLastFileName = 'vcpkg_remote_url.last';

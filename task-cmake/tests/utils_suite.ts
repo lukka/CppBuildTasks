@@ -51,7 +51,7 @@ describe('utils tests', function () {
     ret = await utils.injectVcpkgToolchain('-DCMAKE_BUILD_TYPE=Debug', "triplet");
     assert.equal('-DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="/vcpkgroot/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=triplet', ret);
     process.env.VCPKG_ROOT = "";
-    const arg: string = ' -DCMAKE_BUILD_TYPE=Debug';
+    const arg = ' -DCMAKE_BUILD_TYPE=Debug';
     ret = await utils.injectVcpkgToolchain(arg, "triplet");
     assert.equal(arg, ret);
   });

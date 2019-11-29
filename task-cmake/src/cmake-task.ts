@@ -9,7 +9,7 @@ import * as path from 'path'
 async function main(): Promise<void> {
   try {
     tl.setResourcePath(path.join(__dirname, 'task.json'));
-    let runner: cmakerunner.CMakeRunner = new cmakerunner.CMakeRunner();
+    const runner: cmakerunner.CMakeRunner = new cmakerunner.CMakeRunner();
     await runner.run();
     tl.setResult(tl.TaskResult.Succeeded, tl.loc('CMakeSuccess'));
     return;

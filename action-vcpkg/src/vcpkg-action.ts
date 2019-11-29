@@ -3,15 +3,15 @@
 // SPDX short identifier: MIT
 
 import * as path from 'path';
-import { libaction } from './action-lib';
-import * as vcpkgrunner from './vcpkg-runner';
+import * as libaction from './action-lib';
 import * as core from '@actions/core'
+import * as vcpkgrunner from './vcpkg-runner';
 import * as vcpkgUtils from './vcpkg-utils';
 
 async function main(): Promise<number> {
   try {
     vcpkgUtils.setIBaseLib(new libaction.TaskLib());
-    let runner: vcpkgrunner.VcpkgRunner = new vcpkgrunner.VcpkgRunner(new libaction.TaskLib());
+    const runner: vcpkgrunner.VcpkgRunner = new vcpkgrunner.VcpkgRunner(new libaction.TaskLib());
     await runner.run();
     core.info('vcpkgSucceeded');
     return 0;

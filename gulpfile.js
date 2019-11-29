@@ -40,10 +40,7 @@ var installPackages = function () {
 }
 
 var prepareVsix = function () {
-
-  installPackages();
-
-  gulp.src("vss-extension.json")
+  return gulp.src("vss-extension.json")
     .pipe(jsonTransform(function (json, file) {
       if (process.env.CPPBUILDTASKDEV) {
         json["id"] = appendDev(json["id"]);
@@ -55,37 +52,44 @@ var prepareVsix = function () {
         json["version"] = process.env.MAJOR + "." + process.env.MINOR + "." + readPatch;
       }
       return json;
-    }, 2)).pipe(gulp.dest("."));
+    }, 2)).pipe(gulp.dest(".")).on('end', () =>
 
-  gulp.src("task-vcpkg/task.json")
-    .pipe(jsonTransform(function (json, file) {
-      setupTaskJson(json, readPatch);
-      return json;
-    }, 2)).pipe(gulp.dest("task-vcpkg"));
+      gulp.src("task-vcpkg/task.json")
+        .pipe(jsonTransform(function (json, file) {
+          setupTaskJson(json, readPatch);
+          return json;
+        }, 2)).pipe(gulp.dest("task-vcpkg")).on('end', () =>
 
-  gulp.src("task-cmake/task.json")
-    .pipe(jsonTransform(function (json, file) {
-      return setupTaskJson(json, readPatch);
-    }, 2)).pipe(gulp.dest("task-cmake"));
+          gulp.src("task-cmake/task.json")
+            .pipe(jsonTransform(function (json, file) {
+              return setupTaskJson(json, readPatch);
+            }, 2)).pipe(gulp.dest("task-cmake")).on('end', () => {
+              tsProject = ts.createProject('./tsconfig.json');
 
-  var tsProject = ts.createProject('./tsconfig.json');
-  tsProject.src()
-    .pipe(sourcemaps.init())
-    .pipe(tsProject())
-    .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest(path.join('build')));
+              return tsProject.src()
+                .pipe(sourcemaps.init())
+                .pipe(tsProject())
+                .pipe(sourcemaps.write('.'))
+                .pipe(gulp.dest(path.join('build'))).on('end', () =>
 
-  return copySharedJSFiles();
+                  copySharedJSFiles())
+            })));
 };
 
 // Copy shared library files to consumers.
 var copySharedJSFiles = function () {
-  gulp.src(
-    ['./build/lib-vcpkg/src/*.js'])
-    .pipe(gulp.dest('./build/action-vcpkg/src/'));
   return gulp.src(
     ['./build/lib-vcpkg/src/*.js'])
-    .pipe(gulp.dest('./build/task-vcpkg/src/'));
+    .pipe(gulp.dest('./build/action-vcpkg/src/')).on('end', () =>
+      gulp.src(
+        ['./build/lib-vcpkg/src/*.js'])
+        .pipe(gulp.dest('./build/task-vcpkg/tests/')).on('end', () =>
+          gulp.src(
+            ['./build/lib-vcpkg/src/*.js'])
+            .pipe(gulp.dest('./build/task-vcpkg/src/'))));
 }
 
-gulp.task('default', prepareVsix);
+gulp.task('installAll', installPackages);
+
+gulp.task('default', gulp.series('installAll', prepareVsix));
+

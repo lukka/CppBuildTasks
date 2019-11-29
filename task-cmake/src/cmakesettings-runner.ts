@@ -11,7 +11,7 @@ import * as utils from './utils'
 import * as stripJsonComments from 'strip-json-comments';
 import * as ninjalib from './ninja';
 
-export interface EnvironmentMap { [name: string]: Environment; }
+export interface EnvironmentMap { [name: string]: Environment }
 
 class CMakeVariable {
   constructor(public name: string, public value: string, public type: string) { }
@@ -37,7 +37,7 @@ export class Environment {
   constructor(public name: string, public variables: Variable[]) { }
 
   public toString(): string {
-    let varsString: string = "";
+    let varsString = "";
     for (const variable of this.variables) {
       varsString += String(variable) + ", ";
     }
@@ -116,8 +116,8 @@ export class PropertyEvaluator {
       return res;
     }
 
-    for (let localName of this.config.inheritEnvironments) {
-      let env = this.config.environments[localName];
+    for (const localName of this.config.inheritEnvironments) {
+      const env = this.config.environments[localName];
       res = this.searchVariable(variable.name, env);
       if (res !== null) {
         return res;
@@ -130,8 +130,8 @@ export class PropertyEvaluator {
       return res;
     }
 
-    for (let localName of this.config.inheritEnvironments) {
-      let env = this.globalEnvs[localName];
+    for (const localName of this.config.inheritEnvironments) {
+      const env = this.globalEnvs[localName];
       res = this.searchVariable(variable.name, env);
       if (res !== null)
         return res;
@@ -154,13 +154,13 @@ export class PropertyEvaluator {
   }
 
   private extractVariables(str: string): Variable[] | null {
-    let variables: Variable[] = [];
+    const variables: Variable[] = [];
     while (true) {
       const match = this.varExp.exec(str);
       if (match == null) break;
       if (match.length > 1) {
-        let varname = match[1];
-        let variable: Variable =
+        const varname = match[1];
+        const variable: Variable =
           new Variable(varname, '');
         variables.push(variable);
       }
@@ -173,7 +173,7 @@ export class PropertyEvaluator {
     tl.debug(`evaluating expression: '${expr}' ...`)
     let res: string = expr;
     while (true) {
-      let variables = this.extractVariables(res);
+      const variables = this.extractVariables(res);
       if (variables != null) {
         let resolved: boolean;
         resolved = false;
@@ -205,214 +205,56 @@ export class PropertyEvaluator {
     this.config.makeArgs = this.evaluateExpression(this.config.makeArgs);
     this.config.type = this.evaluateExpression(this.config.type);
     this.config.generator = this.evaluateExpression(this.config.generator);
-    for (let variable of this.config.variables) {
+    for (const variable of this.config.variables) {
       variable.value = this.evaluateExpression(variable.value);
     }
   }
 }
 
-export class CMakeSettingsJsonRunner {
-  globalEnvironments: Environment[];
-  static readonly ARM64: [string, string] = ["ARM64", "ARM64"];
-  static readonly ARM: [string, string] = ["ARM", "ARM"];
-  static readonly X64: [string, string] = ["x64", "x64"];
-  static readonly WIN64: [string, string] = ["Win64", "x64"];
-  static readonly WIN32: [string, string] = ["Win32", "Win32"];
-
-  constructor(private cmakeSettingsJson: any, private configurationFilter: string, buildArgs: string, private workspaceRoot: string, private vcpkgTriplet: string, private useVcpkgToolchain: boolean, private doBuild: boolean, private ninjaPath: string, private sourceScript: string, private buildDir: string) {
-    this.configurationFilter = configurationFilter;
-  }
-
-  private static parseEnvironments(envsJson: any): EnvironmentMap {
-    return parseEnvironments(envsJson);
-  }
-
-  private parseConfigurations(json: any): Configuration[] {
-    const configurations: Configuration[] = parseConfigurations(json, this.cmakeSettingsJson);
-    tl.debug(tl.loc('ParsedConfigurations', String(configurations)));
-
-    return configurations;
-  }
-
-  parseGlobalEnvironments(json: any): EnvironmentMap {
-    // Parse global environments
-    let globalEnvs: EnvironmentMap = {};
-    if (json.environments != null) {
-      globalEnvs = CMakeSettingsJsonRunner.parseEnvironments(json.environments);
-    }
-    tl.debug(tl.loc('ParsedGlobalEnvironments'));
-    for (const envName in globalEnvs) {
-      tl.debug(`'${envName}'=${String(globalEnvs[envName])}`);
+export function parseEnvironments(envsJson: any): EnvironmentMap {
+  const environments: EnvironmentMap = {};
+  for (const env of envsJson) {
+    let namespace = 'env';
+    let name = 'unnamed';
+    const variables: Variable[] = [];
+    for (const envi in env) {
+      if (envi == 'environment')
+        name = env[envi];
+      else if (envi == 'namespace')
+        namespace = env[envi];
+      else { variables.push(new Variable(envi, env[envi])); }
     }
 
-    return globalEnvs;
-  }
-
-  getGeneratorArgs(gen: string): string {
-    if (gen.includes("Visual Studio")) {
-      // for VS generators, add the -A value
-      let architectureParam: string | undefined = undefined;
-      let generatorParam: string = "Visual Studio 16 2019";
-
-      const architectures: [string, string][] = [
-        CMakeSettingsJsonRunner.X64,
-        CMakeSettingsJsonRunner.WIN32,
-        CMakeSettingsJsonRunner.WIN64,
-        CMakeSettingsJsonRunner.ARM64, // Note ARM64 must be replaced before ARM!
-        CMakeSettingsJsonRunner.ARM
-      ];
-
-      // Remove the platform 
-      for (let architecture of architectures) {
-        if (gen.includes(architecture[0])) {
-          gen = gen.replace(architecture[0], "");
-          architectureParam = architecture[1];
+    // Prepend namespace to all variables.
+    for (const v of variables) {
+      if (!v.name.includes('.')) {
+        if (namespace != null && namespace.length > 0) {
+          v.name = namespace + '.' + v.name;
         }
-      }
 
-      gen = `-G \"${gen.trim()}\"`;
-
-      if (architectureParam) {
-        gen += ` -A ${architectureParam}`
       }
     }
-    else {
-      // All non-VS generators are passed as is.
-      gen = `-G "${gen}"`;
-    }
 
-    return gen;
-  }
-
-  async run(): Promise<void> {
-    let content: any = fs.readFileSync(this.cmakeSettingsJson);
-    // Remove any potential BOM at the beginning.
-    content = content.toString().trimLeft();
-    tl.debug(tl.loc('CMakeSettingsContent', content));
-    // Strip any comment out of the JSON content.
-    let cmakeSettingsJson: any = JSON.parse(stripJsonComments(content));
-
-    let configurations = this.parseConfigurations(cmakeSettingsJson);
-    let globalEnvs = this.parseGlobalEnvironments(cmakeSettingsJson);
-
-    let regex = new RegExp(this.configurationFilter);
-    let filteredConfigurations: Configuration[] = configurations.filter(configuration => {
-      return regex.test(configuration.name);
-    });
-
-    tl.debug(
-      tl.loc('CMakeSettingsFilteredConfigurations', String(filteredConfigurations)));
-
-    if (filteredConfigurations.length == 0) {
-      throw new Error(tl.loc(
-        'CMakeSettingsNoMatchingConfiguration', this.configurationFilter));
-    }
-
-    let exitCodes: number[] = [];
-    for (const configuration of filteredConfigurations) {
-      console.log(tl.loc('ConfiguringConfig', configuration.name));
-      let cmakeArgs: string = ' ';
-
-      // Search for CMake tool and run it
-      let cmake: trm.ToolRunner;
-      if (this.sourceScript) {
-        cmake = tl.tool(this.sourceScript);
-        cmakeArgs += tl.which('cmake', true);
-      }
-      else {
-        cmake = tl.tool(tl.which('cmake', true));
-      }
-
-      // Evaluate all variables in the configuration.
-      let evaluator: PropertyEvaluator =
-        new PropertyEvaluator(configuration, globalEnvs);
-      evaluator.evaluate();
-
-      // The build directory value specified in CMakeSettings.json is ignored.
-      // This is because:
-      // 1. you want to build targeting an empty binary directory;
-      // 2. the default in CMakeSettings.json is under the source tree, which is not cleared upon each build run.
-      // Instead if users did not provided a specific path, force it to 
-      // "$(Build.ArtifactStagingDirectory)/{name}" which should be empty.
-      console.log(`Note: the run-cmake task always ignore the 'buildRoot' value specified in the CMakeSettings.json (buildRoot=${configuration.buildDir}).`);
-      if (this.buildDir === utils.getArtifactsDir()) {
-        // The build directory goes into the artifact directory in a subdir
-        // named with the configuration name.
-        configuration.buildDir = path.join(utils.getArtifactsDir(), configuration.name);
-      }
-      else {
-        configuration.buildDir = this.buildDir;
-      }
-
-      cmakeArgs += " " + this.getGeneratorArgs(configuration.generator);
-
-      if (utils.isNinjaGenerator(cmakeArgs)) {
-        let ninjaPath: string = ninjalib.retrieveNinjaPath(this.ninjaPath);
-        cmakeArgs += ` -DCMAKE_MAKE_PROGRAM="${ninjaPath}"`;
-      }
-
-      cmakeArgs += ` -DCMAKE_BUILD_TYPE="${configuration.type}"`;
-      for (const variable of configuration.variables) {
-        cmakeArgs += ' ' + variable.toString();
-      }
-
-      if (configuration.cmakeToolchain) {
-        cmakeArgs += ` -DCMAKE_TOOLCHAIN_FILE="${configuration.cmakeToolchain}"`;
-      }
-
-      // Use vcpkg toolchain if requested.
-      if (this.useVcpkgToolchain === true) {
-        cmakeArgs = await utils.injectVcpkgToolchain(cmakeArgs, this.vcpkgTriplet)
-      }
-
-      // Add CMake args from CMakeSettings.json file.
-      cmakeArgs += " " + configuration.cmakeArgs;
-
-      // Set the source directory
-      cmakeArgs += " " + path.dirname(this.cmakeSettingsJson);
-
-      // Run CNake with the given arguments.
-      if (!configuration.buildDir) {
-        throw new Error(tl.loc('BuildDirNull'));
-      }
-      tl.mkdirP(configuration.buildDir);
-      cmake.line(cmakeArgs);
-
-      let options = <trm.IExecOptions>{
-        cwd: configuration.buildDir,
-        failOnStdErr: false,
-        errStream: process.stdout,
-        outStream: process.stdout,
-        ignoreReturnCode: true,
-        silent: false,
-        windowsVerbatimArguments: false,
-        env: process.env
-      };
-
-      tl.debug(`Generating project files with CMake in build directory '${options.cwd}' ...`);
-      let code: number = await cmake.exec(options);
-      if (code != 0) {
-        throw new Error(tl.loc('BuildFailed', code));
-      }
-
-      if (this.doBuild) {
-        await utils.build(configuration.buildDir,
-          // CMakeSettings.json contains in buildCommandArgs the arguments to the make program only.
-          // They need to be put after '--', otherwise would be passed to directly to cmake.
-          ` -- ${configuration.makeArgs}`,
-          options);
-      }
+    if (name in environments) {
+      // Append entries to existing variables.
+      environments[name].variables = environments[name].variables.concat(variables);
+    } else {
+      // Create a new environment.
+      const env: Environment = new Environment(name, variables);
+      environments[name] = env;
     }
   }
+
+  return environments;
 }
 
 export function parseConfigurations(json: any, cmakeSettingsJson: string): Configuration[] {
   // Parse all configurations.
-  let configurations: Configuration[] = [];
+  const configurations: Configuration[] = [];
   if (json.configurations != null) {
     for (const configuration of json.configurations) {
       // Parse variables.
-      let vars: CMakeVariable[] = [];
+      const vars: CMakeVariable[] = [];
       if (configuration.variables != null) {
         for (const variable of configuration.variables) {
           const data: CMakeVariable =
@@ -422,7 +264,7 @@ export function parseConfigurations(json: any, cmakeSettingsJson: string): Confi
       }
 
       // Parse inherited environments.
-      let inheritedEnvs: string[] = [];
+      const inheritedEnvs: string[] = [];
       if (configuration.inheritEnvironments != null) {
         for (const env of configuration.inheritEnvironments) {
           inheritedEnvs.push(env);
@@ -455,39 +297,198 @@ export function parseConfigurations(json: any, cmakeSettingsJson: string): Confi
   return configurations;
 }
 
-export function parseEnvironments(envsJson: any): EnvironmentMap {
-  let environments: EnvironmentMap = {};
-  for (let env of envsJson) {
-    let namespace: string = 'env';
-    let name: string = 'unnamed';
-    let variables: Variable[] = [];
-    for (let envi in env) {
-      if (envi == 'environment')
-        name = env[envi];
-      else if (envi == 'namespace')
-        namespace = env[envi];
-      else { variables.push(new Variable(envi, env[envi])); }
-    }
+export class CMakeSettingsJsonRunner {
+  globalEnvironments: Environment[];
+  static readonly ARM64: [string, string] = ["ARM64", "ARM64"];
+  static readonly ARM: [string, string] = ["ARM", "ARM"];
+  static readonly X64: [string, string] = ["x64", "x64"];
+  static readonly WIN64: [string, string] = ["Win64", "x64"];
+  static readonly WIN32: [string, string] = ["Win32", "Win32"];
 
-    // Prepend namespace to all variables.
-    for (let v of variables) {
-      if (!v.name.includes('.')) {
-        if (namespace != null && namespace.length > 0) {
-          v.name = namespace + '.' + v.name;
-        }
-
-      }
-    }
-
-    if (name in environments) {
-      // Append entries to existing variables.
-      environments[name].variables = environments[name].variables.concat(variables);
-    } else {
-      // Create a new environment.
-      let env: Environment = new Environment(name, variables);
-      environments[name] = env;
-    }
+  constructor(private cmakeSettingsJson: any, private configurationFilter: string, buildArgs: string, private workspaceRoot: string, private vcpkgTriplet: string, private useVcpkgToolchain: boolean, private doBuild: boolean, private ninjaPath: string, private sourceScript: string, private buildDir: string) {
+    this.configurationFilter = configurationFilter;
   }
 
-  return environments;
+  
+  private parseConfigurations(json: any): Configuration[] {
+    const configurations: Configuration[] = parseConfigurations(json, this.cmakeSettingsJson);
+    tl.debug(tl.loc('ParsedConfigurations', String(configurations)));
+
+    return configurations;
+  }
+
+  private static parseEnvironments(envsJson: any): EnvironmentMap {
+    return parseEnvironments(envsJson);
+  }
+
+  parseGlobalEnvironments(json: any): EnvironmentMap {
+    // Parse global environments
+    let globalEnvs: EnvironmentMap = {};
+    if (json.environments != null) {
+      globalEnvs = CMakeSettingsJsonRunner.parseEnvironments(json.environments);
+    }
+    tl.debug(tl.loc('ParsedGlobalEnvironments'));
+    for (const envName in globalEnvs) {
+      tl.debug(`'${envName}'=${String(globalEnvs[envName])}`);
+    }
+
+    return globalEnvs;
+  }
+
+  getGeneratorArgs(gen: string): string {
+    if (gen.includes("Visual Studio")) {
+      // for VS generators, add the -A value
+      let architectureParam: string | undefined = undefined;
+      const generatorParam = "Visual Studio 16 2019";
+
+      const architectures: [string, string][] = [
+        CMakeSettingsJsonRunner.X64,
+        CMakeSettingsJsonRunner.WIN32,
+        CMakeSettingsJsonRunner.WIN64,
+        CMakeSettingsJsonRunner.ARM64, // Note ARM64 must be replaced before ARM!
+        CMakeSettingsJsonRunner.ARM
+      ];
+
+      // Remove the platform 
+      for (const architecture of architectures) {
+        if (gen.includes(architecture[0])) {
+          gen = gen.replace(architecture[0], "");
+          architectureParam = architecture[1];
+        }
+      }
+
+      gen = `-G \"${gen.trim()}\"`;
+
+      if (architectureParam) {
+        gen += ` -A ${architectureParam}`
+      }
+    }
+    else {
+      // All non-VS generators are passed as is.
+      gen = `-G "${gen}"`;
+    }
+
+    return gen;
+  }
+
+  async run(): Promise<void> {
+    let content: any = fs.readFileSync(this.cmakeSettingsJson);
+    // Remove any potential BOM at the beginning.
+    content = content.toString().trimLeft();
+    tl.debug(tl.loc('CMakeSettingsContent', content));
+    // Strip any comment out of the JSON content.
+    const cmakeSettingsJson: any = JSON.parse(stripJsonComments(content));
+
+    const configurations = this.parseConfigurations(cmakeSettingsJson);
+    const globalEnvs = this.parseGlobalEnvironments(cmakeSettingsJson);
+
+    const regex = new RegExp(this.configurationFilter);
+    const filteredConfigurations: Configuration[] = configurations.filter(configuration => {
+      return regex.test(configuration.name);
+    });
+
+    tl.debug(
+      tl.loc('CMakeSettingsFilteredConfigurations', String(filteredConfigurations)));
+
+    if (filteredConfigurations.length == 0) {
+      throw new Error(tl.loc(
+        'CMakeSettingsNoMatchingConfiguration', this.configurationFilter));
+    }
+
+    const exitCodes: number[] = [];
+    for (const configuration of filteredConfigurations) {
+      console.log(tl.loc('ConfiguringConfig', configuration.name));
+      let cmakeArgs = ' ';
+
+      // Search for CMake tool and run it
+      let cmake: trm.ToolRunner;
+      if (this.sourceScript) {
+        cmake = tl.tool(this.sourceScript);
+        cmakeArgs += tl.which('cmake', true);
+      }
+      else {
+        cmake = tl.tool(tl.which('cmake', true));
+      }
+
+      // Evaluate all variables in the configuration.
+      const evaluator: PropertyEvaluator =
+        new PropertyEvaluator(configuration, globalEnvs);
+      evaluator.evaluate();
+
+      // The build directory value specified in CMakeSettings.json is ignored.
+      // This is because:
+      // 1. you want to build targeting an empty binary directory;
+      // 2. the default in CMakeSettings.json is under the source tree, which is not cleared upon each build run.
+      // Instead if users did not provided a specific path, force it to 
+      // "$(Build.ArtifactStagingDirectory)/{name}" which should be empty.
+      console.log(`Note: the run-cmake task always ignore the 'buildRoot' value specified in the CMakeSettings.json (buildRoot=${configuration.buildDir}).`);
+      if (this.buildDir === utils.getArtifactsDir()) {
+        // The build directory goes into the artifact directory in a subdir
+        // named with the configuration name.
+        configuration.buildDir = path.join(utils.getArtifactsDir(), configuration.name);
+      }
+      else {
+        configuration.buildDir = this.buildDir;
+      }
+
+      cmakeArgs += " " + this.getGeneratorArgs(configuration.generator);
+
+      if (utils.isNinjaGenerator(cmakeArgs)) {
+        const ninjaPath: string = ninjalib.retrieveNinjaPath(this.ninjaPath);
+        cmakeArgs += ` -DCMAKE_MAKE_PROGRAM="${ninjaPath}"`;
+      }
+
+      cmakeArgs += ` -DCMAKE_BUILD_TYPE="${configuration.type}"`;
+      for (const variable of configuration.variables) {
+        cmakeArgs += ' ' + variable.toString();
+      }
+
+      if (configuration.cmakeToolchain) {
+        cmakeArgs += ` -DCMAKE_TOOLCHAIN_FILE="${configuration.cmakeToolchain}"`;
+      }
+
+      // Use vcpkg toolchain if requested.
+      if (this.useVcpkgToolchain === true) {
+        cmakeArgs = await utils.injectVcpkgToolchain(cmakeArgs, this.vcpkgTriplet)
+      }
+
+      // Add CMake args from CMakeSettings.json file.
+      cmakeArgs += " " + configuration.cmakeArgs;
+
+      // Set the source directory
+      cmakeArgs += " " + path.dirname(this.cmakeSettingsJson);
+
+      // Run CNake with the given arguments.
+      if (!configuration.buildDir) {
+        throw new Error(tl.loc('BuildDirNull'));
+      }
+      tl.mkdirP(configuration.buildDir);
+      cmake.line(cmakeArgs);
+
+      const options = {
+        cwd: configuration.buildDir,
+        failOnStdErr: false,
+        errStream: process.stdout,
+        outStream: process.stdout,
+        ignoreReturnCode: true,
+        silent: false,
+        windowsVerbatimArguments: false,
+        env: process.env
+      } as trm.IExecOptions;
+
+      tl.debug(`Generating project files with CMake in build directory '${options.cwd}' ...`);
+      const code: number = await cmake.exec(options);
+      if (code != 0) {
+        throw new Error(tl.loc('BuildFailed', code));
+      }
+
+      if (this.doBuild) {
+        await utils.build(configuration.buildDir,
+          // CMakeSettings.json contains in buildCommandArgs the arguments to the make program only.
+          // They need to be put after '--', otherwise would be passed to directly to cmake.
+          ` -- ${configuration.makeArgs}`,
+          options);
+      }
+    }
+  }
 }

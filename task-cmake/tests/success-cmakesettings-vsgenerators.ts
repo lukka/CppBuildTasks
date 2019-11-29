@@ -7,13 +7,13 @@ import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';
 import * as utils from './test-utils'
 
-import { Globals } from '../src/globals'
+import * as Globals from '../src/globals'
 
-let taskPath = path.join(__dirname, '..', 'src', 'cmake-task.js');
-let tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
+const taskPath = path.join(__dirname, '..', 'src', 'cmake-task.js');
+const tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 
 // Arrange
-let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
+const answers: ma.TaskLibAnswers = {
   'which': { 'cmake': '/usr/local/bin/cmake', 'node': '/usr/local/bin/node' },
   'checkPath': { '/usr/local/bin/cmake': true, '/usr/local/bin/node': true },
   'exec': {
@@ -24,13 +24,15 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
       { 'code': 0, 'stdout': 'cmake build output here' }
   },
   'mkdirP': { '/': { 'code': 0, 'stdout': 'mkdirP output' } }
-};
+} as ma.TaskLibAnswers;
 
 class MockStats {
   mode = 600;
 };
 tmr.registerMock('fs', {
-  writeFileSync: function (filePath, contents) { },
+  writeFileSync: function (filePath, contents) {
+    // Nothing to do
+  },
   existsSync: function (filePath, contents) {
     return true;
   },
@@ -49,10 +51,12 @@ tmr.registerMock('fs', {
     }';
   },
   statSync: function (filePath) {
-    let s: MockStats = new MockStats();
+    const s: MockStats = new MockStats();
     return s;
   },
-  chmodSync: function (filePath: string) { }
+  chmodSync: function (filePath: string) {
+    // Nothing to do
+  }
 });
 
 tmr.registerMock('./utils', {
@@ -62,9 +66,13 @@ tmr.registerMock('./utils', {
   isWin32: function (): boolean {
     return true;
   },
-  injectEnvVariables: function (a, b): void { },
+  injectEnvVariables: function (a, b): void {
+    // Nothing to do
+  },
   getArtifactsDir: function (): string { return '/agent/w/1/a'; },
-  build: function (): void { },
+  build: function (): void {
+    // Nothing to do
+  },
   injectVcpkgToolchain: function (args: string, triplet: string): string { return args; },
   isNinjaGenerator: function (): boolean { return false; }
 });
@@ -76,7 +84,7 @@ tmr.setInput(Globals.cmakeSettingsJsonPath, 'anyCMakeSettings.json');
 tmr.setInput(Globals.configurationRegexFilter, 'any.+');
 tmr.setInput(Globals.buildWithCMake, 'true');
 tmr.setInput(Globals.buildWithCMakeArgs, 'this must be unused');
-const artifactStagingDirectory: string = "/agent/w/1/a/";
+const artifactStagingDirectory = "/agent/w/1/a/";
 tmr.setInput(Globals.buildDirectory, artifactStagingDirectory);
 process.env["BUILD_ARTIFACTSTAGINGDIRECTORY"] = artifactStagingDirectory;
 

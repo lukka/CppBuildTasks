@@ -4,11 +4,12 @@
 
 export const utilsMock: any = {
     setIBaseLib() {
+        // nothing to do.
     },
     getBinDir() {
         return '/path/to/';
     },
-    throwIfErrorCode(code: Number) {
+    throwIfErrorCode(code: number) {
         if (code != 0) throw new Error('throwIfErrorCode throws');
         return 0;
     },
@@ -31,6 +32,7 @@ export const utilsMock: any = {
         return null;
     },
     setEnvVar(name: string, value: string) {
+        //nothing to do
     },
     vcpkgRootEnvName: 'VCPKG_ROOT',
     cachingFormatEnvName: 'AZP_CACHING_CONTENT_FORMAT'
