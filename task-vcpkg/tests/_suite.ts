@@ -26,9 +26,9 @@ describe('vcpkg task tests', function () {
 
   it('vcpkg with simple inputs should succeed', (done: MochaDone) => {
     utils.runTest(done, (done) => {
-      let tp =
+      const tp =
         path.join(__dirname, '../../build/task-vcpkg/tests/', 'success-vcpkg-basic.js');
-      let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+      const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
       tr.run();
       outputStdout(tr.stdout);
       assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -40,9 +40,9 @@ describe('vcpkg task tests', function () {
 
   it('vcpkg should build if not yet', (done: MochaDone) => {
     utils.runTest(done, (done) => {
-      let tp =
+      const tp =
         path.join(__dirname, '../../build/task-vcpkg/tests/', 'success-vcpkg-build.js');
-      let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+      const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
       tr.run();
       outputStdout(tr.stdout);
       assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -54,9 +54,9 @@ describe('vcpkg task tests', function () {
 
   it('vcpkg should not build if already built', (done: MochaDone) => {
     utils.runTest(done, (done) => {
-      let tp =
+      const tp =
         path.join(__dirname, '../../build/task-vcpkg/tests/', 'success-vcpkg-nobuild.js');
-      let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+      const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
       tr.run();
       outputStdout(tr.stdout);
       assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -68,9 +68,9 @@ describe('vcpkg task tests', function () {
 
   it('vcpkg with no triplet should succeed', (done: MochaDone) => {
     utils.runTest(done, (done) => {
-      let tp =
+      const tp =
         path.join(__dirname, '../../build/task-vcpkg/tests/', 'success-vcpkg-notriplet.js');
-      let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+      const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
       tr.run();
       outputStdout(tr.stdout);
       assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -83,9 +83,9 @@ describe('vcpkg task tests', function () {
 
   it('vcpkg as submodule should not run git clone/pull commands', (done: MochaDone) => {
     utils.runTest(done, (done) => {
-      let tp =
+      const tp =
         path.join(__dirname, '../../build/task-vcpkg/tests/', 'success-vcpkg-submodule.js');
-      let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+      const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
       tr.run();
       outputStdout(tr.stdout);
       assert.equal(tr.succeeded, true, 'should have succeeded');

@@ -5,13 +5,13 @@
 import * as ma from 'azure-pipelines-task-lib/mock-answer';
 import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';
-import { Globals } from '../src/globals'
+import * as Globals from '../src/globals'
 
-let taskPath = path.join(__dirname, '..', 'src', 'cmake-task.js');
-let tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
+const taskPath = path.join(__dirname, '..', 'src', 'cmake-task.js');
+const tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 
 // Arrange
-let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
+const answers: ma.TaskLibAnswers = {
   'which': { 'cmake': '/usr/local/bin/cmake', 'node': '/usr/local/bin/node', 'ninja': '/usr/local/bin/ninja' },
   'checkPath': { '/usr/local/bin/cmake': true, '/usr/local/bin/node': true },
   'exec': {
@@ -21,7 +21,7 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
     '/usr/local/bin/cmake --build . -cmake -build -args':
       { 'code': 0, 'stdout': 'cmake build output here' }
   }
-};
+} as ma.TaskLibAnswers;
 
 tmr.setAnswers(answers);
 tmr.setInput(Globals.cmakeListsOrSettingsJson, 'CMakeListsTxtAdvanced');

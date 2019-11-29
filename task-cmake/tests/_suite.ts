@@ -13,7 +13,7 @@ function outputStdout(messages: string) {
 }
 
 describe('CMake task tests', function () {
-  let basePath: string = '../../build/task-cmake/tests/';
+  const basePath = '../../build/task-cmake/tests/';
 
   beforeEach(function () {
     // Clear the effect of all setInput()s before starting each test
@@ -30,8 +30,8 @@ describe('CMake task tests', function () {
   it('cmakelists.txt basic with simple inputs should succeed',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
-        let tp = path.join(__dirname, basePath, 'success-cmakelist-basic.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        const tp = path.join(__dirname, basePath, 'success-cmakelist-basic.js');
+        const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         tr.run();
         outputStdout(tr.stdout);
         assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -48,9 +48,9 @@ describe('CMake task tests', function () {
   it('cmakelists.txt basic with vcpkg toolchain should succeed',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
-        let tp = path.join(
+        const tp = path.join(
           __dirname, basePath, 'success-cmakelist-basic-toolchain.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         tr.run();
         outputStdout(tr.stdout);
         assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -61,7 +61,7 @@ describe('CMake task tests', function () {
         assert.equal(
           tr.stdout.indexOf('="/path/to/ninja') >= 0, true,
           'should contain ="ninjaPath');
-        const toolchainString: string =
+        const toolchainString =
           '-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=/existing/tool/chain.cmake';
         assert.equal(
           tr.stdout.indexOf(toolchainString) >= 0, true,
@@ -72,9 +72,9 @@ describe('CMake task tests', function () {
   it('cmakelists.txt advanced with simple inputs should succeed',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
-        let tp =
+        const tp =
           path.join(__dirname, basePath, 'success-cmakelist-advanced.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         tr.run();
         outputStdout(tr.stdout);
         assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -92,9 +92,9 @@ describe('CMake task tests', function () {
   it('cmakelists.txt advanced with vcpkg toolchain should succeed',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
-        let tp = path.join(
+        const tp = path.join(
           __dirname, basePath, 'success-cmakelist-advanced-toolchain.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         tr.run();
         outputStdout(tr.stdout);
         assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -105,7 +105,7 @@ describe('CMake task tests', function () {
         assert.equal(
           tr.stdout.indexOf('CMAKE_MAKE_PROGRAM=/usr/local/bin/ninja') >= 0, true,
           'should contain CMAKE_MAKE_PROGRAM=/usr/local/bin/ninja');
-        const toolchainString: string =
+        const toolchainString =
           '-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=/existing/tool/chain.cmake';
         assert.equal(
           tr.stdout.indexOf(toolchainString) >= 0, true,
@@ -116,8 +116,8 @@ describe('CMake task tests', function () {
   it('cmakesettings.json with simple inputs should succeed',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
-        let tp = path.join(__dirname, basePath, 'success-cmakesettings.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        const tp = path.join(__dirname, basePath, 'success-cmakesettings.js');
+        const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         tr.run();
         outputStdout(tr.stdout);
         assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -136,8 +136,8 @@ describe('CMake task tests', function () {
   it('cmakesettings.json with VS generators: provide proper -G -A values to cmake',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
-        let tp = path.join(__dirname, basePath, 'success-cmakesettings-vsgenerators.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        const tp = path.join(__dirname, basePath, 'success-cmakesettings-vsgenerators.js');
+        const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         tr.run();
         outputStdout(tr.stdout);
         assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -153,8 +153,8 @@ describe('CMake task tests', function () {
   it('cmakesettings.json with BOM and comments should succeed',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
-        let tp = path.join(__dirname, basePath, 'success-cmakesettings-bom.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        const tp = path.join(__dirname, basePath, 'success-cmakesettings-bom.js');
+        const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         tr.run();
         outputStdout(tr.stdout);
         assert.equal(tr.succeeded, true, 'should have succeeded');
@@ -169,9 +169,9 @@ describe('CMake task tests', function () {
   it('cmakesettings.json with complex input should succeed',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
-        let tp =
+        const tp =
           path.join(__dirname, basePath, 'success-cmakesettings-complex.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         tr.run();
         outputStdout(tr.stdout);
         assert(tr.succeeded, 'should have succeeded');
@@ -188,11 +188,11 @@ describe('CMake task tests', function () {
           tr.stdOutContained('-DCMAKE_BUILD_TYPE="Debug"'),
           'should contain configuration type Debug');
         // Check for the presence of one and only one toolchain passed only.
-        var lines = tr.stdout.split("\n");
-        for (let line of lines) {
+        const lines = tr.stdout.split("\n");
+        for (const line of lines) {
           if (lines.indexOf("cmake arg:") != -1) {
-            const toolchainName: string = "CMAKE_TOOLCHAIN_FILE";
-            let firstOccurrence: number = lines.indexOf(toolchainName);
+            const toolchainName = "CMAKE_TOOLCHAIN_FILE";
+            const firstOccurrence: number = lines.indexOf(toolchainName);
             assert(firstOccurrence != -1);
             // And only one
             assert(lines.indexOf("CMAKE_TOOLCHAIN_FILE", firstOccurrence + 1) == -1);
@@ -207,9 +207,9 @@ describe('CMake task tests', function () {
   it('cmakesettings.json should not build if generate fails',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
-        let tp =
+        const tp =
           path.join(__dirname, basePath, 'failure-cmakesettings-no-build.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         tr.run();
         outputStdout(tr.stdout);
         assert(!tr.succeeded, 'should have failed');
@@ -227,9 +227,9 @@ describe('CMake task tests', function () {
   it('cmakelists.txt advanced with no path to CMakeSettings.json should fail',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
-        let tp =
+        const tp =
           path.join(__dirname, basePath, 'failure-cmakesettings-input.js');
-        let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+        const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         tr.run();
         outputStdout(tr.stdout);
         assert.equal(tr.succeeded, false, 'should have failed');
@@ -240,8 +240,8 @@ describe('CMake task tests', function () {
 
   it('it should fail if no taskmode provided', (done: MochaDone) => {
     testutils.runTest(done, (done) => {
-      let tp = path.join(__dirname, basePath, 'failure_no_task_mode.js');
-      let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+      const tp = path.join(__dirname, basePath, 'failure_no_task_mode.js');
+      const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
 
       tr.run();
       outputStdout(tr.stdout);
@@ -253,8 +253,8 @@ describe('CMake task tests', function () {
     testutils.runTest(done, (done) => {
       this.timeout(1000);
 
-      let tp = path.join(__dirname, basePath, 'failure-cmake-error-code.js');
-      let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+      const tp = path.join(__dirname, basePath, 'failure-cmake-error-code.js');
+      const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
 
       tr.run();
       outputStdout(tr.stdout);

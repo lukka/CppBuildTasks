@@ -4,14 +4,14 @@
 
 import * as fs from 'fs';
 import * as os from 'os';
-import { IExecOptions, IExecResult, IBaseLib } from './base-lib'
+import * as ifacelib from './base-lib'
 
-var taskLib: IBaseLib;
+let taskLib: ifacelib.BaseLib;
 
-export const vcpkgRootEnvName: string = 'VCPKG_ROOT';
-export const cachingFormatEnvName: string = 'AZP_CACHING_CONTENT_FORMAT';
+export const vcpkgRootEnvName = 'VCPKG_ROOT';
+export const cachingFormatEnvName = 'AZP_CACHING_CONTENT_FORMAT';
 
-export function setIBaseLib(tl: IBaseLib) {
+export function setIBaseLib(tl: ifacelib.BaseLib) {
   taskLib = tl;
 }
 
@@ -32,7 +32,7 @@ export function getBinDir(): string {
 
 export async function isVcpkgSubmodule(gitPath: string, fullVcpkgPath: string): Promise<boolean> {
   try {
-    const options: IExecOptions = <IExecOptions>{
+    const options: ifacelib.ExecOptions = {
       cwd: process.env.BUILD_SOURCESDIRECTORY,
       failOnStdErr: false,
       errStream: process.stdout,
@@ -41,10 +41,10 @@ export async function isVcpkgSubmodule(gitPath: string, fullVcpkgPath: string): 
       silent: false,
       windowsVerbatimArguments: false,
       env: process.env
-    };
+    } as ifacelib.ExecOptions;
 
-    const res: IExecResult = await taskLib.execSync(gitPath, ['submodule', 'status', fullVcpkgPath], options);
-    let isSubmodule: boolean = false;
+    const res: ifacelib.ExecResult = await taskLib.execSync(gitPath, ['submodule', 'status', fullVcpkgPath], options);
+    let isSubmodule = false;
     if (res.error !== null) {
       isSubmodule = res.code == 0;
       let msg: string;
@@ -68,7 +68,7 @@ export async function isVcpkgSubmodule(gitPath: string, fullVcpkgPath: string): 
   }
 }
 
-export function throwIfErrorCode(errorCode: Number): void {
+export function throwIfErrorCode(errorCode: number): void {
   if (errorCode != 0) {
     taskLib.error(taskLib.loc('commandFailed', errorCode));
     throw new Error(taskLib.loc('commandFailed', errorCode));
@@ -131,7 +131,7 @@ export function writeFile(file: string, content: string): void {
 }
 
 export function getDefaultTriplet(): string {
-  let envVar = process.env["VCPKG_DEFAULT_TRIPLET"];
+  const envVar = process.env["VCPKG_DEFAULT_TRIPLET"];
   if (envVar) {
     return envVar;
   }
@@ -156,7 +156,7 @@ export function extractTriplet(args: string, readFile: (string) => [boolean, str
   let triplet: string | null = null;
   // Split string on any 'whitespace' character
   const argsSplitted: string[] = args.split(/\s/).filter((a) => a.length != 0);
-  let index: number = 0;
+  let index = 0;
   for (; index < argsSplitted.length; index++) {
     let arg: string = argsSplitted[index].trim();
     // remove all whitespace characters (e.g. newlines, tabs, blanks)
@@ -169,9 +169,9 @@ export function extractTriplet(args: string, readFile: (string) => [boolean, str
       }
     }
     if (arg.startsWith("@")) {
-      let [ok, content] = readFile(arg.substring(1));
+      const [ok, content] = readFile(arg.substring(1));
       if (ok) {
-        let t = this.extractTriplet(content);
+        const t = this.extractTriplet(content);
         if (t) {
           return t.trim();
         }
@@ -182,20 +182,20 @@ export function extractTriplet(args: string, readFile: (string) => [boolean, str
 }
 
 export function resolveArguments(args: string, readFile: (string) => [boolean, string]): string {
-  let resolvedArguments: string = "";
+  let resolvedArguments = "";
 
   // Split string on any 'whitespace' character
   const argsSplitted: string[] = args.split(/\s/).filter((a) => a.length != 0);
-  let index: number = 0;
+  let index = 0;
   for (; index < argsSplitted.length; index++) {
     let arg: string = argsSplitted[index].trim();
     // remove all whitespace characters (e.g. newlines, tabs, blanks)
     arg = arg.replace(/\s/, '');
-    let isResponseFile: boolean = false;
+    let isResponseFile = false;
     if (arg.startsWith("@")) {
       const resolvedFilePath: string = taskLib.resolve(arg);
       if (taskLib.exist(resolvedFilePath)) {
-        let [ok, content] = readFile(resolvedFilePath);
+        const [ok, content] = readFile(resolvedFilePath);
         if (ok && content) {
           isResponseFile = true;
           resolvedArguments += content;

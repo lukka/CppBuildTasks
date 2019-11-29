@@ -6,7 +6,7 @@ import * as tl from 'azure-pipelines-task-lib/task';
 import * as trm from 'azure-pipelines-task-lib/toolrunner';
 import * as path from 'path';
 import { CMakeSettingsJsonRunner } from './cmakesettings-runner'
-import { Globals } from './globals';
+import * as Globals from './globals';
 import * as ninjalib from './ninja';
 import * as utils from './utils'
 
@@ -36,7 +36,7 @@ function getTargetType(typeString: string): TaskModeType {
   return type;
 }
 
-var CMakeGenerator = {
+const CMakeGenerator = {
   'Unknown': {},
   'VS16Arm': { 'G': 'Visual Studio 16 2019', 'A': 'ARM' },
   'VS16Win32': { 'G': 'Visual Studio 16 2019', 'A': 'Win32' },
@@ -73,6 +73,7 @@ export class CMakeRunner {
   sourceScript: string;
 
   constructor() {
+    // Nothing to do.
   }
 
   fetchInput(): void {
@@ -136,7 +137,7 @@ export class CMakeRunner {
 
   async configure(): Promise<void> {
     tl.debug('configure()<<')
-    let cmakeArgs: string = ' ';
+    let cmakeArgs = ' ';
 
     switch (this.taskMode) {
       default:
@@ -162,7 +163,7 @@ export class CMakeRunner {
           // If Ninja is required, specify the path to it.
           if (utils.isNinjaGenerator(cmakeArgs)) {
             if (!utils.isMakeProgram(cmakeArgs)) {
-              let ninjaPath: string = ninjalib.retrieveNinjaPath(this.ninjaPath);
+              const ninjaPath: string = ninjalib.retrieveNinjaPath(this.ninjaPath);
               cmakeArgs += ` -DCMAKE_MAKE_PROGRAM="${ninjaPath}"`;
             }
           }
@@ -174,7 +175,7 @@ export class CMakeRunner {
             cmakeArgs += ` -A ${generatorArch}`;
           }
           if (generatorName == CMakeGenerator['Ninja']['G']) {
-            let ninjaPath: string = ninjalib.retrieveNinjaPath(this.ninjaPath);
+            const ninjaPath: string = ninjalib.retrieveNinjaPath(this.ninjaPath);
             cmakeArgs += ` -DCMAKE_MAKE_PROGRAM="${ninjaPath}"`;
           }
 
@@ -200,7 +201,7 @@ export class CMakeRunner {
         tl.mkdirP(this.buildDir);
         cmake.line(cmakeArgs);
 
-        let options = <trm.IExecOptions>{
+        const options = {
           cwd: this.buildDir,
           failOnStdErr: false,
           errStream: process.stdout,
@@ -209,10 +210,10 @@ export class CMakeRunner {
           silent: false,
           windowsVerbatimArguments: false,
           env: process.env
-        };
+        } as trm.IExecOptions;
 
         tl.debug(`Generating project files with CMake in build directory '${options.cwd}' ...`);
-        let code: number = await cmake.exec(options);
+        const code: number = await cmake.exec(options);
         if (code != 0) {
           throw new Error(tl.loc("CMakeFailed", code));
         }
@@ -225,7 +226,7 @@ export class CMakeRunner {
       }
 
       case TaskModeType.CMakeSettingsJson: {
-        let cmakeJson: CMakeSettingsJsonRunner = new CMakeSettingsJsonRunner(
+        const cmakeJson: CMakeSettingsJsonRunner = new CMakeSettingsJsonRunner(
           this.cmakeSettingsJsonPath, this.configurationFilter,
           this.appendedArgs, utils.getSourceDir(), this.vcpkgTriplet,
           this.useVcpkgToolchainFile, this.doBuild, this.ninjaPath, this.sourceScript,

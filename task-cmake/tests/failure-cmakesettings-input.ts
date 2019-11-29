@@ -5,14 +5,14 @@
 import * as ma from 'azure-pipelines-task-lib/mock-answer';
 import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';
-import {Globals} from '../src/globals'
+import * as Globals from '../src/globals'
 import * as utils from './test-utils'
 
-let taskPath = path.join(__dirname, '..', 'src', 'cmake-task.js');
-let tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
+const taskPath = path.join(__dirname, '..', 'src', 'cmake-task.js');
+const tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 
 // Arrange
-let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
+const answers: ma.TaskLibAnswers = {
   'which': {'cmake': '/usr/local/bin/cmake', 'node': '/usr/local/bin/node'},
   'checkPath': {'/usr/local/bin/cmake': true, '/usr/local/bin/node': true},
   'exec': {
@@ -20,7 +20,7 @@ let answers: ma.TaskLibAnswers = <ma.TaskLibAnswers>{
     '/usr/local/bin/cmake -G Ninja':
         {'code': 0, 'stdout': 'cmake -G ninja output here'}
   }
-};
+} as ma.TaskLibAnswers;
 tmr.setAnswers(answers);
 utils.clearInputs();
 tmr.setInput(Globals.cmakeListsOrSettingsJson, 'CMakeSettingsJson');

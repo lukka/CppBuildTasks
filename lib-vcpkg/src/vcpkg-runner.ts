@@ -2,12 +2,10 @@
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
-
 import * as path from 'path';
 import * as vcpkgUtils from './vcpkg-utils'
-import { IBaseLib, IExecOptions, IExecResult } from "./base-lib";
-import { Globals } from './globals';
-
+import * as ifacelib from "./base-lib";
+import * as Globals from './globals';
 
 export class VcpkgRunner {
   vcpkgDestPath: string;
@@ -15,7 +13,7 @@ export class VcpkgRunner {
   defaultVcpkgUrl: string;
   vcpkgURL: string;
 
-  public constructor(private tl: IBaseLib) { }
+  public constructor(private tl: ifacelib.BaseLib) { }
 
   /**
    * Git ref (a branch, a tag, or a commit id) to fetch from the vcpkg repository.
@@ -24,7 +22,7 @@ export class VcpkgRunner {
    */
   vcpkgCommitId: string;
   vcpkgTriplet: string;
-  options: IExecOptions;
+  options: ifacelib.ExecOptions;
   vcpkgArtifactIgnoreEntries: string[];
 
   private fetchInput(): void {
@@ -55,7 +53,7 @@ export class VcpkgRunner {
     // Force AZP_CACHING_CONTENT_FORMAT to "Files"
     vcpkgUtils.setEnvVar(vcpkgUtils.cachingFormatEnvName, "Files");
 
-    this.options = <IExecOptions>{
+    this.options = {
       cwd: this.vcpkgDestPath,
       failOnStdErr: false,
       errStream: process.stdout,
@@ -64,9 +62,9 @@ export class VcpkgRunner {
       silent: false,
       windowsVerbatimArguments: false,
       env: process.env
-    };
+    } as ifacelib.ExecOptions;
 
-    let needRebuild: boolean = await this.updateRepo();
+    const needRebuild: boolean = await this.updateRepo();
     if (needRebuild) {
       await this.build()
     }
@@ -76,12 +74,12 @@ export class VcpkgRunner {
   }
 
   private async prepareForCache(): Promise<void> {
-    const artifactignoreFile: string = '.artifactignore';
+    const artifactignoreFile = '.artifactignore';
     const artifactFullPath: string = path.join(this.vcpkgDestPath, artifactignoreFile);
-    let [ok, content] = vcpkgUtils.readFile(artifactFullPath);
-    content = ok ? content + "\n" : "";
+    const [ok, content]: [boolean, string] = vcpkgUtils.readFile(artifactFullPath);
+    const contentWithNewLine = ok ? content + "\n" : "";
     vcpkgUtils.writeFile(artifactFullPath,
-      content + this.vcpkgArtifactIgnoreEntries.join('\n'));
+      contentWithNewLine + this.vcpkgArtifactIgnoreEntries.join('\n'));
   }
 
   private async updatePackages(): Promise<void> {
@@ -100,7 +98,7 @@ export class VcpkgRunner {
 
     // vcpkg install --recurse <list of packages>
     vcpkgTool = this.tl.tool(vcpkgPath);
-    let installCmd: string = `install --recurse ${this.vcpkgArgs}`;
+    let installCmd = `install --recurse ${this.vcpkgArgs}`;
 
     // Extract triplet from arguments for vcpkg.
     const extractedTriplet: string | null = vcpkgUtils.extractTriplet(installCmd, vcpkgUtils.readFile);
@@ -148,13 +146,13 @@ export class VcpkgRunner {
   }
 
   private async updateRepo(): Promise<boolean> {
-    let gitPath: string = await this.tl.which('git', true);
+    const gitPath: string = await this.tl.which('git', true);
     // Git update or clone depending on content of vcpkgDestPath.
     const cloneCompletedFilePath = path.join(this.vcpkgDestPath, Globals.vcpkgRemoteUrlLastFileName);
 
     // Update the source of vcpkg if needed.
-    let updated: boolean = false;
-    let needRebuild: boolean = false;
+    let updated = false;
+    let needRebuild = false;
     const remoteUrlAndCommitId: string = this.vcpkgURL + this.vcpkgCommitId;
     const isSubmodule = await vcpkgUtils.isVcpkgSubmodule(gitPath, this.vcpkgDestPath);
     if (isSubmodule) {
@@ -169,10 +167,10 @@ export class VcpkgRunner {
       updated = true;
     }
 
-    let res: boolean = vcpkgUtils.directoryExists(this.vcpkgDestPath);
+    const res: boolean = vcpkgUtils.directoryExists(this.vcpkgDestPath);
     this.tl.debug(`exist('${this.vcpkgDestPath}') == ${res}`);
     if (res && !isSubmodule) {
-      let [ok, remoteUrlAndCommitIdLast] = vcpkgUtils.readFile(cloneCompletedFilePath);
+      const [ok, remoteUrlAndCommitIdLast] = vcpkgUtils.readFile(cloneCompletedFilePath);
       this.tl.debug(`cloned check: ${ok}, ${remoteUrlAndCommitIdLast}`);
       if (ok) {
         this.tl.debug(`lastcommitid=${remoteUrlAndCommitIdLast}, actualcommitid=${remoteUrlAndCommitId}`);
@@ -182,9 +180,9 @@ export class VcpkgRunner {
           vcpkgUtils.throwIfErrorCode(await this.tl.exec(gitPath, ['remote', 'update'], this.options));
           // Use git status to understand if we need to rebuild vcpkg since the last cloned 
           // repository is not up to date.
-          let res: IExecResult = await this.tl.execSync(gitPath, ['status', '-uno'], this.options);
-          let uptodate = res.stdout.match("up to date");
-          let detached = res.stdout.match("detached");
+          const res: ifacelib.ExecResult = await this.tl.execSync(gitPath, ['status', '-uno'], this.options);
+          const uptodate = res.stdout.match("up to date");
+          const detached = res.stdout.match("detached");
           if (!uptodate && !detached) {
             // Update sources and force a rebuild.
             vcpkgUtils.throwIfErrorCode(await this.tl.exec(gitPath, ['pull', 'origin', this.vcpkgCommitId], this.options));
@@ -234,7 +232,7 @@ export class VcpkgRunner {
 
   private async build(): Promise<void> {
     // Build vcpkg.
-    let bootstrapFileName: string = 'bootstrap-vcpkg';
+    let bootstrapFileName = 'bootstrap-vcpkg';
     if (vcpkgUtils.isWin32()) {
       bootstrapFileName += '.bat';
     } else {
@@ -242,8 +240,8 @@ export class VcpkgRunner {
     }
 
     if (vcpkgUtils.isWin32()) {
-      let cmdPath: string = await this.tl.which('cmd.exe', true);
-      let cmdTool = this.tl.tool(cmdPath);
+      const cmdPath: string = await this.tl.which('cmd.exe', true);
+      const cmdTool = this.tl.tool(cmdPath);
       cmdTool.arg(['/c', path.join(this.vcpkgDestPath, bootstrapFileName)]);
       vcpkgUtils.throwIfErrorCode(await cmdTool.exec(this.options));
     } else {

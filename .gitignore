@@ -10,8 +10,4 @@ token.txt
 *.tgz
 test-results.xml
 /vsix/
-action-vcpkg/src/base-lib.ts
-action-vcpkg/src/vcpkg-action.ts
-action-vcpkg/src/vcpkg-runner.ts
-action-vcpkg/src/vcpkg-utils.ts
 build

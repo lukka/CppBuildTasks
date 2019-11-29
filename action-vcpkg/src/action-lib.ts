@@ -3,7 +3,7 @@
 // SPDX short identifier: MIT
 
 import * as stream from 'stream';
-import { IToolRunner, IBaseLib, IExecResult, IExecOptions } from './base-lib';
+import * as ifacelib from './base-lib';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as ioutil from '@actions/io/lib/io-util';
@@ -12,147 +12,144 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as shelljs from 'shelljs'
 
-export namespace libaction {
+export class ToolRunner implements ifacelib.ToolRunner {
 
-  export class ToolRunner implements IToolRunner {
+  private args: string[];
 
-    private args: string[];
+  constructor(private path: string) {
+  }
 
-    constructor(private path: string) {
+  exec(options: ifacelib.ExecOptions): Promise<number> {
+    const options2: ifacelib.ExecOptions = this.convertExecOptions(options);
+
+    return exec.exec(this.path, this.args, options);
+  }
+
+  line(val: string): void {
+    this.args = [val];
+  }
+
+  arg(val: string | string[]): void {
+    if (val instanceof Array) {
+      this.args = this.args.concat(val);
     }
 
-    exec(options: IExecOptions): Promise<number> {
-      const options2: IExecOptions = this.convertExecOptions(options);
-
-      return exec.exec(this.path, this.args, options);
-    }
-
-    line(val: string): void {
-      this.args = [val];
-    }
-
-    arg(val: string | string[]): void {
-      if (val instanceof Array) {
-        this.args = this.args.concat(val);
-      }
-
-      else if (typeof (val) === 'string') {
-        this.args = this.args.concat(val.trim());
-      }
-    }
-
-    async execSync(options?: IExecOptions): Promise<IExecResult> {
-      var exitCode: number = await exec.exec(this.path, this.args, options);
-      let res2: IExecResult = <IExecResult>{
-        code: exitCode
-      };
-
-      return Promise.resolve(res2);
-    }
-
-    private convertExecOptions(options: IExecOptions): IExecOptions {
-      let result: IExecOptions = <IExecOptions>{
-        cwd: options.cwd ?? process.cwd(),
-        env: options.env ?? process.env,
-        silent: options.silent ?? false,
-        failOnStdErr: options.failOnStdErr ?? false,
-        ignoreReturnCode: options.ignoreReturnCode ?? false,
-        windowsVerbatimArguments: options.windowsVerbatimArguments ?? false
-      };
-      result.outStream = options.outStream || <stream.Writable>process.stdout;
-      result.errStream = options.errStream || <stream.Writable>process.stderr;
-      return result;
+    else if (typeof (val) === 'string') {
+      this.args = this.args.concat(val.trim());
     }
   }
 
-  export class TaskLib implements IBaseLib {
+  async execSync(options?: ifacelib.ExecOptions): Promise<ifacelib.ExecResult> {
+    const exitCode: number = await exec.exec(this.path, this.args, options);
+    const res2: ifacelib.ExecResult = {
+      code: exitCode
+    } as ifacelib.ExecResult;
 
-    getInput(name: string, isRequired: boolean): string {
-      return core.getInput(name, { required: isRequired });
-    }
+    return Promise.resolve(res2);
+  }
 
-    getPathInput(name: string): string {
-      return core.getInput(name);
-    }
+  private convertExecOptions(options: ifacelib.ExecOptions): ifacelib.ExecOptions {
+    const result: ifacelib.ExecOptions = {
+      cwd: options.cwd ?? process.cwd(),
+      env: options.env ?? process.env,
+      silent: options.silent ?? false,
+      failOnStdErr: options.failOnStdErr ?? false,
+      ignoreReturnCode: options.ignoreReturnCode ?? false,
+      windowsVerbatimArguments: options.windowsVerbatimArguments ?? false
+    } as ifacelib.ExecOptions;
+    result.outStream = options.outStream || process.stdout as stream.Writable;
+    result.errStream = options.errStream || process.stderr as stream.Writable;
+    return result;
+  }
+}
 
-    getDelimitedInput(name: string, delim: string, required: boolean): string[] {
-      const input = core.getInput(name, { required: required });
-      let inputs: string[] = input.split(delim);
-      return inputs;
-    }
+export class TaskLib implements ifacelib.BaseLib {
 
-    setVariable(name: string, value: string): void {
-      core.exportVariable(name, value);
-    }
+  getInput(name: string, isRequired: boolean): string {
+    return core.getInput(name, { required: isRequired });
+  }
 
-    getVariable(name: string): string {
-      //?? Is it really fine to return an empty string in case of undefined variable?
-      return process.env[name] ?? "";
-    }
+  getPathInput(name: string): string {
+    return core.getInput(name);
+  }
 
-    debug(message: string): void {
-      core.debug(message);
-    }
+  getDelimitedInput(name: string, delim: string, required: boolean): string[] {
+    const input = core.getInput(name, { required: required });
+    const inputs: string[] = input.split(delim);
+    return inputs;
+  }
 
-    error(message: string): void {
-      core.error(message);
-    }
+  setVariable(name: string, value: string): void {
+    core.exportVariable(name, value);
+  }
 
-    warning(message: string): void {
-      core.warning(message);
-    }
+  getVariable(name: string): string {
+    //?? Is it really fine to return an empty string in case of undefined variable?
+    return process.env[name] ?? "";
+  }
 
-    loc(message: string, ...param: any[]): string {
-      return message;
-    }
+  debug(message: string): void {
+    core.debug(message);
+  }
 
-    tool(name: string): IToolRunner {
-      return new ToolRunner(name);
-    }
+  error(message: string): void {
+    core.error(message);
+  }
 
-    exec(name: string, args: any, options?: IExecOptions): Promise<number> {
-      return Promise.resolve(exec.exec(name, args, options));
-    }
+  warning(message: string): void {
+    core.warning(message);
+  }
 
-    async execSync(name: string, args: any, options?: IExecOptions): Promise<IExecResult> {
-      var exitCode: number = await exec.exec(name, args, options);
-      let res2: IExecResult = <IExecResult>{
-        code: exitCode
-      }
+  loc(message: string, ...param: any[]): string {
+    return message;
+  }
 
-      return Promise.resolve(res2);
-    }
+  tool(name: string): ifacelib.ToolRunner {
+    return new ToolRunner(name);
+  }
 
-    async which(name: string, required: boolean): Promise<string> {
-      return io.which(name, required);
-    }
+  exec(name: string, args: any, options?: ifacelib.ExecOptions): Promise<number> {
+    return Promise.resolve(exec.exec(name, args, options));
+  }
 
-    rmRF(path: string): void {
-      io.rmRF(path);
-    }
+  async execSync(name: string, args: any, options?: ifacelib.ExecOptions): Promise<ifacelib.ExecResult> {
+    const exitCode: number = await exec.exec(name, args, options);
+    const res2: ifacelib.ExecResult = {
+      code: exitCode
+    } as ifacelib.ExecResult;
 
-    mkdirP(path: string): void {
-      io.mkdirP(path);
-    }
+    return Promise.resolve(res2);
+  }
 
-    cd(path: string): void {
-      shelljs.cd(path);
-    }
+  async which(name: string, required: boolean): Promise<string> {
+    return io.which(name, required);
+  }
 
-    writeFile(path: string, content: string): void {
-      fs.writeFileSync(path, content);
-    }
+  rmRF(path: string): void {
+    io.rmRF(path);
+  }
 
-    resolve(apath: string): string {
-      return path.resolve(apath);
-    }
+  mkdirP(path: string): void {
+    io.mkdirP(path);
+  }
 
-    stats(path: string): fs.Stats {
-      return fs.statSync(path);
-    }
+  cd(path: string): void {
+    shelljs.cd(path);
+  }
 
-    exist(path: string): Promise<boolean> {
-      return ioutil.exists(path);
-    }
+  writeFile(path: string, content: string): void {
+    fs.writeFileSync(path, content);
+  }
+
+  resolve(apath: string): string {
+    return path.resolve(apath);
+  }
+
+  stats(path: string): fs.Stats {
+    return fs.statSync(path);
+  }
+
+  exist(path: string): Promise<boolean> {
+    return ioutil.exists(path);
   }
 }

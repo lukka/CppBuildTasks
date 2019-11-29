@@ -4,6 +4,7 @@
     "type": "git",
     "url": "https://github.com/lukka/CppBuildTasks.git"
   },
+  "author": "Luca Cappa (https://github.com/lukka)",
   "license": "MIT",
   "dependencies": {
     "@types/strip-json-comments": "0.0.30",

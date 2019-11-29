@@ -20,14 +20,23 @@ steps:
   inputs:
     command: custom
     verbose: true
+    customCommand: 'install'
+
+- task: Npm@1
+  displayName: 'npm test tasks'
+  inputs:
+    command: custom
+    verbose: true
     customCommand: 'run test'
 
 - task: PublishTestResults@2
   displayName: 'Publish Test Results **/test-*.xml'
+  condition: always()
   inputs:
     testResultsFiles: '**/test-*.xml'
     searchFolder: '$(Build.SourcesDirectory)'
     testRunTitle: 'Unit Tests'
+
 - script: |
     IFS='.' read -ra ADDR <<< "$BUILD_BUILDNUMBER"
     echo "##vso[task.setvariable variable=MAJOR]${ADDR[0]}"

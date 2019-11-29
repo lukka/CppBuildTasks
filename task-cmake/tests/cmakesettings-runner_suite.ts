@@ -57,9 +57,9 @@ describe('PropertyEvaluator tests', function () {
           "inheritEnvironments": ["linux_x64", "used", "used2"]
         }]
     };
-    const cmakeSettingsJson: string = "/path/projectDirName/CMakeSettings.json";
+    const cmakeSettingsJson = "/path/projectDirName/CMakeSettings.json";
 
-    let configurations: settingsRunner.Configuration[] = settingsRunner.parseConfigurations(json, cmakeSettingsJson);
+    const configurations: settingsRunner.Configuration[] = settingsRunner.parseConfigurations(json, cmakeSettingsJson);
     console.log(`ParsedConfigurations:  ${String(configurations)}`);
     for (const conf of configurations) {
       for (const name in conf.environments) {
@@ -67,10 +67,10 @@ describe('PropertyEvaluator tests', function () {
       }
     }
 
-    let environmentsMap: settingsRunner.EnvironmentMap = settingsRunner.parseEnvironments(
-      <any>[]
+    const environmentsMap: settingsRunner.EnvironmentMap = settingsRunner.parseEnvironments(
+      [] as any
     )
-    let propertiesEval = new settingsRunner.PropertyEvaluator(configurations[0], environmentsMap);
+    const propertiesEval = new settingsRunner.PropertyEvaluator(configurations[0], environmentsMap);
     propertiesEval.evaluate();
 
     assert.equal(configurations[0].cmakeArgs, "Release Releaseenv Releasenoname Releaseused Releaseused2 ${CONFIGURATIONunused}");
