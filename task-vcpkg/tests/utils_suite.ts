@@ -1,10 +1,10 @@
-// Copyright (c) 2019 Luca Cappa
+// Copyright (c) 2019-2020 Luca Cappa
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
 import * as assert from 'assert';
 
-import * as vcpkgutils from '../../lib-vcpkg/src/vcpkg-utils'
+import * as vcpkgutils from '../../libs/run-vcpkg-lib/src/vcpkg-utils'
 
 function readFile(path: string): [boolean, string] {
   if (path.indexOf("response_file_with_triplet.txt") !== -1) {

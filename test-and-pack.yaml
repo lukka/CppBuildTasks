@@ -1,3 +1,7 @@
+# Copyright (c) 2019-2020 Luca Cappa
+# Released under the term specified in file LICENSE.txt
+# SPDX short identifier: MIT
+
 name: 0.9.$(rev:r)
 
 pool:
@@ -8,6 +12,8 @@ variables:
   system.debug: true
 
 steps:
+- checkout: self
+  submodules: recursive
 - task: Npm@1
   displayName: 'npm: install gulp and tfx-cli'
   inputs:
@@ -16,7 +22,7 @@ steps:
     customCommand: 'install gulp@4 mocha tfx-cli@0.7.5'
 
 - task: Npm@1
-  displayName: 'npm test tasks'
+  displayName: 'npm install'
   inputs:
     command: custom
     verbose: true

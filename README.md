@@ -4,6 +4,11 @@
 
 # Azure DevOps [C++ build tasks](https://marketplace.visualstudio.com/items?itemName=lucappa.cmake-ninja-vcpkg-tasks) for [CMake](https://www.cmake.org/) and [vcpkg](https://github.com/microsoft/vcpkg/)
 
+## Available as GitHub actions as well:
+
+ - [run-vcpkg GitHub action](https://github.com/marketplace/actions/run-vcpkg);
+ - [run-cmake GitHub action](https://github.com/marketplace/actions/run-cmake);
+
  ## User Manual
  * [Introduction](#intro)
  * [Quickstart](#quickstart)
@@ -116,14 +121,14 @@ The task completes the following steps:
   1. if needed vcpkg is built;
   1. eventually vcpkg is launched to build and install the specified ports.
 
-The task sets `VCPKG_ROOT` task variable, which is automatically used by subsequent **'run-cmake'** to consume the vcpkg's toolchain file.
+The task sets `RUNVCPKG_VCPKG_ROOT` task variable, which is automatically used by subsequent **'run-cmake'** to consume the vcpkg's toolchain file.
 
-_Note:_ `VCPKG_ROOT` is set by the task by the first of these conditions:
+_Note:_ `VCPKGRUN_VCPKG_ROOT` is set by the task by the first of these conditions:
   1. the `vcpkgArguments` input task contains the `--triplet` argument;
   1. the vcpkg's reponse file contains the `--triplet` argument;
   1. `vcpkgTriplet` input task is set to a value.
   
-  In these cases, the first hit determines the content of the `VCPKG_ROOT` variable. 
+  In these cases, the first hit determines the content of the `RUNVCPKG_VCPKG_ROOT` variable. 
   In all other cases the variable is NOT set, and any `run-cmake` task instance is not able to reuse vcpkg's toolchain path nor the triplet.
 
 ### Use **vcpkg** as a submodule of your Git repository ###
@@ -183,16 +188,16 @@ _Note:_ the key must be a one liner, it could be divided in segments with the pi
 
 ### The **'run-vcpkg'** flowchart
 
->  ![Run vcpkg task](task-vcpkg/docs/task-vcpkg.png)
+>  ![Run vcpkg task](https://github.com/lukka/run-cmake-vcpkg-action-libs/blob/master/run-cmake-lib/docs/task-vcpkg.png)
 
 
 ## <a id='run-cmake'>The ***run-cmake*** task</a>
 
 The **'run-cmake'** task works with CMakeLists.txt and [CMakeSettings.json](https://docs.microsoft.com/en-us/cpp/build/cmakesettings-reference?view=vs-2019).
-It can leverage the previous execution of the **'run-vcpkg'** task by using the `VCPKG_ROOT`  task variable to:
+It can leverage the previous execution of the **'run-vcpkg'** task by using the `RUNVCPKG_VCPKG_ROOT`  task variable to:
 
-  - set the vcpkg's toolchain file if requested, located at `$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake`;
-  - set the environment for the provided triplet when building with [msvc](https://docs.microsoft.com/en-us/cpp/build/reference/c-cpp-building-reference?view=vs-2019) on Windows (i.e. building in the environment created by launching `$VCPKG_ROOT/vcpkg env`); 
+  - set the vcpkg's toolchain file if requested, located at `$RUNVCPKG_VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake`;
+  - set the environment for the provided triplet when building with [msvc](https://docs.microsoft.com/en-us/cpp/build/reference/c-cpp-building-reference?view=vs-2019) on Windows (i.e. building in the environment created by launching `$RUNVCPKG_VCPKG_ROOT/vcpkg env`); 
 
 ### The **'run-cmake'** flowchart
 
@@ -202,7 +207,7 @@ _Note:_ The task does not use th e `CMakeSettings.json`'s attribute called `inhe
 
 _Note:_ The task ignores the `buildRoot` value specified in the CMakeSettings.json . It is possible to specify the CMake binary directory using the `buildDirectory` input parameter, which by default it is `$(Build.ArtifactStagingDirectory)/<configuration name>` .
 
->  ![Run CMake task](task-cmake/docs/task-cmake.png)
+>  ![Run CMake task](https://github.com/lukka/run-cmake-vcpkg-action-libs/blob/master/run-cmake-lib/docs/task-cmake.png)
 
 ### <a id='reference'>Tasks reference: all input parameters</a>
 
@@ -258,6 +263,14 @@ project: [Microsoft cpprestsdk](https://github.com/microsoft/cpprestsdk) | |
 [vs2017](https://github.com/lukka/cpprestsdk/blob/master/pipeline-vs2017-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/vs2017-hosted-lukka.cpprestsdk?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=7&branchName=master)
 [vs2019](https://github.com/lukka/cpprestsdk/blob/master/pipeline-vs2019-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/vs2019-hosted-lukka.cpprestsdk?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=12&branchName=master)
 
+project: [evoke](https://github.com/dascandy/evoke)||
+|----------|-------|
+[macOS/Linux/Windows](https://github.com/dascandy/evoke/blob/master/azure-pipelines.yml) | [![Build Status](https://dev.azure.com/dascandy/Evoke/_apis/build/status/dascandy.evoke?branchName=master)](https://dev.azure.com/dascandy/Evoke/_build/latest?definitionId=1&branchName=master)
+
+project: [sysmakeshift](https://github.com/mbeutel/sysmakeshift)||
+|----------|-------|
+[macOS/Linux/Windows](https://github.com/mbeutel/sysmakeshift/blob/master/ci/azure-pipelines.yml) | [![Build Status](https://dev.azure.com/moritzbeutel/sysmakeshift/_apis/build/status/mbeutel.sysmakeshift?branchName=master)](https://dev.azure.com/moritzbeutel/sysmakeshift/_build/latest?definitionId=3&branchName=master)
+
 project: [vct](https://github.com/sfreed141/vct) ||
 |----------|-------|
 [macOS/Linux/Windows](https://github.com/lukka/vct/blob/master/azure-pipeline-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/lukka.vct?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=5&branchName=ci-build)
@@ -287,8 +300,17 @@ Indeed it is not needed to run vcpkg when the cache is being restored, and you c
 ## Prerequisites
 [gulp 4](https://www.npmjs.com/package/gulp4) and [tfx-cli 0.6+](https://www.npmjs.com/package/tfx-cli) globally installed.
 
+## Build and lint
+Build using `tsc` by:
+
+ > npm run build
+
+Launch `eslint` by:
+
+ > npm run lint
+
 ## Packaging 
-To package the extension for release purpose, run:
+To build, lint validate and package the extension for release purpose, run:
   
   > npm run pack
 

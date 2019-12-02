@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Luca Cappa
+// Copyright (c) 2019-2020 Luca Cappa
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
@@ -11,12 +11,12 @@ export function clearInputs(): void {
     .forEach(key => delete process.env[key]);
 }
 
-export function runTest(done: MochaDone, testFunction: (done: MochaDone) => any) {
+export function runTest(done: MochaDone, testFunction: (done: MochaDone) => any): void {
   try {
     testFunction(done);
     done();
   } catch (error) {
-    assert.fail(error);
     done(error);
+    assert.fail(error);
   }
 }

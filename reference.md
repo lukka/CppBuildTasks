@@ -26,8 +26,10 @@
        # [optional] URL of the Git repository to fetch.
        vcpkgGitURL: http://github.com/microsoft/vcpkg.git
        # [optional] the commit id or tag of the vcpkg repository to fetch. Branch names are no recommended here,
-       # especially when using the same value as part of the key in Cache task.
+       # especially when using the same value as part of the key in Cache[2] task.
        vcpkgGitCommitId: '$(vcpkgGitCommitId)'
+       # [optional] Content appended to the .artifactignore[1] file, used to drive what to ignore and to not-ignore when creating a new cached content with the Cache[2] task.
+       vcpkgArtifactIgnoreEntries: '!.git\n**/*\n!installed\n!/vcpkg\n!vcpkg.exe\n'
 ```
 
 ## run-cmake
@@ -41,13 +43,13 @@
        cmakeSettingsJsonPath: '$(Build.SourcesDirectory)/CMakeSettings.json'
        # [optional] specify the CMake binary directory, where build files are generated. By default it is `$(Build.ArtifactStagingDirectory)/<configuration name>` .
        buildDirectory: $(Build.ArtifactStagingDirectory)/tools/
-       # [optional] using VCPKG_ROOT env var, this will set the vcpkg's toolchain file and triplet.
+       # [optional] using RUNVCPKG_VCPKG_ROOT env var, this will set the vcpkg's toolchain file and triplet.
        useVcpkgToolchainFile: true
        # [optional] selects which configurations to build with a regular expression. 
        configurationRegexFilter: 'Linux.*'
-      # [optional] reuse the vcpkg toolchain file, default is false. If set to true, the VCPKG_ROOT environment variable set by the previous 'run-vcpkg' task will be used automatically to set the toolchain, unless the path is explicitly set in this 'run-cmake' task in 'cmakeToolchainPath'.
+      # [optional] reuse the vcpkg toolchain file, default is false. If set to true, the RUNVCPKG_VCPKG_ROOT environment variable set by the previous 'run-vcpkg' task will be used automatically to set the toolchain, unless the path is explicitly set in this 'run-cmake' task in 'cmakeToolchainPath'.
       useVcpkgToolchainFile: true
-      # [optional] vcpkg default triplet, '$(VCPKG_TRIPLET)' by default, which is set by the run-vcpkg
+      # [optional] vcpkg default triplet, '$(RUNVCPKG_VCPKG_TRIPLET)' by default, which is set by the run-vcpkg
       # task.
       vcpkgTriplet: 'x64-linux'
 
@@ -62,9 +64,9 @@
        buildDirectory: '$(Build.ArtifactStagingDirectory)'
        # [optional] CMake toolchain file, empty by default.
        cmakeToolchainPath: '$(Build.SourcesDirectory)/src/vcpkg_cmake/toolchain.cmake'
-       # [optional] reuse the vcpkg toolchain file, default is false. If set to true, the VCPKG_ROOT environment variable set by the previous 'run-vcpkg' task will be used automatically to set the toolchain, unless the path is explicitly set in this 'run-cmake' task in 'cmakeToolchainPath'.
+       # [optional] reuse the vcpkg toolchain file, default is false. If set to true, the RUNVCPKG_VCPKG_ROOT environment variable set by the previous 'run-vcpkg' task will be used automatically to set the toolchain, unless the path is explicitly set in this 'run-cmake' task in 'cmakeToolchainPath'.
        useVcpkgToolchainFile: true
-       # [optional] vcpkg default triplet, '$(VCPKG_TRIPLET)' by default
+       # [optional] vcpkg default triplet, '$(RUNVCPKG_VCPKG_TRIPLET)' by default
        vcpkgTriplet: 'x64-linux'
        # [optional] specify CMake build type, Debug by default.
        cmakeBuildType: 'Release'
@@ -73,3 +75,9 @@
        # [optional] 'cmake --build' appended arguments.
        buildWithCMakeArgs: '-- -v'
 ```
+
+_References:_
+
+[1]: [Documentation of the .artifactignore file](https://docs.microsoft.com/en-us/azure/devops/artifacts/reference/artifactignore?view=azure-devops).
+
+[2]: [Documentation of the Cache task ](https://docs.microsoft.com/en-us/azure/devops/pipelines/caching/?view=azure-devops#using-the-cache-task).

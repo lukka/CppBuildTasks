@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Luca Cappa
+// Copyright (c) 2019-2020 Luca Cappa
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
@@ -8,7 +8,7 @@ import * as path from 'path';
 import * as vcpkgUtilsMock from './vcpkg-utils-mock';
 import * as assert from 'assert';
 
-import * as Globals from '../../lib-vcpkg/src/globals'
+import * as globals from '../../libs/run-vcpkg-lib/src/vcpkg-globals'
 
 const taskPath = path.join(__dirname, '..', 'src', 'vcpkg-task.js');
 const tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
@@ -42,17 +42,17 @@ const answers: ma.TaskLibAnswers = {
 
 
 // Arrange
-vcpkgUtilsMock.utilsMock.readFile = (file: string) => {
+vcpkgUtilsMock.utilsMock.readFile = (file: string): [boolean, string] => {
   if (file == "/path/to/vcpkg/.artifactignore") {
     return [true, "tokeep1"];
   }
-  else if (file == `/path/to/vcpkg/${Globals.vcpkgRemoteUrlLastFileName}`) {
+  else if (file == `/path/to/vcpkg/${globals.vcpkgRemoteUrlLastFileName}`) {
     return [true, "https://github.com/microsoft/vcpkg.gitsamegitref"];
   }
   else
     throw `readFile called with unexpected file name: ${file}`;
 };
-vcpkgUtilsMock.utilsMock.writeFile = (file: string, content: string) => {
+vcpkgUtilsMock.utilsMock.writeFile = (file: string, content: string): void => {
   console.log(`Writing to file '${file}' content '${content}'`);
   if (file.endsWith('.artifactignore')) {
     assert.ok(content.indexOf('!.git') === -1, "There must be no !.git .");
@@ -61,7 +61,7 @@ vcpkgUtilsMock.utilsMock.writeFile = (file: string, content: string) => {
       assert.ok(content.indexOf(entry) !== -1, `There must be '${entry}' .`);
   }
 };
-vcpkgUtilsMock.utilsMock.isVcpkgSubmodule = () => {
+vcpkgUtilsMock.utilsMock.isVcpkgSubmodule = (): boolean => {
   return true;
 };
 tmr.registerMock('./vcpkg-utils', vcpkgUtilsMock.utilsMock);
@@ -73,9 +73,9 @@ tmr.registerMock('strip-json-comments', {
 });
 
 tmr.setAnswers(answers);
-tmr.setInput(Globals.vcpkgArguments, 'vcpkg_args');
-tmr.setInput(Globals.vcpkgCommitId, 'samegitref');
-tmr.setInput(Globals.vcpkgArtifactIgnoreEntries, 'tokeep2');
+tmr.setInput(globals.vcpkgArguments, 'vcpkg_args');
+tmr.setInput(globals.vcpkgCommitId, 'samegitref');
+tmr.setInput(globals.vcpkgArtifactIgnoreEntries, 'tokeep2');
 
 // Act
 tmr.run();

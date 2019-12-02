@@ -1,11 +1,11 @@
-// Copyright (c) 2019 Luca Cappa
+// Copyright (c) 2019-2020 Luca Cappa
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
 import * as ma from 'azure-pipelines-task-lib/mock-answer';
 import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';
-import * as Globals from '../src/globals'
+import * as globals from '../../libs/run-cmake-lib/src/cmake-globals'
 
 const taskPath = path.join(__dirname, '..', 'src', 'cmake-task.js');
 const tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
@@ -23,12 +23,12 @@ const answers: ma.TaskLibAnswers = {
   }
 } as ma.TaskLibAnswers;
 tmr.setAnswers(answers);
-tmr.setInput(Globals.cmakeListsOrSettingsJson, 'CMakeListsTxtAdvanced');
-tmr.setInput(Globals.cmakeListsTxtPath, 'thePathTo/CMakeListsTxt');
-tmr.setInput(Globals.cmakeAppendedArgs, '-G "Visual Studio" -DCMAKE_BUILD_TYPE=DebugAdvanced');
-tmr.setInput(Globals.buildWithCMake, 'true');
-tmr.setInput(Globals.buildWithCMakeArgs, '-cmake -build -args');
-tmr.setInput(Globals.buildDirectory, '/path/to/build/dir/');
+tmr.setInput(globals.cmakeListsOrSettingsJson, 'CMakeListsTxtAdvanced');
+tmr.setInput(globals.cmakeListsTxtPath, 'thePathTo/CMakeListsTxt');
+tmr.setInput(globals.cmakeAppendedArgs, '-G "Visual Studio" -DCMAKE_BUILD_TYPE=DebugAdvanced');
+tmr.setInput(globals.buildWithCMake, 'true');
+tmr.setInput(globals.buildWithCMakeArgs, '-cmake -build -args');
+tmr.setInput(globals.buildDirectory, '/path/to/build/dir/');
 
 // Act
 tmr.run();

@@ -11,3 +11,4 @@ token.txt
 test-results.xml
 /vsix/
 build
+build-tasks

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Luca Cappa
+// Copyright (c) 2019-2020 Luca Cappa
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
@@ -8,12 +8,12 @@ import * as path from 'path';
 import * as testutils from './test-utils';
 
 /// Output all stdout if TASK_TEST_TRACE environment variable is set.
-function outputStdout(messages: string) {
+function outputStdout(messages: string): void {
   process.env.TASK_TEST_TRACE && console.debug('STDOUT:\n' + messages);
 }
 
 describe('CMake task tests', function () {
-  const basePath = '../../build/task-cmake/tests/';
+  const basePath = '../../build-tasks/task-cmake/tests/';
 
   beforeEach(function () {
     // Clear the effect of all setInput()s before starting each test
@@ -25,7 +25,9 @@ describe('CMake task tests', function () {
     done();
   });
 
-  after(() => { });
+  after(() => {
+    // Nothing to do.
+  });
 
   it('cmakelists.txt basic with simple inputs should succeed',
     (done: MochaDone) => {
@@ -200,7 +202,7 @@ describe('CMake task tests', function () {
         }
         assert(
           tr.stdOutContained(`creating path: /path/to/build/dir`),
-          'should have mkdirP destDir');
+          'should have mkdirP /path/to/build/dir');
       });
     });
 
@@ -219,22 +221,33 @@ describe('CMake task tests', function () {
           tr.stdOutContained('-DCMAKE_BUILD_TYPE="Release"'),
           'should contain configuration type Release');
         assert(
-          tr.stdOutContained(`creating path: /path/to/build/dir/`),
-          'should have mkdirP outputDir');
+          tr.stdOutContained(`creating path: /path/to/build/dir`),
+          'should have mkdirP /path/to/build/dir');
       });
     });
 
   it('cmakelists.txt advanced with no path to CMakeSettings.json should fail',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
-        const tp =
-          path.join(__dirname, basePath, 'failure-cmakesettings-input.js');
-        const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
-        tr.run();
-        outputStdout(tr.stdout);
-        assert.equal(tr.succeeded, false, 'should have failed');
-        assert.equal(tr.warningIssues.length, 0, 'should have no warnings');
-        assert.notEqual(tr.errorIssues.length, 0, 'should have errors');
+        let tr: ttm.MockTestRunner | undefined;
+        try {
+          const tp =
+            path.join(__dirname, basePath, 'failure-cmakesettings-input.js');
+          tr = new ttm.MockTestRunner(tp);
+          tr.run();
+        }
+        finally {
+          if (tr) {
+            outputStdout(tr.stdout);
+            assert.equal(tr.succeeded, false, 'should have failed');
+            assert.equal(tr.warningIssues.length, 0, 'should have no warnings');
+            assert.notEqual(tr.errorIssues.length, 0, 'should have errors');
+            assert.ok(tr.stdout.search(/input required/i), "Stdout must contain the 'input rquired' error message");
+          }
+          else {
+            assert.fail("MockTestRunner not created!");
+          }
+        }
       });
     });
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Luca Cappa
+// Copyright (c) 2019-2020 Luca Cappa
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
@@ -7,7 +7,7 @@ import * as ttm from 'azure-pipelines-task-lib/mock-test';
 import * as path from 'path';
 import * as utils from './test-utils';
 
-function outputStdout(messages: string) {
+function outputStdout(messages: string): void {
   process.env.TASK_TEST_TRACE && console.debug('STDOUT:\n' + messages);
 }
 
@@ -22,26 +22,39 @@ describe('vcpkg task tests', function () {
     done();
   });
 
-  after(() => { });
+  after(() => {
+    // Nothing to do.
+  });
 
   it('vcpkg with simple inputs should succeed', (done: MochaDone) => {
     utils.runTest(done, (done) => {
-      const tp =
-        path.join(__dirname, '../../build/task-vcpkg/tests/', 'success-vcpkg-basic.js');
-      const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
-      tr.run();
-      outputStdout(tr.stdout);
-      assert.equal(tr.succeeded, true, 'should have succeeded');
-      assert.equal(tr.warningIssues.length, 0, 'should have no warnings');
-      assert.equal(tr.errorIssues.length, 0, 'should have no errors');
-      assert.ok(tr.stdout.indexOf(" --triplet triplet") != -1, "Stdout must contain the triplet argument passed to vcpkg")
+      let tr: ttm.MockTestRunner | undefined;
+      try {
+        const tp =
+          path.join(__dirname, '../../build-tasks/task-vcpkg/tests/', 'success-vcpkg-basic.js');
+        tr = new ttm.MockTestRunner(tp);
+        tr.run();
+      }
+      finally {
+        if (tr) {
+          outputStdout(tr.stdout);
+          assert.equal(tr.succeeded, true, 'should have succeeded');
+          assert.equal(tr.warningIssues.length, 0, 'should have no warnings');
+          assert.equal(tr.errorIssues.length, 0, 'should have no errors');
+          assert.ok(tr.stdout.indexOf(" --triplet triplet") != -1, "Stdout must contain the triplet argument passed to vcpkg");
+        }
+        else {
+          assert.fail("MockTestRunner not created!");
+        }
+
+      }
     });
   });
 
   it('vcpkg should build if not yet', (done: MochaDone) => {
     utils.runTest(done, (done) => {
       const tp =
-        path.join(__dirname, '../../build/task-vcpkg/tests/', 'success-vcpkg-build.js');
+        path.join(__dirname, '../../build-tasks/task-vcpkg/tests/', 'success-vcpkg-build.js');
       const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
       tr.run();
       outputStdout(tr.stdout);
@@ -55,7 +68,7 @@ describe('vcpkg task tests', function () {
   it('vcpkg should not build if already built', (done: MochaDone) => {
     utils.runTest(done, (done) => {
       const tp =
-        path.join(__dirname, '../../build/task-vcpkg/tests/', 'success-vcpkg-nobuild.js');
+        path.join(__dirname, '../../build-tasks/task-vcpkg/tests/', 'success-vcpkg-nobuild.js');
       const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
       tr.run();
       outputStdout(tr.stdout);
@@ -69,7 +82,7 @@ describe('vcpkg task tests', function () {
   it('vcpkg with no triplet should succeed', (done: MochaDone) => {
     utils.runTest(done, (done) => {
       const tp =
-        path.join(__dirname, '../../build/task-vcpkg/tests/', 'success-vcpkg-notriplet.js');
+        path.join(__dirname, '../../build-tasks/task-vcpkg/tests/', 'success-vcpkg-notriplet.js');
       const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
       tr.run();
       outputStdout(tr.stdout);
@@ -84,7 +97,7 @@ describe('vcpkg task tests', function () {
   it('vcpkg as submodule should not run git clone/pull commands', (done: MochaDone) => {
     utils.runTest(done, (done) => {
       const tp =
-        path.join(__dirname, '../../build/task-vcpkg/tests/', 'success-vcpkg-submodule.js');
+        path.join(__dirname, '../../build-tasks/task-vcpkg/tests/', 'success-vcpkg-submodule.js');
       const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
       tr.run();
       outputStdout(tr.stdout);

@@ -1,13 +1,18 @@
-// Copyright (c) 2019 Luca Cappa
+// Copyright (c) 2019-2020 Luca Cappa
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
+import * as ifacelib from '../../libs/base-lib/src/base-lib';
+
 export const utilsMock: any = {
-    setIBaseLib() {
-        // nothing to do.
-    },
-    getBinDir() {
-        return '/path/to/';
+    setBaseLib(lib: ifacelib.BaseLib) {
+        // Ensure the getArtifactsDir is mocked as follows.
+        lib.getArtifactsDir = function (): string {
+            return '/path/to/';
+        }
+        lib.getBinDir = function (): string {
+            return "/path/to/";
+        }
     },
     throwIfErrorCode(code: number) {
         if (code != 0) throw new Error('throwIfErrorCode throws');
@@ -16,7 +21,7 @@ export const utilsMock: any = {
     isWin32(): boolean {
         return false;
     },
-    directoryExists(dir: string) {
+    directoryExists(dir: string): boolean {
         return true;
     },
     writeFile(file: string, content: string) {
@@ -34,6 +39,5 @@ export const utilsMock: any = {
     setEnvVar(name: string, value: string) {
         //nothing to do
     },
-    vcpkgRootEnvName: 'VCPKG_ROOT',
     cachingFormatEnvName: 'AZP_CACHING_CONTENT_FORMAT'
 };
