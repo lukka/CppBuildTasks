@@ -49,7 +49,7 @@
       "label": "vcpkg Git tag/ref:",
       "defaultValue": "",
       "required": false,
-      "helpMarkDown": "If not specified, the default branch of the repository.[More information](https://github.com/lukka/CppBuildTasks/blob/master/README.md)",
+      "helpMarkDown": "Specify the Git commit id that establish which version of vcpkg needs to be used. When using vcpkg as a Git submodule, this input is not needed as impicitly specified by the submodule. [More information](https://github.com/lukka/CppBuildTasks/blob/master/README.md)",
       "groupname": "advanced"
     },
     {
@@ -81,35 +81,25 @@
         "rows": "3"
       },
       "label": "The entries to append to .artifactignore file, located in the vcpkg's root:",
-      "defaultValue": "!.git\n**/*\n!installed\n!/vcpkg\n!vcpkg.exe\n",
+      "defaultValue": "!.git\n**/*\n!installed\n!/vcpkg\n!vcpkg.exe\n!vcpkg_remote_url.last\n",
       "required": false,
       "groupname": "advanced",
-      "helpMarkDown": "Specify entries to append to the .artifactignore file. This file specifies which directory to ignore or to include by the Cache task. For more info: https://docs.microsoft.com/en-us/azure/devops/artifacts/reference/artifactignore?view=azure-devops . The file is created if not existing already. "
+      "helpMarkDown": "Specify entries to append to the .artifactignore file. This file specifies which directory to ignore or to include by the Cache task. For more info: https://docs.microsoft.com/en-us/azure/devops/artifacts/reference/artifactignore?view=azure-devops . The file is created if not already existing."
     }
   ],
   "execution": {
-    "Node": {
+    "Node10": {
       "target": "vcpkg-task.js"
     }
   },
-  "messages": {
-    "TaskStarting": "'vcpkg runner starting...",
-    "vcpkgReturnedErrorCode": "vcpkg exited with return code: '%d'.",
-    "vcpkgFailed": "vcpkg failed with error: '%s'.",
-    "vcpkGetBinDirFailure": "Getting the binary directory failed: '%s'.",
-    "commandFailed": "Last command execution failed with error code '%d'.",
-    "vcpkgSucceeded": "Task completed succesfully.",
-    "vcpkgNeedsRebuildMissingExecutable": "Building vcpkg as executable is missing.",
-    "vcpkgNeedsRebuildRepoUpdated": "Building vcpkg as Git repo has been updated."
-  },
   "outputVariables": [
     {
-      "name": "outVcpkgRootPath",
+      "name": "RUNVCPKG_VCPKG_ROOT_OUT",
       "description": "After the execution of this task, this variable contains the path to the installation of vcpkg on the build server."
     },
     {
-      "name": "outvcpkgTriplet",
-      "description": "After the execution of this task, this variable contains the triplet used when building the packages."
+      "name": "RUNVCPKG_VCPKG_TRIPLET_OUT",
+      "description": "After the execution of this task, this variable contains the triplet used when building the ports."
     }
   ]
 }

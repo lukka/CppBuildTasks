@@ -1,9 +1,9 @@
-// Copyright (c) 2019 Luca Cappa
+// Copyright (c) 2019-2020 Luca Cappa
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
 import * as assert from 'assert';
-import * as utils from '../src/utils'
+import * as utils from '../../libs/run-cmake-lib/src/utils'
 
 describe('utils tests', function () {
   it('testing for presence of flags', async () => {
@@ -43,16 +43,25 @@ describe('utils tests', function () {
     assert.ok(utils.isToolchainFile(' -DCMAKE_TOOLCHAIN_FILE=/path/to/file.cmake '));
     assert.ok(!utils.isToolchainFile(' -DVAR=NAME '));
 
-    process.env.VCPKG_ROOT = "/vcpkgroot/";
+    process.env.RUNVCPKG_VCPKG_ROOT = "/vcpkgroot/";
     let ret: string = await utils.injectVcpkgToolchain('-DCMAKE_TOOLCHAIN_FILE=existing.cmake', "triplet");
     assert.equal(' -DCMAKE_TOOLCHAIN_FILE="/vcpkgroot/scripts/buildsystems/vcpkg.cmake" -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE="existing.cmake" -DVCPKG_TARGET_TRIPLET=triplet', ret);
     ret = await utils.injectVcpkgToolchain('-DCMAKE_TOOLCHAIN_FILE:FILEPATH=existing.cmake', "triplet");
     assert.equal(' -DCMAKE_TOOLCHAIN_FILE="/vcpkgroot/scripts/buildsystems/vcpkg.cmake" -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE="existing.cmake" -DVCPKG_TARGET_TRIPLET=triplet', ret);
     ret = await utils.injectVcpkgToolchain('-DCMAKE_BUILD_TYPE=Debug', "triplet");
     assert.equal('-DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE="/vcpkgroot/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=triplet', ret);
-    process.env.VCPKG_ROOT = "";
+    process.env.RUNVCPKG_VCPKG_ROOT = "";
     const arg = ' -DCMAKE_BUILD_TYPE=Debug';
     ret = await utils.injectVcpkgToolchain(arg, "triplet");
     assert.equal(arg, ret);
+  });
+
+  it('testing for path normalization', async () => {
+    assert.strictEqual(utils.normalizePath('/a/path/'), '/a/path');
+    assert.strictEqual(utils.normalizePath('/a/../path/'), '/path');
+    assert.strictEqual(utils.normalizePath('/'), '/');
+    assert.strictEqual(utils.normalizePath('/a'), '/a');
+    assert.strictEqual(utils.normalizePath('/a/'), '/a');
+    assert.strictEqual(utils.normalizePath('/a/path'), '/a/path');
   });
 });

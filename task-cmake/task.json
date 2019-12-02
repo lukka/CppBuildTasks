@@ -72,18 +72,18 @@
     {
       "name": "useVcpkgToolchainFile",
       "type": "boolean",
-      "label": "Use vcpkg.cmake toolchain if the VCPKG_ROOT environment variable is defined.",
+      "label": "Use vcpkg.cmake toolchain if the RUNVCPKG_VCPKG_ROOT environment variable is defined.",
       "defaultValue": "false",
       "required": false,
-      "helpMarkDown": "Indicates whether to use vcpkg's CMake toolchain file if VCPKG_ROOT environment variable is defined. If there is already a toolchain.cmake file passed in, that will be passed in with '-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=/path/to/toolchain.cmake'."
+      "helpMarkDown": "Indicates whether to use vcpkg's CMake toolchain file if RUNVCPKG_VCPKG_ROOT environment variable is defined. If there is already a toolchain.cmake file passed in, that will be passed in with '-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=/path/to/toolchain.cmake'."
     },
     {
       "name": "vcpkgTriplet",
       "type": "string",
       "label": "vcpkg triplet:",
-      "defaultValue": "$(VCPKG_TRIPLET)",
+      "defaultValue": "$(RUNVCPKG_VCPKG_TRIPLET)",
       "required": false,
-      "helpMarkDown": "Specify the triplet used with vcpkg. The task 'Run vcpkg' sets the default one in VCPKG_TRIPLET environment variable. Possible values are any file name with no extension present in the vcpkgroot/trplet directory, e.g. x64-linux, x64-windows, x64-osx and so forth.",
+      "helpMarkDown": "Specify the triplet used with vcpkg. The task 'Run vcpkg' sets the default one in RUNVCPKG_VCPKG_TRIPLET environment variable. Possible values are any file name with no extension present in the vcpkgroot/trplet directory, e.g. x64-linux, x64-windows, x64-osx and so forth.",
       "visibleRule": "useVcpkgToolchainFile = true"
     },
     {
@@ -152,7 +152,7 @@
       "label": "Ninja path:",
       "defaultValue": "",
       "required": false,
-      "helpMarkDown": "Full path to ninja build tool. If not specified, the one in PATH environment variable will be used. If not available, it will be downloaded from Internet and used (only for Windows).",
+      "helpMarkDown": "Full path to ninja build tool. If not specified, the one in PATH environment variable will be used. If not available, it will be downloaded from Internet.",
       "groupname": "advanced"
     },
     {
@@ -192,31 +192,8 @@
     }
   ],
   "execution": {
-    "Node": {
+    "Node10": {
       "target": "cmake-task.js"
     }
-  },
-  "messages": {
-    "CMakeSuccess": "CMake succeeded.",
-    "CMakeFailed": "CMake failed with error: '%s'.",
-    "NinjaNotFoundOnUnix": "Could not find ninja build tool. Please install it via your package manager, e.g. '%s'.",
-    "NinjaWontBeDownloadedOnUnix": "The URL will not be used to download ninja. Please install it via your package manager, e. g. '%s'.",
-    "TaskStarting": "'CMake and Ninja runner starting...",
-    "NinjaPathNotSpecified": "Path to ninja executable has not been explicitly specified on the task. Searching for it now...",
-    "ParsedConfigurations": "CMakeSettings.json parsed configurations: '%s'.",
-    "ParsedGlobalEnvironments": "CMakeSettings.json parsed global environments.",
-    "CMakeSettingsContent": "Content of file CMakeSettings.json: '%s'.",
-    "InvalidTaskMode": "Invalid task mode: '%s'.",
-    "CMakeSettingsFilteredConfigurations": "CMakeSettings.json filtered configurations: '%s'.",
-    "CMakeSettingsNoMatchingConfiguration": "No matching configuration for filter: '%s'.",
-    "CMakeReturnedErrorCode": "CMake returned error code: '%d'.",
-    "NinjaDownloadArchiveFailed": "Failed to download the Ninja executable: '%s'.",
-    "NinjaNotInPath": "Cannot find Ninja in PATH environment variable.",
-    "NinjaNotFound": "Cannot find nor download Ninja.",
-    "BuildDirNull": "Build directory is not specified.",
-    "BuildFailed": "Build failed with error code: '%d'.",
-    "ConfiguringConfig": "Processing configuration: '%s'.",
-    "VcpkgRootNotSet": "Cannot find vcpkg, nor at VCPKG_ROOT environment variable, nor at ",
-    "getBinDirFailure": "Getting the binary directory failed: '%s'."
   }
 }

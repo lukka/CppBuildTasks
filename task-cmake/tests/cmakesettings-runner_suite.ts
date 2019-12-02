@@ -1,9 +1,15 @@
-// Copyright (c) 2019 Luca Cappa
+// Copyright (c) 2019-2020 Luca Cappa
 // Released under the term specified in file LICENSE.txt
 // SPDX short identifier: MIT
 
 import * as assert from 'assert';
-import * as settingsRunner from '../src/cmakesettings-runner'
+import * as settingsRunner from '../../libs/run-cmake-lib/src/cmakesettings-runner'
+import * as ifacelib from '../../libs/task-base-lib/src/task-lib';
+import * as utils from '../../libs/run-cmake-lib/src/utils'
+import * as path from 'path'
+
+// Set the implementation of the BaseLib.
+utils.setBaseLib(new ifacelib.TaskLib());
 
 describe('PropertyEvaluator tests', function () {
   it('testing variable evaluation', (done: MochaDone) => {
@@ -57,9 +63,11 @@ describe('PropertyEvaluator tests', function () {
           "inheritEnvironments": ["linux_x64", "used", "used2"]
         }]
     };
-    const cmakeSettingsJson = "/path/projectDirName/CMakeSettings.json";
 
-    const configurations: settingsRunner.Configuration[] = settingsRunner.parseConfigurations(json, cmakeSettingsJson);
+    const sourceDir = "/path/projectDirName/";
+    const cmakeSettingsJson = path.join(sourceDir, "CMakeSettings.json");
+    
+    const configurations: settingsRunner.Configuration[] = settingsRunner.parseConfigurations(json, cmakeSettingsJson, sourceDir);
     console.log(`ParsedConfigurations:  ${String(configurations)}`);
     for (const conf of configurations) {
       for (const name in conf.environments) {
@@ -70,11 +78,11 @@ describe('PropertyEvaluator tests', function () {
     const environmentsMap: settingsRunner.EnvironmentMap = settingsRunner.parseEnvironments(
       [] as any
     )
-    const propertiesEval = new settingsRunner.PropertyEvaluator(configurations[0], environmentsMap);
-    propertiesEval.evaluate();
+    const propertiesEval = new settingsRunner.PropertyEvaluator(configurations[0], environmentsMap, new ifacelib.TaskLib());
+    const evaluatedConfiguration: settingsRunner.Configuration = configurations[0].evaluate(propertiesEval);
 
-    assert.equal(configurations[0].cmakeArgs, "Release Releaseenv Releasenoname Releaseused Releaseused2 ${CONFIGURATIONunused}");
-    assert.equal(configurations[0].buildDir, `$HOME/.vs/projectDirName/build/Emscripten Linux Release/`)
+    assert.equal(evaluatedConfiguration.cmakeArgs, "Release Releaseenv Releasenoname Releaseused Releaseused2 ${CONFIGURATIONunused}");
+    assert.equal(evaluatedConfiguration.buildDir, `$HOME/.vs/projectDirName/build/Emscripten Linux Release/`)
     done();
   });
 });

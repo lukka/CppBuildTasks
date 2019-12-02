@@ -1,31 +1,15 @@
 {
-    // This is a solution file, so the list of file to build should be empty.
-    // Neverthless, gulp is stupid: https://github.com/gulpjs/gulp/issues/1298
-    // So the build is done directly running tsc in package.json, and gulp is not building
-    // typescript files.
-    /*"files": [],
-    "references": [
-        {
-            "path": "lib-vcpkg"
-        },
-        {
-            "path": "task-vcpkg"
-        },
-        {
-            "path": "task-cmake"
-        },
-        {
-            "path": "action-vcpkg"
-        }
-    ]*/
     "extends": "./tsconfig-base.json",
     "compilerOptions": {
-        "outDir": "build",
+        "outDir": "build-tasks",
         "rootDirs": [
             "task-cmake/src",
-            "action-vcpkg/src",
             "task-vcpkg/src",
-            "lib-vcpkg/src"
+            "libs/run-vcpkg-lib/src",
+            "libs/run-cmake-lib/src",
+            "libs/action-base-lib/src",
+            "libs/task-base-lib/src",
+            "libs/base-lib/src"
         ]
     },
 }
