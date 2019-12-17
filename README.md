@@ -36,7 +36,7 @@ Build C++ software with vcpkg and [CMake](https://www.cmake.org) (either with CM
 
 ## <a id='quickstart'>Quickstart</a>
  
-It is highly recommended to use __vcpkg as a Git submodule__. Here below the sample where vcpkg is a Git submodule:
+It is __highly recommended__ to [use vcpkg as a submodule](#use-vcpkg-as-a-submodule-of-your-git-repository). Here below the sample where vcpkg is a Git submodule:
 
 ```yaml
   # Sample when vcpkg is a submodule
