@@ -188,7 +188,7 @@ _Note:_ the key must be a one liner, it could be divided in segments with the pi
 
 ### The **'run-vcpkg'** flowchart
 
->  ![Run vcpkg task](https://github.com/lukka/run-cmake-vcpkg-action-libs/blob/master/run-cmake-lib/docs/task-vcpkg.png)
+>  ![Run vcpkg task](https://github.com/lukka/run-cmake-vcpkg-action-libs/blob/master/run-vcpkg-lib/docs/task-vcpkg.png)
 
 
 ## <a id='run-cmake'>The ***run-cmake*** task</a>
