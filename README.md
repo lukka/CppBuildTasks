@@ -2,9 +2,9 @@
 
 ![Marketplace publishing](https://vsrm.dev.azure.com/CppBuild/_apis/public/Release/badge/7d4557dc-7e36-4795-97a5-b0874dd1157a/1/1)
 
-# Azure DevOps [C++ build tasks](https://marketplace.visualstudio.com/items?itemName=lucappa.cmake-ninja-vcpkg-tasks) for [CMake](https://www.cmake.org/) and [vcpkg](https://github.com/microsoft/vcpkg/)
+# run-cmake and run-vcpkg: Azure DevOps [C++ build tasks](https://marketplace.visualstudio.com/items?itemName=lucappa.cmake-ninja-vcpkg-tasks) for [CMake](https://www.cmake.org/) and [vcpkg](https://github.com/microsoft/vcpkg/)
 
-## Available as GitHub actions as well:
+## Also available as GitHub actions:
 
  - [run-vcpkg GitHub action](https://github.com/marketplace/actions/run-vcpkg);
  - [run-cmake GitHub action](https://github.com/marketplace/actions/run-cmake);

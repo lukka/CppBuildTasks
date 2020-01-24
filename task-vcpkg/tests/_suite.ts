@@ -112,4 +112,42 @@ describe('vcpkg task tests', function () {
     });
   });
 
+  it('vcpkg should bootstrap if source version is different than executable', (done: MochaDone) => {
+    utils.runTest(done, (done) => {
+      const tp =
+        path.join(__dirname, '../../build-tasks/task-vcpkg/tests/', 'success-vcpkg-bootstrap-on-version.js');
+      const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+      tr.run();
+      outputStdout(tr.stdout);
+      assert.equal(tr.succeeded, true, 'should have succeeded');
+      assert.equal(tr.warningIssues.length, 0, 'should have no warnings');
+      assert.equal(tr.errorIssues.length, 0, 'should have no errors');
+      assert.ok(tr.stdout.indexOf("No '--triplet'"), "Stdout should contain the message about no triplet being provided.");
+      assert.equal(tr.stdout.indexOf(" --triplet "), -1, "Stdout must not contain any ' --triplet ' string.");
+      assert.notEqual(tr.stdout.indexOf(' as a submodule'), -1, "vcpkg must be detected as submodule");
+      assert.equal(tr.stdout.indexOf('!.git'), -1, "when vcpkg is a submodule, the '.git' directory must not be copied.");
+      assert.notEqual(tr.stdout.indexOf(`\n.git'`), -1, "when vcpkg is a submodule, the '.git' directory must not be copied.");
+      assert.notEqual(tr.stdout.indexOf('vcpkg executable is up-to-date with sources.'), -1, "vcpkg executable must be up-to-date");
+    });
+  });
+
+  it('vcpkg should not bootstrap if source version is different than executable', (done: MochaDone) => {
+    utils.runTest(done, (done) => {
+      const tp =
+        path.join(__dirname, '../../build-tasks/task-vcpkg/tests/', 'success-vcpkg-donot-bootstrap-on-version.js');
+      const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+      tr.run();
+      outputStdout(tr.stdout);
+      assert.equal(tr.succeeded, true, 'should have succeeded');
+      assert.equal(tr.warningIssues.length, 0, 'should have no warnings');
+      assert.equal(tr.errorIssues.length, 0, 'should have no errors');
+      assert.ok(tr.stdout.indexOf("No '--triplet'"), "Stdout should contain the message about no triplet being provided.");
+      assert.equal(tr.stdout.indexOf(" --triplet "), -1, "Stdout must not contain any ' --triplet ' string.");
+      assert.notEqual(tr.stdout.indexOf(' as a submodule'), -1, "vcpkg must be detected as submodule");
+      assert.equal(tr.stdout.indexOf('!.git'), -1, "when vcpkg is a submodule, the '.git' directory must not be copied.");
+      assert.notEqual(tr.stdout.indexOf(`\n.git'`), -1, "when vcpkg is a submodule, the '.git' directory must not be copied.");
+      assert.equal(tr.stdout.indexOf('vcpkg executable is up-to-date with sources.'), -1, "vcpkg executable must be up-to-date");
+    });
+  });
+
 });

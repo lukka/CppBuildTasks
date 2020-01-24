@@ -45,7 +45,7 @@ var installPackages = function () {
 
 var manipulateExtensionMetadata = function () {
   const indentSpaces = 2;
-  var a = gulp.src("vss-extension.json")
+  return gulp.src("vss-extension.json")
     .pipe(jsonTransform(function (json, file) {
       if (process.env.CPPBUILDTASKDEV) {
         json["id"] = appendDev(json["id"]);
@@ -57,21 +57,20 @@ var manipulateExtensionMetadata = function () {
         json["version"] = process.env.MAJOR + "." + process.env.MINOR + "." + readPatch;
       }
       return json;
-    }, indentSpaces)).pipe(gulp.dest("."));
+    }, indentSpaces)).pipe(gulp.dest(".")).on('finish', () => {
+      var b = gulp.src("task-vcpkg/task.json")
+        .pipe(jsonTransform(function (json, file) {
+          setupTaskJson(json, readPatch);
+          return json;
+        }, indentSpaces)).pipe(gulp.dest("task-vcpkg"));
 
+      var c = gulp.src("task-cmake/task.json")
+        .pipe(jsonTransform(function (json, file) {
+          return setupTaskJson(json, readPatch);
+        }, indentSpaces)).pipe(gulp.dest("task-cmake"));
 
-  var b = gulp.src("task-vcpkg/task.json")
-    .pipe(jsonTransform(function (json, file) {
-      setupTaskJson(json, readPatch);
-      return json;
-    }, indentSpaces)).pipe(gulp.dest("task-vcpkg"));
-
-  var c = gulp.src("task-cmake/task.json")
-    .pipe(jsonTransform(function (json, file) {
-      return setupTaskJson(json, readPatch);
-    }, indentSpaces)).pipe(gulp.dest("task-cmake"));
-
-  return merge(a, b, c);
+      return merge(b, c);
+    });
 }
 
 var build = function () {

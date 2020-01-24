@@ -67,7 +67,7 @@
       "label": "Arguments for 'vcpkg install':",
       "defaultValue": "",
       "required": true,
-      "helpMarkDown": "Provides the arguments appended to 'vcpkg install'. It is recommended to use a response file to provide either the triplet and the list of packages to be installed. , e.g. `@$(Build.SourcesDirectory)/vcpkg_osx.txt`.",
+      "helpMarkDown": "Provides the arguments appended to 'vcpkg install'. It is recommended to use a response file to provide either the triplet and the list of ports to be installed. , e.g. `@$(Build.SourcesDirectory)/vcpkg_osx.txt`.",
       "properties": {
         "resizable": "true",
         "rows": "5"
@@ -81,10 +81,26 @@
         "rows": "3"
       },
       "label": "The entries to append to .artifactignore file, located in the vcpkg's root:",
-      "defaultValue": "!.git\n**/*\n!installed\n!/vcpkg\n!vcpkg.exe\n!vcpkg_remote_url.last\n",
+      "defaultValue": "!.git\nbuildtrees\npackages\ndownloads\n",
       "required": false,
       "groupname": "advanced",
       "helpMarkDown": "Specify entries to append to the .artifactignore file. This file specifies which directory to ignore or to include by the Cache task. For more info: https://docs.microsoft.com/en-us/azure/devops/artifacts/reference/artifactignore?view=azure-devops . The file is created if not already existing."
+    },
+    {
+      "name": "cleanAfterBuild",
+      "type": "boolean",
+      "label": "Clean files after build:",
+      "defaultValue": "true",
+      "required": false,
+      "helpMarkDown": "Append the argument '--clean-after-build' to vcpkgArgument input, to clean buildtrees, packages and downloads after building each port. Default is true."
+    },
+    {
+      "name": "doNotUpdateVcpkg",
+      "type": "boolean",
+      "label": "Do not update the vcpkg directory:",
+      "defaultValue": "false",
+      "required": false,
+      "helpMarkDown": "Avoid to update (launching git) the specified 'vcpkgDirectory'. This is useful when vcpkg is being checkout indipendently of the run-vcpkg task. Default is false."
     }
   ],
   "execution": {

@@ -23,42 +23,39 @@ const VERSIONtxtVersion = "1.2.4";
 
 const answers: ma.TaskLibAnswers = {
   'which': {
-    'git': '/usr/local/bin/git', 'sh': '/bin/bash', 'chmod': '/bin/chmod',
-    [vcpkgExePath]: vcpkgExePath
+    'git': gitPath, 'sh': '/bin/bash', 'chmod': '/bin/chmod', [vcpkgExePath]: vcpkgExePath
   },
   'checkPath': {
-    '/usr/local/bin/git': true, '/bin/bash': true, '/bin/chmod': true, [vcpkgExePath]: true
+    [gitPath]: true, '/bin/bash': true, '/bin/chmod': true, [vcpkgExePath]: true
   },
   'exec': {
     [`${vcpkgExePath} version`]: { 'code': 0, 'stdout': `"${vcpkgVersion}"` },
-    ["/bin/chmod +x /path/to/vcpkg/vcpkg"]: { 'code': 0, 'stdout': 'chmod output here' },
-    [gitPath]: { 'code': 0, 'stdout': 'git output here' },
+    [`/bin/chmod +x ${path.join(vcpkgRoot, vcpkgExeName)}`]: { 'code': 0, 'stdout': 'chmod output here\n' },
+    [gitPath]: { 'code': 0, 'stdout': 'git output here\n' },
     [`${gitPath} submodule`]:
-      { 'code': 0, 'stdout': 'this is git submodule output' },
-    '/path/to/vcpkg/vcpkg install --recurse vcpkg_args':
-      { 'code': 0, 'stdout': 'this is the vcpkg output' },
-    '/path/to/vcpkg/vcpkg remove --outdated --recurse':
-      { 'code': 0, 'stdout': 'this is the vcpkg remove output' },
-    '/bin/bash -c /path/to/vcpkg/bootstrap-vcpkg.sh':
-      { 'code': 0, 'stdout': 'this is the bootstrap output of vcpkg' },
-    '/bin/chmod +x /path/to/vcpkg/bootstrap-vcpkg.sh':
-      { 'code': 0, 'stdout': 'this is the bootstrap output of chmod +x bootstrap' }
+      { 'code': 0, 'stdout': 'this is git submodule output\n' },
+    [`${vcpkgExePath} install --recurse vcpkg_args`]:
+      { 'code': 0, 'stdout': 'this is the vcpkg output\n' },
+    [`${vcpkgExePath} remove --outdated --recurse`]:
+      { 'code': 0, 'stdout': 'this is the vcpkg remove output\n' },
+    [`/bin/bash -c ${vcpkgRoot}/bootstrap-vcpkg.sh`]:
+      { 'code': 0, 'stdout': 'this is the bootstrap output of vcpkg\n' },
+    [`/bin/chmod +x ${vcpkgRoot}/bootstrap-vcpkg.sh`]:
+      { 'code': 0, 'stdout': 'this is the bootstrap output of chmod +x bootstrap\n' }
   },
-  'rmRF': { '/path/to/vcpkg': { success: true } }
+  'rmRF': { [`${vcpkgRoot}`]: { success: true } }
 } as ma.TaskLibAnswers;
-
-
 
 // Arrange
 vcpkgUtilsMock.utilsMock.readFile = (file: string): [boolean, string] => {
-  if (file == "/path/to/vcpkg/.artifactignore") {
+  if (file == `${vcpkgRoot}/.artifactignore`) {
     return [true, "tokeep1"];
   }
-  else if (file == `/path/to/vcpkg/${globals.vcpkgRemoteUrlLastFileName}`) {
+  else if (file == `${vcpkgRoot}/${globals.vcpkgRemoteUrlLastFileName}`) {
     return [true, "https://github.com/microsoft/vcpkg.gitsamegitref"];
   }
   else if (file.includes('VERSION.txt')) {
-    return [true, `\"${vcpkgVersion}\"`];
+    return [true, `\"${VERSIONtxtVersion}\"`];
   }
   else
     throw `readFile called with unexpected file name: ${file}`;
@@ -72,6 +69,9 @@ vcpkgUtilsMock.utilsMock.writeFile = (file: string, content: string): void => {
       assert.ok(content.indexOf(entry) !== -1, `There must be '${entry}' .`);
   }
 };
+vcpkgUtilsMock.utilsMock.getVcpkgExePath = (vcpkgRoot: string): string => {
+  return vcpkgExePath;
+}
 vcpkgUtilsMock.utilsMock.isVcpkgSubmodule = (): boolean => {
   return true;
 };

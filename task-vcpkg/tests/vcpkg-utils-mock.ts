@@ -3,6 +3,7 @@
 // SPDX short identifier: MIT
 
 import * as ifacelib from '../../libs/base-lib/src/base-lib';
+import * as os from 'os';
 
 export const utilsMock: any = {
     setBaseLib(lib: ifacelib.BaseLib) {
@@ -19,7 +20,7 @@ export const utilsMock: any = {
         return 0;
     },
     isWin32(): boolean {
-        return false;
+        return os.platform().includes('win32');
     },
     directoryExists(dir: string): boolean {
         return true;
@@ -39,5 +40,11 @@ export const utilsMock: any = {
     setEnvVar(name: string, value: string) {
         //nothing to do
     },
-    cachingFormatEnvName: 'AZP_CACHING_CONTENT_FORMAT'
+    cachingFormatEnvName: 'AZP_CACHING_CONTENT_FORMAT',
+    getVcpkgExePath(vcpkgRoot: string) {
+        return '/path/to/vcpkg/vcpkg';
+    },
+    executableUpToDate(vcpkgRoot: string) {
+        return true;
+    }
 };

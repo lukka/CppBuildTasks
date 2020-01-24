@@ -29,7 +29,11 @@
        # especially when using the same value as part of the key in Cache[2] task.
        vcpkgGitCommitId: '$(vcpkgGitCommitId)'
        # [optional] Content appended to the .artifactignore[1] file, used to drive what to ignore and to not-ignore when creating a new cached content with the Cache[2] task.
-       vcpkgArtifactIgnoreEntries: '!.git\n**/*\n!installed\n!/vcpkg\n!vcpkg.exe\n'
+       vcpkgArtifactIgnoreEntries: '!.git\ndownloads\nbuildtrees\n'
+       # [optional] Append the argument '--clean-after-build' to vcpkgArgument input, to clean buildtrees, packages and downloads after building each port. Default is true.
+       cleanAfterBuild: true,
+       # [optional] Avoid to update vcpkg (launching git) in the specified 'vcpkgDirectory'. This is useful when vcpkg is being checkout indipendently of the run-vcpkg task. Default is false.
+      doNotUpdateVcpkg: false
 ```
 
 ## run-cmake
@@ -47,11 +51,18 @@
        useVcpkgToolchainFile: true
        # [optional] selects which configurations to build with a regular expression. 
        configurationRegexFilter: 'Linux.*'
-      # [optional] reuse the vcpkg toolchain file, default is false. If set to true, the RUNVCPKG_VCPKG_ROOT environment variable set by the previous 'run-vcpkg' task will be used automatically to set the toolchain, unless the path is explicitly set in this 'run-cmake' task in 'cmakeToolchainPath'.
-      useVcpkgToolchainFile: true
-      # [optional] vcpkg default triplet, '$(RUNVCPKG_VCPKG_TRIPLET)' by default, which is set by the run-vcpkg
-      # task.
-      vcpkgTriplet: 'x64-linux'
+       # [optional] reuse the vcpkg toolchain file, default is false. If set to true, the RUNVCPKG_VCPKG_ROOT environment variable set by the previous 'run-vcpkg' task will be used automatically to set the toolchain, unless the path is explicitly set in this 'run-cmake' task in 'cmakeToolchainPath'.
+       useVcpkgToolchainFile: true
+       # [optional] vcpkg default triplet, '$(RUNVCPKG_VCPKG_TRIPLET)' by default, which is set by the run-vcpkg
+       # task.
+       vcpkgTriplet: 'x64-linux'
+       # [optional] Append the argument '--clean-after-build' to vcpkgArgument input, to clean
+       # buildtrees, packages and downloads after building each port. Default is false.
+       cleanAfterBuild: true
+       # [optional] Avoid to update (launching git) the specified 'vcpkgDirectory'. This is
+       # useful when vcpkg is being checkout indipendently of the run-vcpkg task. Default is
+       # false.
+       doNotUpdateVcpkg: true
 
    - task: run-cmake@0
      displayName: 'Run CMake with CMakeLists.txt'
