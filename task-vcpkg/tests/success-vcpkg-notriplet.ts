@@ -13,15 +13,23 @@ const taskPath = path.join(__dirname, '..', 'src', 'vcpkg-task.js');
 const tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 
 const gitPath = '/usr/local/bin/git';
+const vcpkgRoot = '/path/to/vcpkg';
+const getVcpkgExeName = function (): string { return vcpkgUtilsMock.utilsMock.isWin32() ? "vcpkg.exe" : "vcpkg" };
+const vcpkgExeName = getVcpkgExeName();
+const vcpkgExePath = path.join(vcpkgRoot, vcpkgExeName);
+const vcpkgVersion = "1.2.3";
+const VERSIONtxtVersion = "1.2.4";
 
 const answers: ma.TaskLibAnswers = {
   'which': {
-    'git': '/usr/local/bin/git', 'sh': '/bin/bash', 'chmod': '/bin/chmod'
+    'git': '/usr/local/bin/git', 'sh': '/bin/bash', 'chmod': '/bin/chmod', 
+    [vcpkgExePath]: vcpkgExePath
   },
   'checkPath': {
-    '/usr/local/bin/git': true, '/bin/bash': true, '/bin/chmod': true
+    '/usr/local/bin/git': true, '/bin/bash': true, '/bin/chmod': true, [vcpkgExePath]: true
   },
   'exec': {
+    [`${vcpkgExePath} version`]: { 'code': 0, 'stdout': `"${vcpkgVersion}"` },
     ["/bin/chmod +x /path/to/vcpkg/vcpkg"]: { 'code': 0, 'stdout': 'chmod output here' },
     [gitPath]: { 'code': 0, 'stdout': 'git output here' },
     [`${gitPath} clone https://github.com/microsoft/vcpkg.git -n .`]:
@@ -48,6 +56,9 @@ vcpkgUtilsMock.utilsMock.readFile = (file: string): [boolean, string] => {
   else if (file == `/path/to/vcpkg/${globals.vcpkgRemoteUrlLastFileName}`) {
     return [true, "https://github.com/microsoft/vcpkg.gitmygitref"];
   }
+  else if (file.includes('VERSION.txt')) {
+    return [true, `\"${vcpkgVersion}\"`];
+  }
   else
     throw `readFile called with unexpected file name: ${file}`;
 }
@@ -70,3 +81,4 @@ tmr.setInput(globals.vcpkgCommitId, 'SHA1');
 tmr.run();
 
 // Assert
+// Asserts are in _suite.ts where this test case in invoked.

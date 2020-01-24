@@ -131,7 +131,7 @@
       "defaultValue": "",
       "required": false,
       "helpMarkDown": "Provides a mean to provide all the CMake arguments. This is required when using CMakeLists.txt in Advanced mode. For CMakeSettings.json, the arguments are already inferred, but you can append your arguments providing them here.",
-      "visibleRule": "cmakeListsOrSettingsJson = CMakeListsTxtAdvanced",
+      "visibleRule": "cmakeListsOrSettingsJson != CMakeListsTxtBasic",
       "properties": {
         "resizable": "true",
         "rows": "5"
