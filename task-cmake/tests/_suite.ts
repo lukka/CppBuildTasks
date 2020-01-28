@@ -14,14 +14,15 @@ function outputStdout(messages: string): void {
 
 describe('CMake task tests', function () {
   const basePath = '../../build-tasks/task-cmake/tests/';
+  // Set the test timeout to 10 seconds
+  this.timeout(10000);
 
   beforeEach(function () {
     // Clear the effect of all setInput()s before starting each test
     testutils.clearInputs();
-    this.timeout(1000);
   });
   before((done) => {
-    // Init here.
+    // Fini here.
     done();
   });
 
@@ -31,7 +32,7 @@ describe('CMake task tests', function () {
 
   it('cmakelists.txt basic with simple inputs should succeed',
     (done: MochaDone) => {
-      testutils.runTest(done, (done) => {
+      testutils.runTest(done, (doneCb) => {
         const tp = path.join(__dirname, basePath, 'success-cmakelist-basic.js');
         const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         tr.run();

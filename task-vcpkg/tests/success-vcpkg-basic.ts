@@ -18,13 +18,12 @@ const vcpkgRoot = '/path/to/vcpkg';
 const getVcpkgExeName = function (): string { return vcpkgUtilsMock.utilsMock.isWin32() ? "vcpkg.exe" : "vcpkg" };
 const vcpkgExeName = getVcpkgExeName();
 const vcpkgExePath = path.join(vcpkgRoot, vcpkgExeName);
-const vcpkgVersion = "1.2.3";
 
 const envVarSetDict: { [name: string]: string } = {};
 
 const answers: ma.TaskLibAnswers = {
   'which': {
-    'git': '/usr/local/bin/git', 'sh': '/bin/bash', 'chmod': '/bin/chmod', 
+    'git': '/usr/local/bin/git', 'sh': '/bin/bash', 'chmod': '/bin/chmod',
     [vcpkgExePath]: vcpkgExePath
   },
   'checkPath': {
@@ -32,7 +31,6 @@ const answers: ma.TaskLibAnswers = {
   },
   'exec': {
     [`/bin/chmod +x ${path.join(vcpkgRoot, "vcpkg")}`]: { 'code': 0, 'stdout': 'chmod output here' },
-    [`${vcpkgExePath} version`]: { 'code': 0, 'stdout': `"${vcpkgVersion}"` },
     [gitPath]: { 'code': 0, 'stdout': 'git output here' },
     [`${gitPath} clone https://github.com/microsoft/vcpkg.git -n .`]:
       { 'code': 0, 'stdout': 'this is git clone ... output' },
@@ -45,9 +43,11 @@ const answers: ma.TaskLibAnswers = {
     [`${vcpkgRoot}/vcpkg remove --outdated --recurse`]:
       { 'code': 0, 'stdout': 'this is the vcpkg remove output' },
     [`/bin/bash -c ${vcpkgRoot}/bootstrap-vcpkg.sh`]:
-      { 'code': 0, 'stdout': 'this is the bootstrap output of bootstrap-vcpkg' },
+      { 'code': 0, 'stdout': 'this is the output of bootstrap-vcpkg' },
     [`/bin/chmod +x ${vcpkgRoot}/bootstrap-vcpkg.sh`]:
-      { 'code': 0, 'stdout': 'this is the bootstrap output of chmod +x bootstrap' }
+      { 'code': 0, 'stdout': 'this is the output of chmod +x bootstrap' },
+    [`${gitPath} rev-parse HEAD`]:
+      { 'code': 0, 'stdout': 'mygitref' },
   },
   'rmRF': { [`${vcpkgRoot}`]: { success: true } }
 } as ma.TaskLibAnswers;
@@ -57,11 +57,8 @@ vcpkgUtilsMock.utilsMock.readFile = (file: string): [boolean, string] => {
   if (file == `${vcpkgRoot}/.artifactignore`) {
     return [true, "!.git\n"];
   }
-  else if (file == `${vcpkgRoot}/${globals.vcpkgRemoteUrlLastFileName}`) {
-    return [true, "https://github.com/microsoft/vcpkg.gitmygitref"];
-  }
-  else if (file.includes('VERSION.txt')) {
-    return [true, `\"${vcpkgVersion}\"`];
+  else if (file == `${vcpkgRoot}/${globals.vcpkgLastBuiltCommitId}`) {
+    return [true, "gitref"];
   }
   else
     throw `readFile called with unexpected file name: '${file}'.`;

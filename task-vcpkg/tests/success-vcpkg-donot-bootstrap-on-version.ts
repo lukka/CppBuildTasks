@@ -14,12 +14,11 @@ const taskPath = path.join(__dirname, '..', 'src', 'vcpkg-task.js');
 const tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 
 const gitPath = '/usr/local/bin/git';
+const gitRef = 'samegitref';
 const vcpkgRoot = '/path/to/vcpkg';
 const getVcpkgExeName = function (): string { return vcpkgUtilsMock.utilsMock.isWin32() ? "vcpkg.exe" : "vcpkg" };
 const vcpkgExeName = getVcpkgExeName();
 const vcpkgExePath = path.join(vcpkgRoot, vcpkgExeName);
-const vcpkgVersion = "1.2.3";
-const VERSIONtxtVersion = "1.2.4";
 
 const answers: ma.TaskLibAnswers = {
   'which': {
@@ -29,7 +28,6 @@ const answers: ma.TaskLibAnswers = {
     [gitPath]: true, '/bin/bash': true, '/bin/chmod': true, [vcpkgExePath]: true
   },
   'exec': {
-    [`${vcpkgExePath} version`]: { 'code': 0, 'stdout': `"${vcpkgVersion}"` },
     [`/bin/chmod +x ${path.join(vcpkgRoot, vcpkgExeName)}`]: { 'code': 0, 'stdout': 'chmod output here\n' },
     [gitPath]: { 'code': 0, 'stdout': 'git output here\n' },
     [`${gitPath} submodule`]:
@@ -39,9 +37,11 @@ const answers: ma.TaskLibAnswers = {
     [`${vcpkgExePath} remove --outdated --recurse`]:
       { 'code': 0, 'stdout': 'this is the vcpkg remove output\n' },
     [`/bin/bash -c ${vcpkgRoot}/bootstrap-vcpkg.sh`]:
-      { 'code': 0, 'stdout': 'this is the bootstrap output of vcpkg\n' },
+      { 'code': 0, 'stdout': 'this is the output of bootstrap-vcpkg\n' },
     [`/bin/chmod +x ${vcpkgRoot}/bootstrap-vcpkg.sh`]:
-      { 'code': 0, 'stdout': 'this is the bootstrap output of chmod +x bootstrap\n' }
+      { 'code': 0, 'stdout': 'this is the output of chmod +x bootstrap\n' },
+    [`${gitPath} rev-parse HEAD`]:
+      { 'code': 0, 'stdout': gitRef },
   },
   'rmRF': { [`${vcpkgRoot}`]: { success: true } }
 } as ma.TaskLibAnswers;
@@ -51,11 +51,8 @@ vcpkgUtilsMock.utilsMock.readFile = (file: string): [boolean, string] => {
   if (file == `${vcpkgRoot}/.artifactignore`) {
     return [true, "tokeep1"];
   }
-  else if (file == `${vcpkgRoot}/${globals.vcpkgRemoteUrlLastFileName}`) {
-    return [true, "https://github.com/microsoft/vcpkg.gitsamegitref"];
-  }
-  else if (file.includes('VERSION.txt')) {
-    return [true, `\"${VERSIONtxtVersion}\"`];
+  else if (file == `${vcpkgRoot}/${globals.vcpkgLastBuiltCommitId}`) {
+    return [true, gitRef];
   }
   else
     throw `readFile called with unexpected file name: ${file}`;
@@ -64,7 +61,7 @@ vcpkgUtilsMock.utilsMock.writeFile = (file: string, content: string): void => {
   console.log(`Writing to file '${file}' content '${content}'`);
   if (file.endsWith('.artifactignore')) {
     assert.ok(content.indexOf('!.git') === -1, "There must be no !.git .");
-    const entries: string[] = [".git", "tokeep1", "tokeep2"];
+    const entries: string[] = [".git", "entrytokeep1"];
     for (const entry of entries)
       assert.ok(content.indexOf(entry) !== -1, `There must be '${entry}' .`);
   }
@@ -85,8 +82,7 @@ tmr.registerMock('strip-json-comments', {
 
 tmr.setAnswers(answers);
 tmr.setInput(globals.vcpkgArguments, 'vcpkg_args');
-tmr.setInput(globals.vcpkgCommitId, 'samegitref');
-tmr.setInput(globals.vcpkgArtifactIgnoreEntries, 'tokeep2');
+tmr.setInput(globals.vcpkgArtifactIgnoreEntries, 'entrytokeep1');
 
 // Act
 tmr.run();

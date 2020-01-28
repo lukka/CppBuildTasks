@@ -1,6 +1,4 @@
-[![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/lukka.CppBuildTasks?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=15&branchName=master)
-
-![Marketplace publishing](https://vsrm.dev.azure.com/CppBuild/_apis/public/Release/badge/7d4557dc-7e36-4795-97a5-b0874dd1157a/1/1)
+[![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/lukka.CppBuildTasks?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=15&branchName=master)[![Tests](https://img.shields.io/azure-devops/tests/CppBuild/CppBuildTasks/15.svg?compact_message)](https://dev.azure.com/CppBuild/CppBuildTasks/_build?definitionId=15&_a=summary)![Marketplace publishing](https://vsrm.dev.azure.com/CppBuild/_apis/public/Release/badge/7d4557dc-7e36-4795-97a5-b0874dd1157a/1/1)
 
 # run-cmake and run-vcpkg: Azure DevOps [C++ build tasks](https://marketplace.visualstudio.com/items?itemName=lucappa.cmake-ninja-vcpkg-tasks) for [CMake](https://www.cmake.org/) and [vcpkg](https://github.com/microsoft/vcpkg/)
 
@@ -25,13 +23,6 @@
  * [Q&As](#faqs)
 
  ## Developer Manual
- * [Developers information](#developers-information)
-   * [Prerequisites](#prerequisites)
-   * [Packaging](#packaging)
-   * [Testing](#testing)
-     * [Run a test with its javascript file](#run-a-test-with-its-javascript-file)
-     * [Run a test with its typescript file](#run-a-test-with-its-typescript-file)
-     * [Run a specific test](#run-a-specific-test)
   * [Contributing](#contributing)
   * [License](#license)
 
@@ -271,6 +262,10 @@ project: [sysmakeshift](https://github.com/mbeutel/sysmakeshift)||
 |----------|-------|
 [macOS/Linux/Windows](https://github.com/mbeutel/sysmakeshift/blob/master/ci/azure-pipelines.yml) | [![Build Status](https://dev.azure.com/moritzbeutel/sysmakeshift/_apis/build/status/mbeutel.sysmakeshift?branchName=master)](https://dev.azure.com/moritzbeutel/sysmakeshift/_build/latest?definitionId=3&branchName=master)
 
+project: [helgoboss-midi](https://github.com/benjaminklum/helgoboss-midi)||
+|----------|-------|
+[macOS/Linux/Windows](https://github.com/helgoboss/helgoboss-midi/blob/master/azure-pipelines.yml) | [![Build Status](https://dev.azure.com/benjaminklum/helgoboss-midi/_apis/build/status/helgoboss.helgoboss-midi?branchName=master)](https://dev.azure.com/benjaminklum/helgoboss-midi/_build/latest?definitionId=1&branchName=master)
+
 project: [vct](https://github.com/sfreed141/vct) ||
 |----------|-------|
 [macOS/Linux/Windows](https://github.com/lukka/vct/blob/master/azure-pipeline-hosted.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/lukka.vct?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=5&branchName=ci-build)
@@ -297,74 +292,14 @@ Indeed it is not needed to run vcpkg when the cache is being restored, and you c
 
 # Developers information
 
-## Prerequisites
-[gulp 4](https://www.npmjs.com/package/gulp4) and [tfx-cli 0.6+](https://www.npmjs.com/package/tfx-cli) globally installed.
-
-## Build and lint
-Build using `tsc` by:
-
- > npm run build
-
-Launch `eslint` by:
-
- > npm run lint
-
-## Packaging 
-To build, lint validate and package the extension for release purpose, run:
-  
-  > npm run pack
-
-or to pack it for development purpose:
-
-  > export MAJOR=0 \
-  > export MINOR=9 \
-  > npm run packdev 
-
-`MAJOR` and `MINOR` environment variables are used to set the version of extension and tasks. Note that the path is bumped automatically at each run.
-Using 'packdev', GUIDs of extension and tasks are changed so the extension could be
-uploaded and tested on Azure DevOps without interfering with the already released tasks.
-The name of the tasks have appended "-dev" to distringuish them from the already released ones.
-
-## Testing
-Run the whole test suite:
-
-  > npm run test
-
-or to have full output on stdout:
-
-  > npm run testdev
-
-### Run a test with its javascript file 
- It is possible to debug a single test with:
-  
-  > /usr/local/bin/node --inspect-brk task-cmake/build/tests/success-cmakesettings.js
-
-and then debug in chrome's nodejsdevtools.
-
-Or just use:
-
- > npm run test -- -g testname --inspect-brk
-
-### Run a test with its typescript file
- It is possible to use 'mocha' to start a single test case to debug with Chrome's nodejs development tools:
-
-  > mocha --inspect-brk --require ts-node/register task-vcpkg/tests/_suite.ts
-
- If breakpoints are not hit in the Chrome debugger, launch directly the .js file:
-
-  > mocha --inspect-brk build/task-cmake/tests/success-cmakesettings-complex.js
-
-
-### Run a specific test
-To run all tests that contains "toolchain" in the name:
-
-  > npm run testdev -- -g toolchain
 
 ## <a id='contributing'>Contributing</a>
 
 The software is provided as is, there is no warranty of any kind. All users are encouraged to get the [source code](https://github.com/lukka/CppBuildTasks) and improve the tasks with fixes and new features. 
 
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for detailed development instructions.
+
 # License
 All the content in this repository, of the extension and of the 'run-cmake' and 'run-vcpkg' tasks are licensed under the [MIT License](LICENSE.txt).
 
-Copyright (c) 2019 Luca Cappa
+Copyright (c) 2019-2020 Luca Cappa

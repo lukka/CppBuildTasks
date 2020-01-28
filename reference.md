@@ -28,7 +28,7 @@
        # [optional] the commit id or tag of the vcpkg repository to fetch. Branch names are no recommended here,
        # especially when using the same value as part of the key in Cache[2] task.
        vcpkgGitCommitId: '$(vcpkgGitCommitId)'
-       # [optional] Content appended to the .artifactignore[1] file, used to drive what to ignore and to not-ignore when creating a new cached content with the Cache[2] task.
+       # [optional] Content written into the .artifactignore[1] file, used to drive what to ignore and to not-ignore when creating a new cached content with the Cache[2] task.
        vcpkgArtifactIgnoreEntries: '!.git\ndownloads\nbuildtrees\n'
        # [optional] Append the argument '--clean-after-build' to vcpkgArgument input, to clean buildtrees, packages and downloads after building each port. Default is true.
        cleanAfterBuild: true,

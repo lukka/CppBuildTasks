@@ -44,7 +44,10 @@ export const utilsMock: any = {
     getVcpkgExePath(vcpkgRoot: string) {
         return '/path/to/vcpkg/vcpkg';
     },
-    executableUpToDate(vcpkgRoot: string) {
+    executableUpToDate(vcpkgRoot: string): boolean {
         return true;
+    },
+    trimString(str: string): string {
+        return str?.trim() ?? "";
     }
 };
