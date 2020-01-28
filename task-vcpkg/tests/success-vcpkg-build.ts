@@ -6,6 +6,7 @@ import * as ma from 'azure-pipelines-task-lib/mock-answer';
 import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';
 import * as vcpkgUtilsMock from './vcpkg-utils-mock';
+import * as assert from 'assert';
 
 import * as globals from '../../libs/run-vcpkg-lib/src/vcpkg-globals'
 
@@ -17,7 +18,6 @@ const vcpkgRoot = '/path/to/vcpkg';
 const getVcpkgExeName = function (): string { return vcpkgUtilsMock.utilsMock.isWin32() ? "vcpkg.exe" : "vcpkg" };
 const vcpkgExeName = getVcpkgExeName();
 const vcpkgExePath = path.join(vcpkgRoot, vcpkgExeName);
-const vcpkgVersion = "1.2.3";
 
 const answers: ma.TaskLibAnswers = {
   'which': {
@@ -42,9 +42,11 @@ const answers: ma.TaskLibAnswers = {
     [`${path.join(vcpkgRoot, "vcpkg")} remove --outdated --recurse`]:
       { 'code': 0, 'stdout': 'this is the vcpkg remove output' },
     [`/bin/bash -c ${path.join(vcpkgRoot, "bootstrap-vcpkg.sh")}`]:
-      { 'code': 0, 'stdout': 'this is the bootstrap output of vcpkg' },
+      { 'code': 0, 'stdout': 'this is the output of bootstrap-vcpkg' },
     [`/bin/chmod +x ${path.join(vcpkgRoot, "bootstrap-vcpkg.sh")}`]:
-      { 'code': 0, 'stdout': 'this is the bootstrap output of chmod +x bootstrap' }
+      { 'code': 0, 'stdout': 'this is the output of chmod +x bootstrap' },
+    [`${gitPath} rev-parse HEAD`]:
+      { 'code': 0, 'stdout': 'mygitref' },
   },
   'rmRF': { [`${vcpkgRoot}`]: { success: true } }
 } as ma.TaskLibAnswers;
@@ -61,11 +63,8 @@ vcpkgUtilsMock.utilsMock.readFile = (file: string): [boolean, string] => {
   if (file === path.join(vcpkgRoot, ".artifactignore")) {
     return [true, "!.git\n"];
   }
-  else if (file === path.join(vcpkgRoot, globals.vcpkgRemoteUrlLastFileName)) {
-    return [false, "https://github.com/microsoft/vcpkg.git"];
-  }
-  else if (file.includes('VERSION.txt')) {
-    return [true, `\"${vcpkgVersion}\"`];
+  else if (file === path.join(vcpkgRoot, globals.vcpkgLastBuiltCommitId)) {
+    return [false, ""];
   }
   else
     throw `readFile called with unexpected file name: ${file}`;
