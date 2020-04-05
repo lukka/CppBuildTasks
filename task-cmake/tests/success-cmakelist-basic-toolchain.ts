@@ -9,14 +9,19 @@ import * as globals from '../../libs/run-cmake-lib/src/cmake-globals'
 
 const taskPath = path.join(__dirname, '..', 'src', 'cmake-task.js');
 const tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
+const fakePath = path.resolve('path');
+const cmakeListsTxtPath = path.join(fakePath, 'cmakeliststxtPath');
 
 // Arrange
 const answers: ma.TaskLibAnswers = {
   'which': { 'cmake': '/usr/local/bin/cmake', 'node': '/usr/local/bin/node' },
-  'checkPath': { '/usr/local/bin/cmake': true, '/usr/local/bin/node': true },
+  'checkPath': {
+    '/usr/local/bin/cmake': true, '/usr/local/bin/node': true,
+    [cmakeListsTxtPath]: true
+  },
   'exec': {
     '/usr/local/bin/cmake': { 'code': 0, 'stdout': 'cmake test output here' },
-    '/usr/local/bin/cmake -G Ninja -DCMAKE_MAKE_PROGRAM=/path/to/ninja -DCMAKE_BUILD_TYPE=DebugToolchain -DCMAKE_TOOLCHAIN_FILE=/vcpkg/root/scripts/buildsystems/vcpkg.cmake -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=/existing/tool/chain.cmake path':
+    [`/usr/local/bin/cmake -GNinja -DCMAKE_MAKE_PROGRAM="/path/to/ninja" -DCMAKE_BUILD_TYPE=DebugToolchain -DCMAKE_TOOLCHAIN_FILE=/vcpkg/root/scripts/buildsystems/vcpkg.cmake -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=/existing/tool/chain.cmake ${fakePath}`]:
       { 'code': 0, 'stdout': 'cmake -G ninja output here' },
     '/usr/local/bin/cmake --build . -cmake -build -args':
       { 'code': 0, 'output': 'output of build with cmake' }
@@ -24,9 +29,9 @@ const answers: ma.TaskLibAnswers = {
 } as ma.TaskLibAnswers;
 tmr.setAnswers(answers);
 tmr.setInput(globals.cmakeListsOrSettingsJson, 'CMakeListsTxtBasic');
-tmr.setInput(globals.cmakeListsTxtPath, 'path/cmakeliststxtPath');
+tmr.setInput(globals.cmakeListsTxtPath, cmakeListsTxtPath);
 tmr.setInput(globals.cmakeGenerator, 'Ninja');
-tmr.setInput(globals.ninjaPath, '/path/to/ninja');
+tmr.setInput(globals.ninjaPath, '"/path/to/ninja"');
 tmr.setInput(globals.buildDirectory, 'buildDirPath');
 tmr.setInput(globals.buildWithCMake, 'true');
 tmr.setInput(globals.buildWithCMakeArgs, '-cmake -build -args');

@@ -16,15 +16,20 @@ const tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 // Arrange
 const answers: ma.TaskLibAnswers = {
   'which': { 'cmake': '/usr/local/bin/cmake', 'node': '/usr/local/bin/node' },
-  'checkPath': { '/usr/local/bin/cmake': true, '/usr/local/bin/node': true },
+  'checkPath': {
+    '/usr/local/bin/cmake': true, '/usr/local/bin/node': true,
+    'anyCMakeSettings.json': true
+  },
   'exec': {
     '/usr/local/bin/cmake': { 'code': 0, 'stdout': 'cmake test output here' },
-    '/usr/local/bin/cmake -G Visual Studio 16 2019 -A x64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE:string=D:/src/vcpkg/scripts/buildsystems/vcpkg.cmake .':
+    '/usr/local/bin/cmake -GVisual Studio 16 2019 -Ax64 -DCMAKE_TOOLCHAIN_FILE:string=D:/src/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_MSBUILD_VS_FLAG:boolean=ON .':
       { 'code': 0, 'stdout': 'cmake output here' },
-    '/usr/local/bin/cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_ANY_FLAG:boolean=OFF -DCONFIGURATION:STRING=ResolvedConfiguration .': {
+    '/usr/local/bin/cmake -GNinja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_ANY_FLAG:boolean=OFF -DCONFIGURATION:STRING=ResolvedConfiguration .': {
       'code': 0, 'stdout': 'cmake output here'
     },
-    '/usr/local/bin/cmake --build . -make -build -args':
+    '/usr/local/bin/cmake --build . --config MinSizeRel -- -m -v:minimal':
+      { 'code': 0, 'stdout': 'cmake build output here' },
+    '/usr/local/bin/cmake --build . -- -make -build -args':
       { 'code': 0, 'stdout': 'cmake build output here' }
   },
   'mkdirP': { '/': { 'code': 0, 'stdout': 'mkdirP / output' } }
@@ -59,21 +64,28 @@ tmr.registerMock('fs', {
             },
             {
               'namespace': '',
-              'CONFIGURATIONTYPE': 'Debug'
+              'CONFIGURATIONTYPE': 'MinSizeRel'
             }
           ],
-          'name': 'x86-Debug',
-          'generator': 'Visual Studio 16 2019 x64',
+          'name': 'x64-ReleaseVS',
+          'generator': 'Visual Studio 16 2019 Win64',
           'configurationType': '${CONFIGURATIONTYPE}',
           'inheritEnvironments': ["ENVNAME"],
           'buildRoot':
             '${env.ENVVAR}\\${namespace.LOCALAPPDATA}\\CMakeBuild\\${workspaceHash}\\build\\${name}',
           'cmakeCommandArgs': '',
           'buildCommandArgs': '-m -v:minimal',
-          'variables': [{
-            'name': 'CMAKE_TOOLCHAIN_FILE',
-            'value': 'D:/src/vcpkg/scripts/buildsystems/vcpkg.cmake',
-          }]
+          'variables': [
+            {
+              'name': 'CMAKE_TOOLCHAIN_FILE',
+              'value': 'D:/src/vcpkg/scripts/buildsystems/vcpkg.cmake'
+            },
+            {
+              'name': 'CMAKE_MSBUILD_VS_FLAG',
+              'value': 'ON',
+              'type': 'boolean'
+            }
+          ]
         },
         {
           'environments': [
@@ -133,7 +145,7 @@ tmr.registerMock('./utils', {
     // Nothing to do.
     console.log("build<<");
   },
-  injectVcpkgToolchain: function (args: string, triplet: string): string { return args; },
+  injectVcpkgToolchain: function (args: string[], triplet: string): string[] { return args; },
   isNinjaGenerator: function (): boolean { return false; },
   setBaseLib(taskLib: ifacelib.BaseLib) {
     // Ensure the getArtifactsDir is mocked as follows.
@@ -150,7 +162,7 @@ tmr.setAnswers(answers);
 utils.clearInputs();
 tmr.setInput(globals.cmakeListsOrSettingsJson, 'CMakeSettingsJson');
 tmr.setInput(globals.cmakeSettingsJsonPath, 'anyCMakeSettings.json');
-tmr.setInput(globals.configurationRegexFilter, '(x.+|Linux.*)');
+tmr.setInput(globals.configurationRegexFilter, '(.*VS|Linux.*)');
 tmr.setInput(globals.buildWithCMake, 'true');
 tmr.setInput(globals.buildWithCMakeArgs, 'this must be unused');
 tmr.setInput(globals.buildDirectory, '/path/to/build/dir/');

@@ -16,10 +16,13 @@ const tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 // Arrange
 const answers: ma.TaskLibAnswers = {
   'which': { 'cmake': '/usr/local/bin/cmake', 'node': '/usr/local/bin/node' },
-  'checkPath': { '/usr/local/bin/cmake': true, '/usr/local/bin/node': true },
+  'checkPath': {
+    '/usr/local/bin/cmake': true, '/usr/local/bin/node': true,
+    'anyCMakeSettings.json': true
+  },
   'exec': {
     '/usr/local/bin/cmake': { 'code': 0, 'stdout': 'cmake test output here' },
-    '/usr/local/bin/cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .':
+    '/usr/local/bin/cmake -GNinja -DCMAKE_BUILD_TYPE=Release .':
       { 'code': 1, 'stdout': 'cmake output here' }
   },
   'mkdirP': {
