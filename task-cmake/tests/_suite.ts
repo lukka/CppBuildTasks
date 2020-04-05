@@ -32,7 +32,7 @@ describe('CMake task tests', function () {
 
   it('cmakelists.txt basic with simple inputs should succeed',
     (done: MochaDone) => {
-      testutils.runTest(done, (doneCb) => {
+      testutils.runTest(done, (done) => {
         const tp = path.join(__dirname, basePath, 'success-cmakelist-basic.js');
         const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
         tr.run();
@@ -132,7 +132,6 @@ describe('CMake task tests', function () {
         assert(
           tr.stdOutContained(`creating path: /agent/w/1/a/anyName`),
           'should have mkdirP destDir');
-
       });
     });
 
@@ -180,16 +179,16 @@ describe('CMake task tests', function () {
         assert(tr.succeeded, 'should have succeeded');
         assert.equal(tr.warningIssues.length, 0, 'should have no warnings');
         assert.equal(tr.errorIssues.length, 0, 'should have no errors');
-        assert(tr.stdOutContained('x86-Debug'), 'should contain "x86-Debug"');
+        assert(tr.stdOutContained('x64'), 'should contain "x64"');
         assert(
-          tr.stdOutContained('-G "Visual Studio 16 2019"'),
-          'should contain "-G "Visual Studio 16 2019"');
+          tr.stdOutContained('-GVisual Studio 16 2019'),
+          'should contain "-GVisual Studio 16 2019');
         assert(
-          tr.stdOutContained('-A x64'),
-          'should contain "-A x64');
+          tr.stdOutContained('-Ax64'),
+          'should contain "-Ax64');
         assert(
-          tr.stdOutContained('-DCMAKE_BUILD_TYPE="Debug"'),
-          'should contain configuration type Debug');
+          tr.stdOutContained('--config MinSizeRel'),
+          'should contain configuration type MinSizeRel when building');
         // Check for the presence of one and only one toolchain passed only.
         const lines = tr.stdout.split("\n");
         for (const line of lines) {
@@ -219,7 +218,7 @@ describe('CMake task tests', function () {
         assert(tr.errorIssues.length > 0, 'should have errors');
         assert(tr.stdOutContained('x64-Release'), 'should contain "x64-Release"');
         assert(
-          tr.stdOutContained('-DCMAKE_BUILD_TYPE="Release"'),
+          tr.stdOutContained('-DCMAKE_BUILD_TYPE=Release'),
           'should contain configuration type Release');
         assert(
           tr.stdOutContained(`creating path: /path/to/build/dir`),
@@ -227,7 +226,7 @@ describe('CMake task tests', function () {
       });
     });
 
-  it('cmakelists.txt advanced with no path to CMakeSettings.json should fail',
+  it('cmakesettingsjson advanced with no path to cmakesettings.json should fail',
     (done: MochaDone) => {
       testutils.runTest(done, (done) => {
         let tr: ttm.MockTestRunner | undefined;
@@ -244,8 +243,7 @@ describe('CMake task tests', function () {
             assert.equal(tr.warningIssues.length, 0, 'should have no warnings');
             assert.notEqual(tr.errorIssues.length, 0, 'should have errors');
             assert.ok(tr.stdout.search(/input required/i), "Stdout must contain the 'input rquired' error message");
-          }
-          else {
+          } else {
             assert.fail("MockTestRunner not created!");
           }
         }

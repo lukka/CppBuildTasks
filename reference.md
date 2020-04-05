@@ -83,7 +83,7 @@
        cmakeBuildType: 'Release'
        # [optional] specify CMake generator, Ninja by default.
        cmakeGenerator: 'Ninja'
-       # [optional] 'cmake --build' appended arguments.
+       # [optional] 'cmake --build --config' appended arguments.
        buildWithCMakeArgs: '-- -v'
 ```
 

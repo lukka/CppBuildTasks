@@ -18,10 +18,13 @@ const artifactStagingDirectory = "/agent/w/1/a";
 // Arrange
 const answers: ma.TaskLibAnswers = {
   'which': { 'cmake': '/usr/local/bin/cmake', 'node': '/usr/local/bin/node' },
-  'checkPath': { '/usr/local/bin/cmake': true, '/usr/local/bin/node': true },
+  'checkPath': {
+    '/usr/local/bin/cmake': true, '/usr/local/bin/node': true,
+    'anyCMakeSettings.json': true
+  },
   'exec': {
     '/usr/local/bin/cmake': { 'code': 0, 'stdout': 'cmake test output here' },
-    '/usr/local/bin/cmake -G Unix Makefiles -DCMAKE_BUILD_TYPE=RelWithDebInfo .':
+    '/usr/local/bin/cmake -GUnix Makefiles -DCMAKE_BUILD_TYPE=RelWithDebInfo .':
       { 'code': 0, 'stdout': 'this is the cmake output' },
     '/usr/local/bin/cmake --build . -- -cmake -build -args':
       { 'code': 0, 'stdout': 'cmake build output here' }
@@ -72,7 +75,7 @@ tmr.registerMock('./utils', {
   build: function (): void {
     // Nothing to do.
   },
-  injectVcpkgToolchain: function (args: string, triplet: string): string { return args; },
+  injectVcpkgToolchain: function (args: string[], triplet: string): string[] { return args; },
   isNinjaGenerator: function (): boolean { return false; },
   setBaseLib(taskLib: ifacelib.BaseLib) {
     // Ensure the getArtifactsDir is mocked as follows.

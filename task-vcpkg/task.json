@@ -27,6 +27,14 @@
   ],
   "inputs": [
     {
+      "name": "vcpkgSetupOnly",
+      "type": "boolean",
+      "label": "Setup only (no port install):",
+      "defaultValue": false,
+      "required": false,
+      "helpMarkDown": "Indicates whether to only setup vcpkg (i.e. installing it and setting the environment variables VCPKG_ROOT, RUNVCPK_VCPKG_ROOT), without installing any port."
+    },
+    {
       "name": "vcpkgDirectory",
       "type": "path",
       "label": "The vcpkg's root directory:",
@@ -66,7 +74,7 @@
       "type": "multiLine",
       "label": "Arguments for 'vcpkg install':",
       "defaultValue": "",
-      "required": true,
+      "required": false,
       "helpMarkDown": "Provides the arguments appended to 'vcpkg install'. It is recommended to use a response file to provide either the triplet and the list of ports to be installed. , e.g. `@$(Build.SourcesDirectory)/vcpkg_osx.txt`.",
       "properties": {
         "resizable": "true",

@@ -15,6 +15,7 @@
     "build": "gulp build",
     "test": "gulp buildAndCopyOutput && mocha --require ts-node/register **/*_suite.ts --reporter mocha-junit-reporter",
     "testdev": "gulp buildAndCopyOutput && export TASK_TEST_TRACE=1 && mocha --require ts-node/register **/*_suite.ts",
+    "justtestdev": "export TASK_TEST_TRACE=1 && mocha --require ts-node/register **/*_suite.ts",
     "lint": "tsc --noEmit && eslint '*/**/*.ts'"
   },
   "devDependencies": {

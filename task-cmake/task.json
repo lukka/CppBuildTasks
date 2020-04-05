@@ -103,6 +103,7 @@
       "helpMarkDown": "Specify the CMake generator to be used.",
       "options": {
         "Ninja": "Ninja",
+        "NinjaMulti": "Ninja Multi-Config",
         "UnixMakefiles": "Unix Makefiles",
         "VS16Win64": "Visual Studio 2019 x64",
         "VS16Arm64": "Visual Studio 2019 ARM64",
@@ -142,7 +143,7 @@
       "type": "string",
       "label": "Configuration(s) regex filter:",
       "defaultValue": ".*",
-      "required": true,
+      "required": false,
       "helpMarkDown": "The regular expression selects which CMakeSettings.json's configuration(s) to build, one or more.",
       "visibleRule": "cmakeListsOrSettingsJson = CMakeSettingsJson"
     },
