@@ -72,6 +72,12 @@ vcpkgUtilsMock.utilsMock.getVcpkgExePath = (vcpkgRoot: string): string => {
 vcpkgUtilsMock.utilsMock.isVcpkgSubmodule = (): boolean => {
   return true;
 };
+vcpkgUtilsMock.utilsMock.writeFile = (file: string, content: string): void => {
+  console.log(`Writing to file '${file}' content '${content}'`);
+  if (file.endsWith(globals.vcpkgLastBuiltCommitId)) {
+    assert.fail(`The file ${globals.vcpkgLastBuiltCommitId} must not be changed`);
+  }
+};
 tmr.registerMock('./vcpkg-utils', vcpkgUtilsMock.utilsMock);
 
 tmr.registerMock('strip-json-comments', {
