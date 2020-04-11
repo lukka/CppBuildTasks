@@ -14,6 +14,7 @@ const taskPath = path.join(__dirname, '..', 'src', 'vcpkg-task.js');
 const tmr: tmrm.TaskMockRunner = new tmrm.TaskMockRunner(taskPath);
 
 const gitPath = '/usr/local/bin/git';
+const gitRef = 'differentgitref';
 const vcpkgRoot = '/path/to/vcpkg';
 const getVcpkgExeName = function (): string { return vcpkgUtilsMock.utilsMock.isWin32() ? "vcpkg.exe" : "vcpkg" };
 const vcpkgExeName = getVcpkgExeName();
@@ -46,7 +47,7 @@ const answers: ma.TaskLibAnswers = {
     [`/bin/chmod +x ${path.join(vcpkgRoot, "bootstrap-vcpkg.sh")}`]:
       { 'code': 0, 'stdout': 'this is the output of chmod +x bootstrap' },
     [`${gitPath} rev-parse HEAD`]:
-      { 'code': 0, 'stdout': 'mygitref' },
+      { 'code': 0, 'stdout': gitRef },
   },
   'rmRF': { [`${vcpkgRoot}`]: { success: true } }
 } as ma.TaskLibAnswers;
@@ -72,6 +73,12 @@ vcpkgUtilsMock.utilsMock.readFile = (file: string): [boolean, string] => {
 vcpkgUtilsMock.utilsMock.isVcpkgSubmodule = (): boolean => {
   return false;
 }
+vcpkgUtilsMock.utilsMock.writeFile = (file: string, content: string): void => {
+  console.log(`Writing to file '${file}' content '${content}'`);
+  if (file.endsWith(globals.vcpkgLastBuiltCommitId)) {
+    assert.equal(content, gitRef, "There must be no !.git .");
+  }
+};
 tmr.registerMock('./vcpkg-utils', vcpkgUtilsMock.utilsMock);
 
 tmr.registerMock('strip-json-comments', {

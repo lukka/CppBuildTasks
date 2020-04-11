@@ -57,7 +57,7 @@
       "label": "vcpkg Git tag/ref:",
       "defaultValue": "",
       "required": false,
-      "helpMarkDown": "Specify the Git commit id that establish which version of vcpkg needs to be used. When using vcpkg as a Git submodule, this input is not needed as impicitly specified by the submodule. [More information](https://github.com/lukka/CppBuildTasks/blob/master/README.md)",
+      "helpMarkDown": "Specify the Git commit id (no tag nor branch) that establish which version of vcpkg needs to be used. When using vcpkg as a Git submodule, this input is not needed as impicitly specified by the submodule. [More information](https://github.com/lukka/CppBuildTasks/blob/master/README.md)",
       "groupname": "advanced"
     },
     {
