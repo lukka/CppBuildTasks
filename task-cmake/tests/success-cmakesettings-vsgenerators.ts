@@ -7,6 +7,7 @@ import * as tmrm from 'azure-pipelines-task-lib/mock-run';
 import * as path from 'path';
 import * as utils from './test-utils'
 import * as ifacelib from '../../libs/base-lib/src/base-lib';
+import { utilsMock } from './utils-mock';
 
 import * as globals from '../../libs/run-cmake-lib/src/cmake-globals'
 
@@ -63,28 +64,27 @@ tmr.registerMock('fs', {
   }
 });
 
-tmr.registerMock('./utils', {
-  isWin32: function (): boolean {
-    return true;
-  },
-  injectEnvVariables: function (a: string, b: string): void {
-    // Nothing to do
-  },
-  build: function (): void {
-    // Nothing to do
-  },
-  injectVcpkgToolchain: function (args: string[], triplet: string): string[] { return args; },
-  isNinjaGenerator: function (): boolean { return false; },
-  setBaseLib(lib: ifacelib.BaseLib) {
+utilsMock.isWin32 = function (): boolean {
+  return true;
+}
+utilsMock.injectEnvVariables = function (a: string, b: string): void {
+  // Nothing to do
+}
+utilsMock.build = function (): void {
+  // Nothing to do
+}
+utilsMock.injectVcpkgToolchain = function (args: string[], triplet: string): string[] { return args; }
+utilsMock.isNinjaGenerator = function (): boolean { return false; },
+  utilsMock.setBaseLib = function (lib: ifacelib.BaseLib) {
     lib.getArtifactsDir = function (): string {
       return '/agent/w/1/a';
     };
     lib.getSrcDir = function (): string {
       return '/agent/w/1/s';
     };
-  },
-  normalizePath(s: string) { return s; }
-});
+  }
+utilsMock.normalizePath = function (s: string) { return s; }
+tmr.registerMock('./utils', utilsMock);
 
 tmr.setAnswers(answers);
 utils.clearInputs();

@@ -150,4 +150,18 @@ describe('vcpkg task tests', function () {
     });
   });
 
+  it('vcpkg should handle overlays when running remove outdated command', (done: MochaDone) => {
+    utils.runTest(done, (done) => {
+      const tp =
+        path.join(__dirname, basePath, 'success-vcpkg-overlays.js');
+      const tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+      tr.run();
+      outputStdout(tr.stdout);
+      assert.equal(tr.succeeded, true, 'must have succeeded');
+      assert.equal(tr.warningIssues.length, 0, 'must have no warnings');
+      assert.equal(tr.errorIssues.length, 0, 'must have no errors');
+      assert.ok(tr.stdout.indexOf("--overlay-ports=lua --overlay-ports=../another/port") != -1, "Stdout must contain the overlays contained in the response file.");
+    });
+  });
+
 });
