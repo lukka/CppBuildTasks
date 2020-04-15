@@ -49,5 +49,11 @@ export const utilsMock: any = {
     },
     trimString(str: string): string {
         return str?.trim() ?? "";
+    },
+    wrapOpSync(name: string, fn: () => any): any {
+        return fn();
+    },
+    wrapOp(name: string, fn: () => any): any {
+        return fn();
     }
 };
