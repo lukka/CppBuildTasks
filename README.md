@@ -274,6 +274,10 @@ project: [CppOpenGLWebAssemblyCMake](https://github.com/lukka/CppOpenGLWebAssemb
 |----------|-------|
 [webassembly(with Docker)/Linux/macOS/Windows](https://github.com/lukka/CppOpenGLWebAssemblyCMake/blob/master/azure-pipelines.yml) | [![Build Status](https://dev.azure.com/CppBuild/CppBuildTasks/_apis/build/status/wasm-and-native-win-linux-lukka.CppOpenGLWebAssemblyCMake?branchName=master)](https://dev.azure.com/CppBuild/CppBuildTasks/_build/latest?definitionId=8&branchName=master)
 
+project: [DisCPP](https://github.com/DisCPP/DisCPP) | |
+|----------|-------|
+[Linux/Windows](https://github.com/DisCPP/DisCPP/blob/master/azure-pipelines.yml) | [![Build Status](https://dev.azure.com/seanomik/DisCPP/_apis/build/status/DisCPP.DisCPP?branchName=master)](https://dev.azure.com/seanomik/DisCPP/_build/latest?definitionId=3?branchName=master)
+
 ## <a id='faqs'>Questions and Answers</a>
 
 ### Why not one single task?
