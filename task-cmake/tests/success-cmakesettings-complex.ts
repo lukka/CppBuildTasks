@@ -147,7 +147,7 @@ utilsMock.build = function (): void {
 }
 utilsMock.injectVcpkgToolchain = function (args: string[], triplet: string): string[] { return args; }
 utilsMock.isNinjaGenerator = function (): boolean { return false; }
-utilsMock.setBaseLib = function (taskLib: ifacelib.BaseLib) {
+utilsMock.setBaseLib = function (taskLib: ifacelib.BaseLib): void {
   // Ensure the getArtifactsDir is mocked as follows.
   taskLib.getArtifactsDir = function (): string { return '/agent/w/1/a'; }
   taskLib.getSrcDir = function (): string {
@@ -155,7 +155,7 @@ utilsMock.setBaseLib = function (taskLib: ifacelib.BaseLib) {
     return '/agent/w/1/s';
   }
 }
-utilsMock.normalizePath = function (s: string) { return s; }
+utilsMock.normalizePath = function (s: string): string { return s; }
 
 tmr.registerMock('./utils', utilsMock);
 

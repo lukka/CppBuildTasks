@@ -75,7 +75,7 @@ utilsMock.build = function (): void {
 }
 utilsMock.injectVcpkgToolchain = function (args: string[], triplet: string): string[] { return args; }
 utilsMock.isNinjaGenerator = function (): boolean { return false; },
-  utilsMock.setBaseLib = function (lib: ifacelib.BaseLib) {
+  utilsMock.setBaseLib = function (lib: ifacelib.BaseLib): void {
     lib.getArtifactsDir = function (): string {
       return '/agent/w/1/a';
     };
@@ -83,7 +83,7 @@ utilsMock.isNinjaGenerator = function (): boolean { return false; },
       return '/agent/w/1/s';
     };
   }
-utilsMock.normalizePath = function (s: string) { return s; }
+utilsMock.normalizePath = function (s: string): string { return s; }
 tmr.registerMock('./utils', utilsMock);
 
 tmr.setAnswers(answers);

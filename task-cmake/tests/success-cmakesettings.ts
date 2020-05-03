@@ -77,7 +77,7 @@ utilsMock.build = function (): void {
 }
 utilsMock.injectVcpkgToolchain = function (args: string[], triplet: string): string[] { return args; }
 utilsMock.isNinjaGenerator = function (): boolean { return false; }
-utilsMock.setBaseLib = function (taskLib: ifacelib.BaseLib) {
+utilsMock.setBaseLib = function (taskLib: ifacelib.BaseLib): void {
   // Ensure the getArtifactsDir is mocked as follows.
   taskLib.getArtifactsDir = function (): string {
     return artifactStagingDirectory;
