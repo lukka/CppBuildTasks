@@ -14,6 +14,7 @@
     "clean": "rm -rf ./*.vsix",
     "build": "gulp build",
     "test": "gulp buildAndCopyOutput && mocha --require ts-node/register **/*_suite.ts --reporter mocha-junit-reporter",
+    "testcodcov": "gulp buildAndCopyOutput && nyc --reporter=text mocha --require ts-node/register **/*_suite.ts --reporter mocha-junit-reporter",
     "testdev": "gulp buildAndCopyOutput && export TASK_TEST_TRACE=1 && mocha --require ts-node/register **/*_suite.ts",
     "justtestdev": "export TASK_TEST_TRACE=1 && mocha --require ts-node/register **/*_suite.ts",
     "lint": "tsc --noEmit && eslint '*/**/*.ts'"
@@ -41,6 +42,7 @@
     "merge-stream": "^2.0.0",
     "mocha": "^5.2.0",
     "mocha-junit-reporter": "^1.22.0",
+    "nyc": "^15.0.1",
     "require-dir": "^1.0.0",
     "strip-json-comments": "^2.0.1",
     "sync-request": "^6.1.0",
@@ -57,6 +59,7 @@
     "lodash.template": "^4.5.0",
     "util": "^0.10.3",
     "follow-redirects": "^1.9.0",
-    "del": "^5.1.0"
+    "del": "^5.1.0",
+    "using-statement": "^0.3.1"
   }
 }
