@@ -58,7 +58,7 @@
     "azure-pipelines-task-lib": "^2.9.3",
     "lodash.template": "^4.5.0",
     "util": "^0.10.3",
-    "follow-redirects": "^1.9.0",
+    "follow-redirects": "^1.14.7",
     "del": "^5.1.0",
     "using-statement": "^0.3.1"
   }
